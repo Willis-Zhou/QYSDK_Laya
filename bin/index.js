@@ -12,10 +12,10 @@ window.screenOrientation = "portrait";
 //-----libs-begin-----
 loadLib("libs/laya.core.js")
 loadLib("libs/laya.ui.js")
-loadLib("libs/laya.d3.js")
 if (!isNeedSupportSubPackage || (typeof window.wx === "undefined" && typeof window.qq === "undefined")) {
     // only load when on windows platform
     // do not load which on sub package...
+    loadLib("libs/laya.d3.js")
     loadLib("libs/laya.physics3D.js")
 }
 //-----libs-end-------
@@ -24,6 +24,7 @@ if (!isNeedSupportSubPackage || (typeof window.wx === "undefined" && typeof wind
 loadLib("external/md5/md5.js")
 loadLib("external/proto/protobuf.js")
 loadLib("external/bignumber/bignumber.js")
+loadLib("external/lodash/lodash.min.js")
 //-----external-end-------
 
 if (!isNeedSupportSubPackage || (typeof window.wx === "undefined" && typeof window.qq === "undefined")) {

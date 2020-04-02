@@ -21,7 +21,8 @@ QYSDK_CONST.init = function () {
 		EN_BANNER_NOT_SUPPORT_RIGHT_NOW: "EN_BANNER_NOT_SUPPORT_RIGHT_NOW",
 		// 当前奖励视频无法播放
 		EN_VIDEO_NOT_SUPPORT_RIGHT_NOW: "EN_VIDEO_NOT_SUPPORT_RIGHT_NOW",
-
+		// 当前插屏广告无法播放
+		EN_INTERSTITIAL_NOT_SUPPORT_RIGHT_NOW: "EN_INTERSTITIAL_NOT_SUPPORT_RIGHT_NOW",
 		// 拉起App未知方式（无需特别处理的）
 		EN_LAUNCH_APP_FROM_UNKNOW: "EN_LAUNCH_APP_FROM_UNKNOW",
 		// 拉起APP（通用方式）
@@ -37,7 +38,12 @@ QYSDK_CONST.init = function () {
 		// 拉起App---从分享 1007和1008
 		EN_LAUNCH_APP_FROM_SHARE: "EN_LAUNCH_APP_FROM_SHARE",
 		// 拉起App---从其他APP返回 1038
-		EN_LAUNCH_APP_BACK_FROM_OTHER_APP: "EN_LAUNCH_APP_BACK_FROM_OTHER_APP"
+		EN_LAUNCH_APP_BACK_FROM_OTHER_APP: "EN_LAUNCH_APP_BACK_FROM_OTHER_APP",
+
+		// 显示提示框
+		EN_SHOW_LOCAL_TIPS: "EN_SHOW_LOCAL_TIPS",
+		// 隐藏提示框
+		EN_HIDE_LOCAL_TIPS: "EN_HIDE_LOCAL_TIPS"
 	}
 
 	// global
@@ -90,14 +96,6 @@ QYSDK_CONST.init = function () {
 
 	// 全局常量
 	let _Const = {
-		// 未知 平台
-		C_UNKNOW_PLATFORM: 0,
-		// Window 平台
-		C_WINDOW_PLATFORM: 1,
-		// Ios 平台
-		C_IOS_PLATFORM: 2,
-		// Android 平台
-		C_ANDROID_PLATFORM: 3,
 		// 登录超时时限
 		C_TIMEOUT_OF_LOGIN: 10000,
 		// 最大定时回调次数
@@ -109,9 +107,6 @@ QYSDK_CONST.init = function () {
 
 	// 全局配置文件列表
 	let _Dbs = []
-	_Dbs.push("res/conf/db/TBBaseConfig.txt")
-	_Dbs.push("res/conf/db/TBUIWord.txt")
-	_Dbs.push("res/conf/db/TBNetError.txt")
 
 	// global
 	window.G_Dbs = _Dbs

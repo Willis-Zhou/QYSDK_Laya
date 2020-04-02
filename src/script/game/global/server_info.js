@@ -22,7 +22,7 @@ var _ServerInfo = function() {
 				// body...
 				_loaded = false
 
-				if (window.wx) {
+				if (G_PlatHelper.canLoginOnline()) {
 					G_NetHelper.reqGetServerTime(function ( jsonData ) {
 						// body...
 						if (jsonData && jsonData.code === 0) {

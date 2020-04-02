@@ -1,7 +1,7 @@
 export default class WidgetMgr extends Laya.Script {
     constructor() { 
         super(); 
-        /** @prop {name:layoutParent, tips:"布局参考对象[parent, stage]", type:String, default:"parent"}*/
+        /** @prop {name:layoutParent, tips:"布局参考对象[parent, stage]", type:Option, option:"parent,stage", default:"parent"}*/
         this.layoutParent = "parent"
 
         /** @prop {name:isAlignTop, tips:"是否对齐上边", type:Bool, default:false}*/

@@ -8,24 +8,52 @@ var _SoundMgr = function() {
 		// body ...
 		console.log("Init G_SoundMgr Instance...")
 
+		var _bgmUrl = ""
+
 		return {
-			playSound: function ( url, isLoop ) {
+			playSound: function ( url, loops = 1 ) {
 				if (G_PlayerInfo.isSoundEnable()) {
 					if (typeof url === "string" && url !== "") {
-						if (isLoop) {
-							Laya.SoundManager.playSound(url, 0)
-						}
-						else {
-							Laya.SoundManager.playSound(url, 1)
-						}
+						Laya.SoundManager.playSound(url, loops)
 					}
 				}
 			},
 
-			stopSound: function (url) {
+			stopSound: function ( url ) {
 				if (typeof url === "string" && url !== "") {
 					Laya.SoundManager.stopSound(url)
 				}
+			},
+
+			playMusic: function ( url ) {
+				if (G_PlayerInfo.isSoundEnable()) {
+					if (typeof url === "string" && url !== "") {
+						_bgmUrl = url
+						Laya.SoundManager.playMusic(url, 0)
+					}
+				}
+			},
+
+			stopMusic: function () {
+				if (_bgmUrl !== "") {
+					_bgmUrl = ""
+					Laya.SoundManager.stopMusic()
+				}
+			},
+
+			setSoundEnable: function ( isEnabled ) {
+				// body...
+				if (G_PlayerInfo.isSoundEnable() !== isEnabled) {
+					G_PlayerInfo.setSoundEnable(isEnabled)
+
+					if (isEnabled && _bgmUrl !== "") {
+						this.playMusic(_bgmUrl)
+					}
+				}
+			},
+
+			isSoundEnable: function () {
+				return G_PlayerInfo.isSoundEnable()
 			}
 		};
 	};

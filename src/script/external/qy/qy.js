@@ -1,16 +1,9 @@
 "use strict";
 
-function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof2(obj); }
+import tjconf from "./qy-config";
 
-var tjconf = {
-  app_key: "wxf941649360a8629d",
-  getLocation: false,
-  company: "quyou"
-};
-
-// qq
-if (typeof window.qq !== "undefined") {
-  tjconf.app_key = ""
+function _typeof2(obj) {
+  return Object.prototype.toString(obj).slice(8, -1).toLowerCase();
 }
 
 /**
@@ -60,7 +53,7 @@ if (window.wx) {
         q = "" + Date.now() + Math.floor(1e7 * Math.random()),
         D = ["h_SendEvent", "h_OnShareAppMessage", "h_ShareAppMessage", "h_SendSession", "h_SendOpenid", "h_GetAdv", "h_ClickAd", "h_ToMinProgram", "h_GetAdvList", "h_GetAdvListPlat", "h_GetAppFlowAdList", , "h_JudgeRegion"]; // 挂载wx.XXXX 方法
 
-    "" === d.app_key && console.error("请在配置文件(qy.js)中填写您的app_key"), d.app_key = d.app_key.replace(/\s/g, "");
+    "" === d.app_key && console.error("请在配置文件(qy-config.js)中填写您的app_key"), d.app_key = d.app_key.replace(/\s/g, "");
 
     function uuidStorage() {
       var e = "";
@@ -116,7 +109,6 @@ if (window.wx) {
         wx.login({
           success: function success(t) {
             cd = t.code;
-            console.log(cd + '----code----');
             e("");
           }
         });
@@ -589,6 +581,7 @@ if (window.wx) {
           method: "POST",
           header: {
             'content-type': 'application/x-www-form-urlencoded',
+            appid: tjconf.app_key,
             au: tjconf.company
           },
           success: function success(res) {
@@ -675,4 +668,5 @@ else {
   }
 }
 
-export {qy}
+// export
+export {qy as default}

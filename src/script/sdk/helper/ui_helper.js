@@ -1,8 +1,6 @@
 /*
 * 全局UI帮助
-* 主要用过微信提供的接受实现一些特性UI的功能
 */
-
 var _UIHelper = (function () {
 	var _instance;
 
@@ -50,11 +48,6 @@ var _UIHelper = (function () {
 					}))
 				}
 			},
-			
-			playOpenPopupAction: function (popup, cb) {
-				// body...
-				this.playUIScaleAction(popup, 0.8, 1.0, 500, cb)
-			},
 
 			playUIScaleAction: function (ui, fromScale, endScale, duration, cb) {
 				// body...
@@ -76,48 +69,7 @@ var _UIHelper = (function () {
 					}))
 				}
 			},
-
-			playOpenPopupAction_FromLeft: function (popup, cb) {
-				// body...
-				if (popup) {
-					if (popup._tween) {
-						popup._tween.clear()
-						popup._tween = null
-					}
-	
-					popup.x = 240
-	
-					popup._tween = Laya.Tween.to(popup, {x: 360}, 500, Laya.Ease.elasticOut, Laya.Handler.create(null, function () {
-						popup._tween = null
-	
-						if (typeof cb === "function") {
-							cb()
-						}
-					}))
-				}
-			},
-
-			playOpenPopupAction_FromBottom: function (popup, cb) {
-				// body...
-				if (popup) {
-					if (popup._tween) {
-						popup._tween.clear()
-						popup._tween = null
-					}
-	
-					popup.y = Laya.stage.height / 4
-	
-					popup._tween = Laya.Tween.to(popup, {y: Laya.stage.height - popup.height}, 500, Laya.Ease.elasticOut, Laya.Handler.create(null, function () {
-						popup._tween = null
-	
-						if (typeof cb === "function") {
-							cb()
-						}
-					}))
-				}
-			},
 			
-			// 将content中的指定节点水平间隔排列
 			layoutItemsInContent: function ( content, nodeArr, gap ) {
 				// body...
 				if (content && nodeArr && nodeArr.length > 0 && (typeof gap === "number")) {
@@ -143,7 +95,6 @@ var _UIHelper = (function () {
 				}
 			},
 
-			// 刷新按钮的免费获取方式
 			refreshFreeWayOfBtn: function (btn, videoIconPath = "comm/video_icon.png", shareIconPath = "comm/share_icon.png") {
 				if (btn) {
 					if (!btn.getWay) {
@@ -170,12 +121,16 @@ var _UIHelper = (function () {
 										icon.skin = shareIconPath
 									}
 								}
+
+								if (way === G_FreeGetWay.FGW_NONE && !G_Share.isSupport()) {
+									btn.visible = false
+								}
 							})
 						}
 					}
 
 					if (!btn.doTouch) {
-						btn.doTouch = function ( shareScene, succCb, oppo_key ) {
+						btn.doTouch = function ( shareScene, succCb, ov_key ) {
 							G_UIHelper.playBtnTouchAction(btn, function () {
 								// video
 								if (btn.getWay() === G_FreeGetWay.FGW_ADV) {
@@ -188,26 +143,36 @@ var _UIHelper = (function () {
 										}
 										else {
 											// no finish
-											G_WXHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_ADV_FAIL"]).word)
+											G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_ADV_FAIL"]).word)
 										}
 									}
 
-									if (G_WXHelper.isOPPOPlatform()) {
-										if (typeof oppo_key !== "string" || oppo_key === "") {
-											oppo_key = "Random"
+									if (G_PlatHelper.isOPPOPlatform() || G_PlatHelper.isVIVOPlatform()) {
+										if (typeof ov_key !== "string" || ov_key === "") {
+											ov_key = "Random"
 										}
 
-										let funcName = "show" + key + "VideoAd"
-										let func = G_OppoAdv[funcName]
+										let funcName = "show" + ov_key + "VideoAd"
+										let func = G_OVAdv[funcName]
 										if (func) {
-											func(function (isEnded) {
+											func.call(G_OVAdv, function (isEnded) {
 												checkVideoRet(isEnded)
+											}, function (cdTime) {
+												if (cdTime === -1) {
+													// retry later
+													G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_VIDEO_NOT_READY_YET"]).word)
+												}
+												else {
+													// not ready yet
+													let formatStr = G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_FORMAT_OF_VIDEO_NOT_READY_YET"]).word
+													G_PlatHelper.showToast(formatStr.format(cdTime.toString()))
+												}
 											})
 										}
 									}
 									else {
 										G_Adv.createVideoAdv(function ( isEnded ) {
-											checkVideoRet()
+											checkVideoRet(isEnded)
 										}, function () {
 											// not support video anymore
 											// refresh
@@ -228,7 +193,7 @@ var _UIHelper = (function () {
 											}
 											else {
 												// no more
-												G_WXHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_NO_MORE_REWARD"]).word)
+												G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_NO_MORE_REWARD"]).word)
 											}
 										}
 									})
@@ -248,12 +213,15 @@ var _UIHelper = (function () {
 			},
 
 			delayShow: function ( node, delay = 3000 ) {
-				if (node) {
+				if (node && !G_PlatHelper.isOPPOPlatform()) {
 					node.visible = false
 
 					G_Scheduler.schedule("Delay_Show_Of_" + G_Utils.generateString(32), function () {
 						node.visible = true
 					}, false, delay, 0)
+				}
+				else {
+					node.visible = true
 				}
 			},
 
@@ -374,6 +342,12 @@ var _UIHelper = (function () {
 						if (disableEffects.posX === true) {
 							targetPos.x = camera.transform.localPosition.x
 						}
+						if (disableEffects.posY === true) {
+							targetPos.y = camera.transform.localPosition.y
+						}
+						if (disableEffects.posZ === true) {
+							targetPos.z = camera.transform.localPosition.z
+						}
 						camera.transform.localPosition = targetPos
 
 						camera.transform.localRotationEuler = start.rotationEuler.clone()
@@ -382,6 +356,12 @@ var _UIHelper = (function () {
 						let targetPos = start.position.clone()
 						if (disableEffects.posX === true) {
 							targetPos.x = camera.transform.position.x
+						}
+						if (disableEffects.posY === true) {
+							targetPos.y = camera.transform.position.y
+						}
+						if (disableEffects.posZ === true) {
+							targetPos.z = camera.transform.position.z
 						}
 						camera.transform.position = targetPos
 						camera.transform.rotationEuler = start.rotationEuler.clone()
@@ -411,6 +391,12 @@ var _UIHelper = (function () {
 							if (camera._disableEffects.posX === true) {
 								targetPos.x = camera.transform.localPosition.x
 							}
+							if (camera._disableEffects.posY === true) {
+								targetPos.y = camera.transform.localPosition.y
+							}
+							if (camera._disableEffects.posZ === true) {
+								targetPos.z = camera.transform.localPosition.z
+							}
 							camera.transform.localPosition = targetPos
 							camera.transform.localRotationEuler = this.getMidVec3(camera._start.rotationEuler, camera._end.rotationEuler, progress)
 						}
@@ -418,6 +404,12 @@ var _UIHelper = (function () {
 							let targetPos = this.getMidVec3(camera._start.position, camera._end.position, progress)
 							if (camera._disableEffects.posX === true) {
 								targetPos.x = camera.transform.position.x
+							}
+							if (camera._disableEffects.posY === true) {
+								targetPos.y = camera.transform.position.y
+							}
+							if (camera._disableEffects.posZ === true) {
+								targetPos.z = camera.transform.position.z
 							}
 							camera.transform.position = targetPos
 							camera.transform.rotationEuler = this.getMidVec3(camera._start.rotationEuler, camera._end.rotationEuler, progress)
@@ -445,6 +437,44 @@ var _UIHelper = (function () {
 				midPos.z = fromPos.z + this._caculateMultiply((endPos.z - fromPos.z), progress)
 		
 				return midPos
+			},
+
+			// 将世界坐标转化为OpenGL坐标
+			// Window端不会有变化
+			convertToOpenGLPt: function ( worldPt ) {
+				// body...
+				let openGLPt = new Laya.Vector2(0, 0)
+
+				if (typeof worldPt.x === "undefined" || worldPt.x === null
+					|| typeof worldPt.y === "undefined" || worldPt.y === null) {
+					return openGLPt
+				}
+
+				let sysInfo = G_PlatHelper.getSysInfo()
+				
+				openGLPt.x = worldPt.x / Laya.stage.width * sysInfo.screenWidth
+				openGLPt.y = worldPt.y / Laya.stage.height * sysInfo.screenHeight
+
+				return openGLPt
+			},
+
+			// 将世界Size转化为OpenGL的Size
+			// Window端不会有变化
+			convertToOpenGLSize: function ( worldSize ) {
+				// body...
+				let openGLSize = new Laya.Vector2(0, 0)
+
+				if (typeof worldSize.width === "undefined" || worldSize.width === null
+					|| typeof worldSize.height === "undefined" || worldSize.height === null) {
+					return openGLSize
+				}
+
+				let sysInfo = G_PlatHelper.getSysInfo()
+				
+				openGLSize.width = worldSize.width / Laya.stage.width * sysInfo.screenWidth
+				openGLSize.height = worldSize.height / Laya.stage.height * sysInfo.screenHeight
+
+				return openGLSize
 			},
 		
 			_caculateMultiply: function(first, second) {

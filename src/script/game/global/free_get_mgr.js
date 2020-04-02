@@ -15,8 +15,21 @@ var _FreeGetMgr = function() {
 					return
 				}
 
-				if (G_WXHelper.isOPPOPlatform()) {
-					cb(G_FreeGetWay.FGW_ADV)
+				if (G_PlatHelper.isOPPOPlatform() || G_PlatHelper.isVIVOPlatform()) {
+					if (G_OVAdv.isSupportVideo()) {
+						cb(G_FreeGetWay.FGW_ADV)
+					}
+					else {
+						cb(G_FreeGetWay.FGW_NONE)
+					}
+				}
+				else if (G_PlatHelper.isTTPlatform()) {
+					if (G_Adv.isSupportVideoAd()) {
+						cb(G_FreeGetWay.FGW_ADV)
+					}
+					else {
+						cb(G_FreeGetWay.FGW_NONE)
+					}
 				}
 				else {
 					G_PlayerInfo.isNoMoreAdvTimesToday(function( isNoMore ) {

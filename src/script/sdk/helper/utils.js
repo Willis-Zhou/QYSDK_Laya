@@ -133,7 +133,6 @@ var _Utils = (function () {
 			/**
 			 * 拷贝数据
 			 * 支持对象或数据的拷贝
-			 * QQ平台不支持
 			 * 
 			 */
 			clone: function (dataObj) {
@@ -142,7 +141,7 @@ var _Utils = (function () {
 					return _lodash.clone(dataObj)
 				}
 				else {
-					if (!G_WXHelper.isQQPlatform()) {
+					if (!G_PlatHelper.isQQPlatform()) {
 						console.warn("can not use clone utils before register lodash tools...")
 					}
 					
@@ -153,7 +152,6 @@ var _Utils = (function () {
 			/**
 			 * 深拷贝数据
 			 * 支持对象或数据的拷贝
-			 * QQ平台不支持
 			 * 
 			 */
 			cloneDeep: function (dataObj) {
@@ -162,7 +160,7 @@ var _Utils = (function () {
 					return _lodash.cloneDeep(dataObj)
 				}
 				else {
-					if (!G_WXHelper.isQQPlatform()) {
+					if (!G_PlatHelper.isQQPlatform()) {
 						console.warn("can not use cloneDeep utils before register lodash tools...")
 					}
 					
@@ -173,6 +171,7 @@ var _Utils = (function () {
 			/**
 			 * 拷贝数据
 			 * 支持对象或数据的拷贝
+			 * 不依赖第三方库
 			 * 
 			 */
 			deepClone: function (item) {

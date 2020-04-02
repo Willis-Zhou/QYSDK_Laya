@@ -12,12 +12,12 @@ var _Event = function() {
 		var _listerners = {}
 
 		return {
-			addEventListerner: function (event_name, listerner) {
+			addEventListerner: function (event_name, listerner, caller = null) {
 				// body...
-				if (!this._checkEventName(event_name)
+				if (!this._checkString(event_name)
 					|| !this._checkListerner(listerner))
 				{
-					return
+					return ""
 				}
 
 				if (_listerners[event_name] === undefined) 
@@ -25,34 +25,47 @@ var _Event = function() {
 					_listerners[event_name] = []
 				}
 
-				_listerners[event_name].push(listerner)
+				let key = G_Utils.generateString(32)
+				_listerners[event_name].push({key: key, method: listerner, caller: caller})
+
+				return key
 			},
 
-			removeEventListerner: function (event_name, listerner) {
+			removeEventListernerByKey: function (event_name, key) {
 				// body...
-				if (!this._checkEventName(event_name))
-				{
-					return
-				}
-
-				if (typeof listerner !== "undefined" && !this._checkListerner(listerner)) 
+				if (!this._checkString(event_name) || !this._checkString(key))
 				{
 					return
 				}
 
 				if (_listerners[event_name] !== undefined) 
 				{
-					if (typeof listerner === "undefined") {
-						_listerners[event_name] = undefined
-					}
-					else {
-						for (let i = 0; i < _listerners[event_name].length; i++) {
-							let cb = _listerners[event_name][i]
+					for (let i = 0; i < _listerners[event_name].length; i++) {
+						let listernerInfo = _listerners[event_name][i]
 
-							if (cb === listerner) {
-								_listerners[event_name].splice(i, 1)
-								return
-							}
+						if (listernerInfo.key === key) {
+							listernerInfo.splice(i, 1)
+							return
+						}
+					}
+				}
+			},
+
+			removeEventListerner: function (event_name, listerner, caller = null) {
+				// body...
+				if (!this._checkString(event_name) || !this._checkListerner(listerner))
+				{
+					return
+				}
+
+				if (_listerners[event_name] !== undefined) 
+				{
+					for (let i = 0; i < _listerners[event_name].length; i++) {
+						let listernerInfo = _listerners[event_name][i]
+
+						if (listernerInfo.listerner === listerner && listernerInfo.caller === caller) {
+							listernerInfo.splice(i, 1)
+							return
 						}
 					}
 				}
@@ -65,17 +78,22 @@ var _Event = function() {
 
 			hasEventListerner: function (event_name) {
 				// body...
-				if (!this._checkEventName(event_name))
+				if (!this._checkString(event_name))
 				{
 					return false
 				}
 
-				return _listerners[event_name] !== undefined
+				if (typeof _listerners[event_name] !== "undefined" && _listerners[event_name].length > 0) {
+					return true
+				}
+				else {
+					return false
+				}
 			},
 
 			dispatchEvent: function (event_name) {
 				// body...
-				if (!this._checkEventName(event_name))
+				if (!this._checkString(event_name))
 				{
 					return
 				}
@@ -84,7 +102,7 @@ var _Event = function() {
 				let args = Array.prototype.slice.call(arguments)
 				args.shift()
 
-				if (!window.wx) {
+				if (!G_PlatHelper.getPlat()) {
 					if (args.length > 0) {
 						console.log("dispatch EventName: {0}, Params: {1}".format(event_name, args.toString()))
 					}
@@ -97,11 +115,11 @@ var _Event = function() {
 				let bPropagation = null
 
 				for (let index in _listerners[event_name]) {
-					let _listerner = _listerners[event_name][index]
+					let listernerInfo = _listerners[event_name][index]
 					let bValue = false
 
-					// 回调
-					bValue = _listerner.apply(null, args)
+					// method
+					bValue = listernerInfo.method.apply(listernerInfo.caller, args)
 
 					if (bValue === undefined) {
 						bValue = null
@@ -127,7 +145,7 @@ var _Event = function() {
 				}
 			},
 
-			_checkEventName: function (event_name) {
+			_checkString: function (event_name) {
 				// body...
 				if (event_name === undefined
 					|| typeof(event_name) !== "string"
@@ -141,18 +159,17 @@ var _Event = function() {
 
 			_checkListerner: function (listerner) {
 				// body...
-				if (listerner === undefined
-					|| typeof(listerner) !== "function")
+				if (typeof listerner === "function")
 				{
-					return false
+					return true
 				}
 
-				return true
+				return false
 			},
 
 			_getParentEventName: function (event_name) {
 				// body...
-				if (!this._checkEventName(event_name))
+				if (!this._checkString(event_name))
 				{
 					return ""
 				}

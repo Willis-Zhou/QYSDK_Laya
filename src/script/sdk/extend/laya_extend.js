@@ -70,52 +70,52 @@ Object.defineProperty(Laya.List.prototype, "selectedIndex", {
 * 修复loader不支持nativefiles的bug
 */
 // fix Laya.Loader bug: do not support nativefiles...
-Laya.Loader.prototype._loadImage = function(url, isformatURL = false) {
-	var _this = this;
-	if (isformatURL)
-  		url = Laya.URL.formatURL(url);
-	var onLoaded;
-	var onError = function () {
-		_this.event(Laya.Event.ERROR, "Load image failed");
-	};
-	if (this._type === "nativeimage") {
-		onLoaded = function (image) {
-			_this.onLoaded(image);
-		};
-		this._loadHtmlImage(url, this, onLoaded, this, onError);
-	}
-	else {
-		var ext = Laya.Utils.getFileExtension(url);
-		if (ext === "ktx" || ext === "pvr") {
-			onLoaded = function (imageData) {
-				var format;
-				switch (ext) {
-					case "ktx":
-						format = 5;
-						break;
-					case "pvr":
-						format = 12;
-						break;
-				}
-				var tex = new Laya.Texture2D(0, 0, format, false, false);
-				tex.wrapModeU = Laya.BaseTexture.WARPMODE_CLAMP;
-				tex.wrapModeV = Laya.BaseTexture.WARPMODE_CLAMP;
-				tex.setCompressData(imageData);
-				tex._setCreateURL(url);
-				_this.onLoaded(tex);
-			};
-			this._loadHttpRequest(url, Laya.Loader.BUFFER, this, onLoaded, null, null, this, onError);
-		}
-		else {
-			onLoaded = function (image) {
-				var tex = new Laya.Texture2D(image.width, image.height, 1, false, false);
-				tex.wrapModeU = Laya.BaseTexture.WARPMODE_CLAMP;
-				tex.wrapModeV = Laya.BaseTexture.WARPMODE_CLAMP;
-				tex.loadImageSource(image, true);
-				tex._setCreateURL(url);
-				_this.onLoaded(tex);
-			};
-			this._loadHtmlImage(url, this, onLoaded, this, onError);
-		}
-	}
-}
+// Laya.Loader.prototype._loadImage = function(url, isformatURL = false) {
+// 	var _this = this;
+// 	if (isformatURL)
+//   		url = Laya.URL.formatURL(url);
+// 	var onLoaded;
+// 	var onError = function () {
+// 		_this.event(Laya.Event.ERROR, "Load image failed");
+// 	};
+// 	if (this._type === "nativeimage") {
+// 		onLoaded = function (image) {
+// 			_this.onLoaded(image);
+// 		};
+// 		this._loadHtmlImage(url, this, onLoaded, this, onError);
+// 	}
+// 	else {
+// 		var ext = Laya.Utils.getFileExtension(url);
+// 		if (ext === "ktx" || ext === "pvr") {
+// 			onLoaded = function (imageData) {
+// 				var format;
+// 				switch (ext) {
+// 					case "ktx":
+// 						format = 5;
+// 						break;
+// 					case "pvr":
+// 						format = 12;
+// 						break;
+// 				}
+// 				var tex = new Laya.Texture2D(0, 0, format, false, false);
+// 				tex.wrapModeU = Laya.BaseTexture.WARPMODE_CLAMP;
+// 				tex.wrapModeV = Laya.BaseTexture.WARPMODE_CLAMP;
+// 				tex.setCompressData(imageData);
+// 				tex._setCreateURL(url);
+// 				_this.onLoaded(tex);
+// 			};
+// 			this._loadHttpRequest(url, Laya.Loader.BUFFER, this, onLoaded, null, null, this, onError);
+// 		}
+// 		else {
+// 			onLoaded = function (image) {
+// 				var tex = new Laya.Texture2D(image.width, image.height, 1, false, false);
+// 				tex.wrapModeU = Laya.BaseTexture.WARPMODE_CLAMP;
+// 				tex.wrapModeV = Laya.BaseTexture.WARPMODE_CLAMP;
+// 				tex.loadImageSource(image, true);
+// 				tex._setCreateURL(url);
+// 				_this.onLoaded(tex);
+// 			};
+// 			this._loadHtmlImage(url, this, onLoaded, this, onError);
+// 		}
+// 	}
+// }

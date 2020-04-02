@@ -36,32 +36,34 @@ var _HttpHelper = function() {
 			 */
 			getJson: function (url, cb) {
 				// body...
-				this._doJsonRequest('GET', url, null, cb)
+				this._doJsonRequest('GET', url, null, null, cb)
 			},
 		
 			/**
 			 * 创建发送Json数据请求
 			 * @param {String} url 请求地址
+			 * @param {Object} header 头部数据
 			 * @param {Object} jsonData 数据对象
 			 * @param {Function} cb 回调函数
 			 */
-			sendJson: function (url, jsonData, cb) {
+			sendJson: function (url, header, jsonData, cb) {
 				// body...
-				this._doJsonRequest('POST', url, jsonData, cb)
+				this._doJsonRequest('POST', url, header, jsonData, cb)
 			},
 		
 			/**
 			 * 创建发送Form数据请求
 			 * @param {String} url 请求地址
+			 * @param {Object} header 头部数据
 			 * @param {Object} objData 数据对象
 			 * @param {Function} cb 回调函数
 			 */
-			sendForm: function (url, objData, cb) {
+			sendForm: function (url, header, objData, cb) {
 				// body...
-				this._doFormRequest('POST', url, objData, cb)
+				this._doFormRequest('POST', url, header, objData, cb)
 			},
 		
-			_doJsonRequest: function (way, url, jsonData, cb) {
+			_doJsonRequest: function (way, url, header, jsonData, cb) {
 				// body...
 				let request = this._createRequest(way, url, cb)
 		
@@ -69,6 +71,11 @@ var _HttpHelper = function() {
 					if (jsonData) {
 						// header
 						request.setRequestHeader('content-type', 'application/json')
+						if (typeof header === "object") {
+							for (let key in header) {
+								request.setRequestHeader(key, header[key])
+							}
+						}
 		
 						// send
 						request.send(JSON.stringify(jsonData))
@@ -87,7 +94,7 @@ var _HttpHelper = function() {
 				}
 			},
 		
-			_doFormRequest: function (way, url, objData, cb) {
+			_doFormRequest: function (way, url, header, objData, cb) {
 				// body...
 				let request = this._createRequest(way, url, cb)
 		
@@ -95,9 +102,27 @@ var _HttpHelper = function() {
 					if (objData) {
 						// header
 						request.setRequestHeader('content-type', 'application/x-www-form-urlencoded')
+						if (typeof header === "object") {
+							for (let key in header) {
+								request.setRequestHeader(key, header[key])
+							}
+						}
+
+						let urlEncodedData = null
+						let urlEncodedDataPairs = []
+
+						for (let key in objData) {
+							urlEncodedDataPairs.push(encodeURIComponent(key) + '=' + encodeURIComponent(objData[key]))
+						}
+
+						if (urlEncodedDataPairs.length > 0) {
+							// 将配对合并为单个字符串，并将所有%编码的空格替换为
+							// “+”字符；匹配浏览器表单提交的行为。
+							urlEncodedData = urlEncodedDataPairs.join('&').replace(/%20/g, '+')
+						}
 		
 						// send
-						request.send(objData)
+						request.send(urlEncodedData)
 					}
 					else {
 						// send
@@ -143,7 +168,7 @@ var _HttpHelper = function() {
 			 * @param {Object} protoData proto数据对象
 			 * @param {Function} cb 回调函数
 			 */
-			sendProto: function (url, protoData, cb) {
+			sendProto: function (url, header, protoData, cb) {
 				// body...
 				if (typeof protoData !== "undefined" && typeof protoData.constructor !== "undefined") {
 					let request = this._createProtoDataRequest('POST', url, cb)
@@ -151,6 +176,11 @@ var _HttpHelper = function() {
 					if (typeof request !== "undefined") {
 						// header
 						request.setRequestHeader('content-type', 'application/json')
+						if (typeof header === "object") {
+							for (let key in header) {
+								request.setRequestHeader(key, header[key])
+							}
+						}
 		
 						let send_obj = new Object();
 						let serialize_btyes = protoData.constructor.encode(protoData).finish()

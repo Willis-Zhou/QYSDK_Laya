@@ -1,5 +1,5 @@
-import AdvList from "../view/AdvList";
-import ImageAnimation from "../view/ImageAnimation";
+import AdvList from "../ui/view/AdvList";
+import ImageAnimation from "../ui/view/ImageAnimation";
 
 var TAG_OF_NEW = "New"
 var TAG_OF_HOT = "Hot"
@@ -8,7 +8,7 @@ export default class AdvLoadMgr extends Laya.Script {
     constructor() {
         super()
 
-        /** @prop {name:advType, tips:"展示类型，btn代表是按钮，list代表是列表", type:String, default:"btn"}*/
+        /** @prop {name:advType, tips:"展示类型，btn代表是按钮，list代表是列表", type:Option, option:"btn,list", default:"btn"}*/
         this.advType = "btn";
 
         /** @prop {name:newTagPath, tips:"new标签图片地址", type:String, default:"ad/new_tag.png"}*/
@@ -23,7 +23,7 @@ export default class AdvLoadMgr extends Laya.Script {
         /** @prop {name:needMask, tips:"是否无扫光也启动边角弧形遮罩", type:Bool, default:false}*/
         this.needMask = false;
 
-        /** @prop {name:nameCfg, tips:"小程序的名称的配置，格式为：字体大小||与图片的间隔，当advType为list有效", type:String, default:""}*/
+        /** @prop {name:nameCfg, tips:"小程序的名称的配置，格式为：字体大小||与图片的间隔||(文字颜色代码不要#号-By:Hmok)，当advType为list有效", type:String, default:""}*/
         this.nameCfg = "";
 
         /** @prop {name:framePath, tips:"外框图片地址，当advType为list有效", type:String, default:""}*/
@@ -53,6 +53,9 @@ export default class AdvLoadMgr extends Laya.Script {
         /** @prop {name:isTween, tips:"是否缓动，开启后自动滚动展示所有的广告，当advType为list有效", type:Bool, default:false}*/
         this.isTween = false;
 
+        /** @prop {name:tweenSpeed, tips:"缓动速度，滚动一格消耗的时间（毫秒），速度越大越慢，当advType为list，且isTween为true有效", type:Number, default:1000}*/
+        this.tweenSpeed = 1000;
+
         /** @prop {name:autoExtend, tips:"是否自动扩展，开启后根据适配自动扩展滚动条长度，当advType为list和isHorizontal为false有效", type:Bool, default:false}*/
         this.autoExtend = false;
 
@@ -64,6 +67,18 @@ export default class AdvLoadMgr extends Laya.Script {
 
         /** @prop {name:advKey, tips:"后羿系统中的广告位置中生成，是32位数字与字母组成的字符串，该位置对应运营上线的广告列表", type:String, default:""}*/
         this.advKey = "";
+
+        /** @prop {name:nameNeedPos, tips:"游戏名称显示的位置是否需要特殊定位", type:Bool, default:false}*/
+        this.nameNeedPos = false;
+
+        /** @prop {name:namePos, tips:"游戏名称显示的定位,定位方式:x坐标|y坐标|文字对齐方式0-左对齐,0.5中间对齐,1右对齐,锚点亦会按照此设置,文字框宽度固定为400", type:String, default:"0|0|0"}*/
+        this.namePos = "0|0|0";
+
+        /** @prop {name:iconNeedPos, tips:"游戏ICon是否需要特殊定位", type:Bool, default:false}*/
+        this.iconNeedPos = false;
+
+        /** @prop {name:iconPos, tips:"游戏ICon的定位,x坐标|y坐标", type:String, default:"0|0"}*/
+        this.iconPos = "0|0";
 
         // privates
         this._advList = null
@@ -88,16 +103,15 @@ export default class AdvLoadMgr extends Laya.Script {
                 return
             }
 
-            let arr = [_advKey]
-            G_ADVMgr.getIconButtons(arr, function (res) {
+            let onGotDatas = function (res) {
                 if (res && res.ret && res[_advKey]) {
                     // adv infos
                     let advInfos = res[_advKey]
 
                     // adv count
-                    if (!this.autoExtend) {
+                    if (!this.autoExtend && this.advType === "list") {
                         if (typeof res.Count !== "undefined" && res.Count[_advKey] !== 0) {
-                            this.advCount = res.Count[_advKey]
+                            this.advCount = parseInt(res.Count[_advKey], 10) 
                         }
                     }
 
@@ -110,7 +124,24 @@ export default class AdvLoadMgr extends Laya.Script {
                     // refresh
                     this._refreshAdv()
                 }
-            }.bind(this))
+            }.bind(this)
+
+            if(Laya.Browser.onPC) {
+                _advKey = "ee2a98b3ba79d62950534db9641ee913"
+
+                G_HttpHelper.getJson("https://image.game.hnquyou.com/upload/opId10.txt", function(succ, res) {
+                    if (succ) {
+                        onGotDatas(res) 
+                    }
+                })
+            }
+            else {
+                let arr = [_advKey]
+                G_ADVMgr.getIconButtons(arr, function (res) {
+                    console.log(res)
+                    onGotDatas(res)
+                }.bind(this))
+            }
         }.bind(this), false, this.delayToLoad, 0)
     }
 
@@ -135,6 +166,10 @@ export default class AdvLoadMgr extends Laya.Script {
 
                     if (imgAnimation) {
                         imgAnimation.onSizeChanged(function () {
+                            if (imgAnimation.destroyed) {
+                                return
+                            }
+
                             imgAnimation.pivotX = imgAnimation.width / 2
                             imgAnimation.pivotY = imgAnimation.height / 2
                             imgAnimation.x = originalSize.width / 2
@@ -170,12 +205,16 @@ export default class AdvLoadMgr extends Laya.Script {
                             btn.mask = sMask
                         }))
                     }
-
+					btn.offAll("click")
                     btn.on("click", null, function () {
                         this.onAdvTouched(btn)
                     }.bind(this))
     
                     btn.registerAdvInfo = function( advInfo ) {
+                        if (btn.destroyed) {
+                            return
+                        }
+
                         if (advInfo) {
                             btn._advInfo = advInfo
 
@@ -207,7 +246,7 @@ export default class AdvLoadMgr extends Laya.Script {
         }
         else if (this.advType === "list") {
             let extendTimes = 0
-            let designHeight = 1280
+            let designHeight = 1334
 
             if (this.autoExtend && !this.isHorizontal) {
                 if (Laya.stage.height - designHeight > this.cellHeight) {
@@ -258,7 +297,7 @@ export default class AdvLoadMgr extends Laya.Script {
             let doTween = null
 
             doTween = function () {
-                if (!this._advList) {
+                if (!this._advList || this._advList.destroyed) {
                     return
                 }
 
@@ -294,11 +333,13 @@ export default class AdvLoadMgr extends Laya.Script {
                 this._advList.tweenTo(realEndIndex, duration)
 
                 // schedule
+				G_Scheduler.unschedule("Next_Tween_of_Ad_" + this.advKey)
                 G_Scheduler.schedule("Next_Tween_of_Ad_" + this.advKey, function () {
                     doTween()
                 }, false, duration + 2000)
             }.bind(this)
 
+			G_Scheduler.unschedule("Auto_Start_Tween_Show_Of_Ad_" + this.advKey)
             G_Scheduler.schedule("Auto_Start_Tween_Show_Of_Ad_" + this.advKey, function () {
                 if (this._advList && this._advList.length > 0) {
                     G_Scheduler.unschedule("Auto_Start_Tween_Show_Of_Ad_" + this.advKey)
@@ -315,6 +356,25 @@ export default class AdvLoadMgr extends Laya.Script {
     refreshAdv() {
         console.log("refresh adv: ", this.advKey)
         this._refreshAdv()
+    }
+
+    randomNavigate( cb ) {
+        if (!this._originalAdvInfos) {
+            if (typeof cb === "function") {
+                cb(false, false)
+                return
+            }
+        }
+
+        let advInfos = this._convertToLocalAdvInfos(this._originalAdvInfos)
+        let randomIndex = G_Utils.random(0, advInfos.length - 1)
+        let advInfo = advInfos[randomIndex]
+
+        this._toMiniProgram(advInfo, bSucc => {
+            if (typeof cb === "function") {
+                cb(true, bSucc)
+            }
+        })
     }
 
     _refreshAdv() {
@@ -335,7 +395,10 @@ export default class AdvLoadMgr extends Laya.Script {
                     let advInfo = this._advInfos[index]
                     let btn = this._advBtns[index]
                     this._addOnShowAdvImg(advInfo.logo_url)
-                    btn.registerAdvInfo(advInfo)
+                    if(btn&&btn.registerAdvInfo){
+                        btn.registerAdvInfo(advInfo)
+                    }
+                    
                 }
             }
             else if (this.advType === "list") {
@@ -365,7 +428,11 @@ export default class AdvLoadMgr extends Laya.Script {
                             hotTagPath: this.hotTagPath,
                             sweepEffectPath: this.sweepEffectPath,
                             framePath: this.framePath,
-                            framePathCount: this.framePathCount
+                            framePathCount: this.framePathCount,
+                            nameNeedPos: this.nameNeedPos,
+                            namePos: this.namePos,
+                            iconNeedPos: this.iconNeedPos,
+                            iconPos: this.iconPos
                         }, cloneAdvInfos)
                 }
             }
@@ -397,12 +464,20 @@ export default class AdvLoadMgr extends Laya.Script {
     }
 
     _toMiniProgram( advInfo, touchCb ) {
+        if (!G_PlatHelper.getPlat()) {
+            if (typeof touchCb === "function") {
+                touchCb(false)
+            }
+            return
+        }
+
         if (advInfo) {
             G_Reportor.report(G_ReportEventName.REN_NAVIGATION_TO_MINIPROGRAM)
 
             let toMin = {
                 adv_id: advInfo.adv_id,
                 appId: advInfo.appid,
+                pkgName: advInfo.appid,
                 path: advInfo.path,
             }
 
@@ -418,7 +493,7 @@ export default class AdvLoadMgr extends Laya.Script {
                 if (err && err.errMsg.indexOf("fail cancel") !== -1) {
                     G_Reportor.report(G_ReportEventName.REN_NAVIGATION_TO_MINIPROGRAM_CANCEL)
                 }
-                else if(err && err.errMsg.indexOf("not in navigateToMiniProgramAppIdList") !== -1) {
+                else {
                     G_Reportor.report(G_ReportEventName.REN_NAVIGATION_TO_MINIPROGRAM_ERROR)
                 }
 
@@ -427,8 +502,9 @@ export default class AdvLoadMgr extends Laya.Script {
                 }
             }
 
-            if (window.wx && window.wx.h_ToMinProgram) {
-                window.wx.h_ToMinProgram(toMin)
+
+            if (G_PlatHelper.getPlat() && G_PlatHelper.getPlat().h_ToMinProgram) {
+                G_PlatHelper.getPlat().h_ToMinProgram(toMin)
             }
         }
     }
@@ -453,7 +529,7 @@ export default class AdvLoadMgr extends Laya.Script {
     }
 
     _getScrollDuration( start, end ) {
-        return Math.abs(end - start) * 1000
+        return Math.abs(end - start) * this.tweenSpeed
     }
 
     _getNextAdvInfo( curAdvID ) {

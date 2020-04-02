@@ -168,7 +168,7 @@ var _GameDB = (function () {
 
 			// 打印指定的DB数据，只在windows端可用
 			printDB: function ( cls_name ) {
-				if (G_WXHelper.isWin()) {
+				if (G_PlatHelper.isWin()) {
 					var conf_list = this.getConfigs("TB" + cls_name)
 
 					if (conf_list) {

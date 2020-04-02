@@ -1,8 +1,6 @@
 /*
-* 全局帮助
-* 主要用过微信提供的接受实现一些功能
+* 开放域帮助
 */
-
 var _OpenHelper = (function () {
 	var _instance;
 
@@ -15,18 +13,18 @@ var _OpenHelper = (function () {
 		return {
 			init: function () {
 				// body...
-				if (G_WXHelper.isQQPlatform()) {
+				if (G_PlatHelper.isQQPlatform()) {
 					_isSupport = true
 				}
-				else if (window.wx) {
-					if (G_WXHelper.getSDKVersion() >= '1.9.92') {
+				else if (G_PlatHelper.isWXPlatform()) {
+					if (G_PlatHelper.getSDKVersion() >= '1.9.92') {
 						_isSupport = true
 					}
 					else {
 						_isSupport = false
 
 						// notify
-						G_Event.dispatchEvent(G_EventName.EN_SDK_NOT_SUPPORT, G_WXHelper.getSDKVersion())
+						G_Event.dispatchEvent(G_EventName.EN_SDK_NOT_SUPPORT, G_PlatHelper.getSDKVersion())
 					}
 				}
 			},

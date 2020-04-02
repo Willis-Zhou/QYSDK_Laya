@@ -8,15 +8,16 @@ import {_Utils} from "./helper/utils.js";
 import {_UIHelper} from "./helper/ui_helper.js";
 import {_Downloader} from "./helper/downloader.js";
 import {_GameDB} from "./db/game_db.js";
-import {_WXHelper} from "./helper/wx_helper.js";
+import {_PlatHelper} from "./helper/plat/helper/plat_helper.js";
+import {_Share} from "./helper/plat/share/share.js";
+import {_Adv} from "./helper/plat/adv/adv.js";
 import {_SDKCfg} from "./conf/sdk_conf.js";
 import {_OpenHelper} from "./helper/open_helper.js";
 import {_WSHelper} from "./net/ws_helper.js";
 import {_HttpHelper} from "./net/http_helper.js";
-import {_NetHelper} from "./helper/net_helper.js";
-import {_Share} from "./helper/share.js";
-import {_Adv} from "./helper/adv.js";
-import {_OppoAdv} from "./helper/oppo_adv.js";
+import {_NetHelper} from "./helper/net_helper.js";;
+import {_Recommend} from "./helper/recommend.js";
+import {_OVAdv} from "./helper/ov_adv.js";
 import {_Reportor} from "./helper/reportor.js";
 
 var QYSDK = {}
@@ -45,8 +46,13 @@ QYSDK.init = function () {
     // UIHelper
     window.G_UIHelper = _UIHelper.getInstance()
 
-    // WX Helper
-    window.G_WXHelper = _WXHelper.getInstance()
+    // Plat Helper
+    window.G_PlatHelper = new _PlatHelper()
+    G_PlatHelper.init()
+    console.log("当前平台为：" + G_PlatHelper.getPlatDesc())
+
+    // temp
+    window.G_WXHelper = G_PlatHelper
 
     // Downloader
     window.G_Downloader = _Downloader.getInstance()
@@ -85,13 +91,16 @@ QYSDK.init = function () {
         G_NetHelper.registerBaseUrl(arr[0], arr[1])
 
         // Share
-        window.G_Share = _Share.getInstance()
+        window.G_Share = new _Share()
 
         // Adv
-        window.G_Adv = _Adv.getInstance()
+        window.G_Adv = new _Adv()
 
-        // open Adv
-        window.G_OppoAdv = _OppoAdv.getInstance()
+        // Recommend
+        window.G_Recommend = _Recommend.getInstance()
+
+        // open/vivo Adv
+        window.G_OVAdv = _OVAdv.getInstance()
 
         // Reportor
         window.G_Reportor = _Reportor.getInstance()

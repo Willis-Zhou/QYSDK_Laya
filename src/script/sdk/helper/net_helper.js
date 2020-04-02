@@ -21,27 +21,25 @@ var _NetHelper = (function () {
 		return {
 			init: function () {
 				// body...
-				if (window.wx) {
-					if (window.wx.onNetworkStatusChange) {
-						window.wx.onNetworkStatusChange(function (info) {
-							// body...
-							let originalNetType = _netType
-							_netType = info.networkType
+				if (G_PlatHelper.getPlat() && G_PlatHelper.getPlat().onNetworkStatusChange) {
+					G_PlatHelper.getPlat().onNetworkStatusChange(function (info) {
+						// body...
+						let originalNetType = _netType
+						_netType = info.networkType
 
-							if (!info.isConnected) {
-								_netType = 'none'
-							}
+						if (!info.isConnected) {
+							_netType = 'none'
+						}
 
-							if (_netType === 'none') {
-								G_Event.dispatchEvent(G_EventName.EN_NET_CONNECTION_LOST)
+						if (_netType === 'none') {
+							G_Event.dispatchEvent(G_EventName.EN_NET_CONNECTION_LOST)
+						}
+						else {
+							if (originalNetType === 'none') {
+								G_Event.dispatchEvent(G_EventName.EN_NET_CONNECTION_RECOVER)
 							}
-							else {
-								if (originalNetType === 'none') {
-									G_Event.dispatchEvent(G_EventName.EN_NET_CONNECTION_RECOVER)
-								}
-							}
-						})
-					}
+						}
+					})
 
 					var _invoteInitedCbs = function () {
 						// body...
@@ -52,22 +50,24 @@ var _NetHelper = (function () {
 						_initedCbs = []
 					}
 
-					window.wx.getNetworkType({
-						success: function (info) {
-							// body...
-							_netType = info.networkType
+					if (G_PlatHelper.getPlat().getNetworkType) {
+						G_PlatHelper.getPlat().getNetworkType({
+							success: function (info) {
+								// body...
+								_netType = info.networkType
 
-							// cb
-							_invoteInitedCbs()
-						},
-						fail: function (info) {
-							// body...
-							_netType = 'none'
+								// cb
+								_invoteInitedCbs()
+							},
+							fail: function (info) {
+								// body...
+								_netType = 'none'
 
-							// cb
-							_invoteInitedCbs()
-						}
-					})
+								// cb
+								_invoteInitedCbs()
+							}
+						})
+					}
 				}
 				else {
 					_netType = 'wifi'
@@ -184,9 +184,13 @@ var _NetHelper = (function () {
 					code: code
 				}
 
-				if (G_WXHelper.isQQPlatform()) {
+				if (G_PlatHelper.isQQPlatform()) {
 					sendObj.app_id = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_QQ_MINI_PROGRAM_APP_ID"]).str
 					this.sendJsonOrForm("sendForm", this._getTag(), "/qq/login", sendObj, cb)
+				}
+				else if (G_PlatHelper.isTTPlatform()) {
+					sendObj.app_id = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_TT_MINI_PROGRAM_APP_ID"]).str
+					this.sendJsonOrForm("sendForm", this._getTag(), "/tt/login", sendObj, cb)
 				}
 				else {
 					sendObj.app_id = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_MINI_PROGRAM_APP_ID"]).str
@@ -225,6 +229,29 @@ var _NetHelper = (function () {
 			reqGetServerTime: function ( cb ) {
 				// body...
 				this.sendJsonOrForm("sendForm", this._getTag(), "/wx/getTime", null, cb)
+			},
+
+			reqGetWebConfig: function ( cb ) {
+				let sendObj = {}
+
+				if (G_PlatHelper.isQQPlatform()) {
+					sendObj.app_id = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_QQ_MINI_PROGRAM_APP_ID"]).str
+				}
+				else if (G_PlatHelper.isTTPlatform()) {
+					sendObj.app_id = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_TT_MINI_PROGRAM_APP_ID"]).str
+				}
+				else if (G_PlatHelper.isOPPOPlatform()) {
+					sendObj.app_id = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_OPPO_MINI_PROGRAM_APP_ID"]).str
+				}
+				else if (G_PlatHelper.isVIVOPlatform()) {
+					sendObj.app_id = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_VIVO_MINI_PROGRAM_APP_ID"]).str
+				}
+				else {
+					sendObj.app_id = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_MINI_PROGRAM_APP_ID"]).str
+				}
+
+				// send
+				this.sendJsonOrForm("sendForm", this._getTag(), "/pip/earnGameCfg", sendObj, cb)
 			},
 
 			_makeObj: function (way, key, path, data, cb) {
@@ -275,14 +302,32 @@ var _NetHelper = (function () {
 
 					obj.try_times += 1
 
+					// header
+					let header = {}
+					if (G_PlatHelper.isQQPlatform()) {
+						header.appId = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_QQ_MINI_PROGRAM_APP_ID"]).str
+					}
+					else if (G_PlatHelper.isTTPlatform()) {
+						header.appId = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_TT_MINI_PROGRAM_APP_ID"]).str
+					}
+					else if (G_PlatHelper.isOPPOPlatform()) {
+						header.appId = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_OPPO_MINI_PROGRAM_APP_ID"]).str
+					}
+					else if (G_PlatHelper.isVIVOPlatform()) {
+						header.appId = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_VIVO_MINI_PROGRAM_APP_ID"]).str
+					}
+					else {
+						header.appId = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_MINI_PROGRAM_APP_ID"]).str
+					}
+
 					if (obj.way === "sendJson") {
-						G_HttpHelper.sendJson(this._makeUrl(obj.key, obj.path), obj.data, callback)
+						G_HttpHelper.sendJson(this._makeUrl(obj.key, obj.path), header, obj.data, callback)
 					}
 					else if (obj.way === "sendForm") {
-						G_HttpHelper.sendForm(this._makeUrl(obj.key, obj.path), obj.data, callback)
+						G_HttpHelper.sendForm(this._makeUrl(obj.key, obj.path), header, obj.data, callback)
 					}
 					else if (obj.way === "sendProto") {
-						G_HttpHelper.sendProto(this._makeUrl(obj.key, obj.path), obj.data, callback)
+						G_HttpHelper.sendProto(this._makeUrl(obj.key, obj.path), header, obj.data, callback)
 					}
 					else {
 						console.error("Do Not Support This Kind Of Request Right Now, Way: {0}".format(obj.way))

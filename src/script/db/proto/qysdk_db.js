@@ -35,11 +35,21 @@ $root.qysdk = (function() {
      * @property {number} BC_QQ_MINI_PROGRAM_APP_SECRET=11 BC_QQ_MINI_PROGRAM_APP_SECRET value
      * @property {number} BC_OPPO_MINI_PROGRAM_APP_ID=12 BC_OPPO_MINI_PROGRAM_APP_ID value
      * @property {number} BC_OPPO_MINI_PROGRAM_APP_SECRET=13 BC_OPPO_MINI_PROGRAM_APP_SECRET value
-     * @property {number} BC_BANNER_AD_UNIT_IDS=14 BC_BANNER_AD_UNIT_IDS value
-     * @property {number} BC_VIDEO_AD_UNIT_IDS=15 BC_VIDEO_AD_UNIT_IDS value
-     * @property {number} BC_QQ_BANNER_AD_UNIT_IDS=16 BC_QQ_BANNER_AD_UNIT_IDS value
-     * @property {number} BC_QQ_VIDEO_AD_UNIT_IDS=17 BC_QQ_VIDEO_AD_UNIT_IDS value
-     * @property {number} BC_MAX_ADV_TIMES_OF_ONE_DAY=18 BC_MAX_ADV_TIMES_OF_ONE_DAY value
+     * @property {number} BC_VIVO_MINI_PROGRAM_APP_ID=14 BC_VIVO_MINI_PROGRAM_APP_ID value
+     * @property {number} BC_VIVO_MINI_PROGRAM_APP_SECRET=15 BC_VIVO_MINI_PROGRAM_APP_SECRET value
+     * @property {number} BC_TT_MINI_PROGRAM_APP_ID=16 BC_TT_MINI_PROGRAM_APP_ID value
+     * @property {number} BC_TT_MINI_PROGRAM_APP_SECRET=17 BC_TT_MINI_PROGRAM_APP_SECRET value
+     * @property {number} BC_BANNER_AD_UNIT_IDS=18 BC_BANNER_AD_UNIT_IDS value
+     * @property {number} BC_VIDEO_AD_UNIT_IDS=19 BC_VIDEO_AD_UNIT_IDS value
+     * @property {number} BC_RECOMMEND_ICON_AD_UNIT_IDS=20 BC_RECOMMEND_ICON_AD_UNIT_IDS value
+     * @property {number} BC_QQ_BANNER_AD_UNIT_IDS=21 BC_QQ_BANNER_AD_UNIT_IDS value
+     * @property {number} BC_QQ_VIDEO_AD_UNIT_IDS=22 BC_QQ_VIDEO_AD_UNIT_IDS value
+     * @property {number} BC_TT_BANNER_AD_UNIT_IDS=23 BC_TT_BANNER_AD_UNIT_IDS value
+     * @property {number} BC_TT_VIDEO_AD_UNIT_IDS=24 BC_TT_VIDEO_AD_UNIT_IDS value
+     * @property {number} BC_MAX_ADV_TIMES_OF_ONE_DAY=25 BC_MAX_ADV_TIMES_OF_ONE_DAY value
+     * @property {number} BC_INTERSTITIAL_AD_UNIT_IDS=26 BC_INTERSTITIAL_AD_UNIT_IDS value
+     * @property {number} BC_QQ_INTERSTITIAL_AD_UNIT_IDS=27 BC_QQ_INTERSTITIAL_AD_UNIT_IDS value
+     * @property {number} BC_TT_INTERSTITIAL_AD_UNIT_IDS=28 BC_TT_INTERSTITIAL_AD_UNIT_IDS value
      * @property {number} BC_BORN_COIN_NUM=101 BC_BORN_COIN_NUM value
      */
     qysdk.BaseConfigIDs = (function() {
@@ -57,11 +67,21 @@ $root.qysdk = (function() {
         values[valuesById[11] = "BC_QQ_MINI_PROGRAM_APP_SECRET"] = 11;
         values[valuesById[12] = "BC_OPPO_MINI_PROGRAM_APP_ID"] = 12;
         values[valuesById[13] = "BC_OPPO_MINI_PROGRAM_APP_SECRET"] = 13;
-        values[valuesById[14] = "BC_BANNER_AD_UNIT_IDS"] = 14;
-        values[valuesById[15] = "BC_VIDEO_AD_UNIT_IDS"] = 15;
-        values[valuesById[16] = "BC_QQ_BANNER_AD_UNIT_IDS"] = 16;
-        values[valuesById[17] = "BC_QQ_VIDEO_AD_UNIT_IDS"] = 17;
-        values[valuesById[18] = "BC_MAX_ADV_TIMES_OF_ONE_DAY"] = 18;
+        values[valuesById[14] = "BC_VIVO_MINI_PROGRAM_APP_ID"] = 14;
+        values[valuesById[15] = "BC_VIVO_MINI_PROGRAM_APP_SECRET"] = 15;
+        values[valuesById[16] = "BC_TT_MINI_PROGRAM_APP_ID"] = 16;
+        values[valuesById[17] = "BC_TT_MINI_PROGRAM_APP_SECRET"] = 17;
+        values[valuesById[18] = "BC_BANNER_AD_UNIT_IDS"] = 18;
+        values[valuesById[19] = "BC_VIDEO_AD_UNIT_IDS"] = 19;
+        values[valuesById[20] = "BC_RECOMMEND_ICON_AD_UNIT_IDS"] = 20;
+        values[valuesById[21] = "BC_QQ_BANNER_AD_UNIT_IDS"] = 21;
+        values[valuesById[22] = "BC_QQ_VIDEO_AD_UNIT_IDS"] = 22;
+        values[valuesById[23] = "BC_TT_BANNER_AD_UNIT_IDS"] = 23;
+        values[valuesById[24] = "BC_TT_VIDEO_AD_UNIT_IDS"] = 24;
+        values[valuesById[25] = "BC_MAX_ADV_TIMES_OF_ONE_DAY"] = 25;
+        values[valuesById[26] = "BC_INTERSTITIAL_AD_UNIT_IDS"] = 26;
+        values[valuesById[27] = "BC_QQ_INTERSTITIAL_AD_UNIT_IDS"] = 27;
+        values[valuesById[28] = "BC_TT_INTERSTITIAL_AD_UNIT_IDS"] = 28;
         values[valuesById[101] = "BC_BORN_COIN_NUM"] = 101;
         return values;
     })();
@@ -555,10 +575,14 @@ $root.qysdk = (function() {
      * @property {number} UIWORD_ID_UNIT_WEEK=21 UIWORD_ID_UNIT_WEEK value
      * @property {number} UIWORD_ID_UNIT_HOUR=22 UIWORD_ID_UNIT_HOUR value
      * @property {number} UIWORD_ID_UNIT_MINUTE=23 UIWORD_ID_UNIT_MINUTE value
-     * @property {number} UIWORD_ID_LACK_OF_COIN=101 UIWORD_ID_LACK_OF_COIN value
+     * @property {number} UIWORD_ID_VIDEO_NOT_READY_YET=24 UIWORD_ID_VIDEO_NOT_READY_YET value
+     * @property {number} UIWORD_ID_FORMAT_OF_VIDEO_NOT_READY_YET=25 UIWORD_ID_FORMAT_OF_VIDEO_NOT_READY_YET value
+     * @property {number} UIWORD_ID_INSTALL_SHORTCUT_SUCCESS=26 UIWORD_ID_INSTALL_SHORTCUT_SUCCESS value
+     * @property {number} UIWORD_ID_NOT_SUPPORT_ON_IOS_PLATFORM=27 UIWORD_ID_NOT_SUPPORT_ON_IOS_PLATFORM value
      * @property {number} UIWORD_ID_SHARE_FAIL_TIPS_ONE=1001 UIWORD_ID_SHARE_FAIL_TIPS_ONE value
      * @property {number} UIWORD_ID_SHARE_FAIL_TIPS_TWO=1002 UIWORD_ID_SHARE_FAIL_TIPS_TWO value
      * @property {number} UIWORD_ID_SHARE_FAIL_TIPS_THREE=1003 UIWORD_ID_SHARE_FAIL_TIPS_THREE value
+     * @property {number} UIWORD_ID_LACK_OF_COIN=101 UIWORD_ID_LACK_OF_COIN value
      */
     qysdk.UIWordIDs = (function() {
         var valuesById = {}, values = Object.create(valuesById);
@@ -585,10 +609,14 @@ $root.qysdk = (function() {
         values[valuesById[21] = "UIWORD_ID_UNIT_WEEK"] = 21;
         values[valuesById[22] = "UIWORD_ID_UNIT_HOUR"] = 22;
         values[valuesById[23] = "UIWORD_ID_UNIT_MINUTE"] = 23;
-        values[valuesById[101] = "UIWORD_ID_LACK_OF_COIN"] = 101;
+        values[valuesById[24] = "UIWORD_ID_VIDEO_NOT_READY_YET"] = 24;
+        values[valuesById[25] = "UIWORD_ID_FORMAT_OF_VIDEO_NOT_READY_YET"] = 25;
+        values[valuesById[26] = "UIWORD_ID_INSTALL_SHORTCUT_SUCCESS"] = 26;
+        values[valuesById[27] = "UIWORD_ID_NOT_SUPPORT_ON_IOS_PLATFORM"] = 27;
         values[valuesById[1001] = "UIWORD_ID_SHARE_FAIL_TIPS_ONE"] = 1001;
         values[valuesById[1002] = "UIWORD_ID_SHARE_FAIL_TIPS_TWO"] = 1002;
         values[valuesById[1003] = "UIWORD_ID_SHARE_FAIL_TIPS_THREE"] = 1003;
+        values[valuesById[101] = "UIWORD_ID_LACK_OF_COIN"] = 101;
         return values;
     })();
 
@@ -1651,13 +1679,13 @@ $root.qysdk = (function() {
          * @property {string} nickname PlayerInfo nickname
          * @property {number} sex PlayerInfo sex
          * @property {string} headUrl PlayerInfo headUrl
-         * @property {string} coin PlayerInfo coin
-         * @property {string} totalCoin PlayerInfo totalCoin
          * @property {number} shareTimesOfToday PlayerInfo shareTimesOfToday
          * @property {number} recordDayOfShareTimes PlayerInfo recordDayOfShareTimes
          * @property {number} advTimesOfToday PlayerInfo advTimesOfToday
          * @property {number} recordDayOfAdvTimes PlayerInfo recordDayOfAdvTimes
          * @property {qysdk.ISettingConfig} setting PlayerInfo setting
+         * @property {string} coin PlayerInfo coin
+         * @property {string} totalCoin PlayerInfo totalCoin
          */
 
         /**
@@ -1732,22 +1760,6 @@ $root.qysdk = (function() {
         PlayerInfo.prototype.headUrl = "";
 
         /**
-         * PlayerInfo coin.
-         * @member {string} coin
-         * @memberof qysdk.PlayerInfo
-         * @instance
-         */
-        PlayerInfo.prototype.coin = "";
-
-        /**
-         * PlayerInfo totalCoin.
-         * @member {string} totalCoin
-         * @memberof qysdk.PlayerInfo
-         * @instance
-         */
-        PlayerInfo.prototype.totalCoin = "";
-
-        /**
          * PlayerInfo shareTimesOfToday.
          * @member {number} shareTimesOfToday
          * @memberof qysdk.PlayerInfo
@@ -1788,6 +1800,22 @@ $root.qysdk = (function() {
         PlayerInfo.prototype.setting = null;
 
         /**
+         * PlayerInfo coin.
+         * @member {string} coin
+         * @memberof qysdk.PlayerInfo
+         * @instance
+         */
+        PlayerInfo.prototype.coin = "";
+
+        /**
+         * PlayerInfo totalCoin.
+         * @member {string} totalCoin
+         * @memberof qysdk.PlayerInfo
+         * @instance
+         */
+        PlayerInfo.prototype.totalCoin = "";
+
+        /**
          * Creates a new PlayerInfo instance using the specified properties.
          * @function create
          * @memberof qysdk.PlayerInfo
@@ -1818,13 +1846,13 @@ $root.qysdk = (function() {
             writer.uint32(/* id 5, wireType 2 =*/42).string(message.nickname);
             writer.uint32(/* id 6, wireType 0 =*/48).uint32(message.sex);
             writer.uint32(/* id 7, wireType 2 =*/58).string(message.headUrl);
-            writer.uint32(/* id 8, wireType 2 =*/66).string(message.coin);
-            writer.uint32(/* id 9, wireType 2 =*/74).string(message.totalCoin);
-            writer.uint32(/* id 10, wireType 0 =*/80).uint32(message.shareTimesOfToday);
-            writer.uint32(/* id 11, wireType 0 =*/88).uint32(message.recordDayOfShareTimes);
-            writer.uint32(/* id 12, wireType 0 =*/96).uint32(message.advTimesOfToday);
-            writer.uint32(/* id 13, wireType 0 =*/104).uint32(message.recordDayOfAdvTimes);
-            $root.qysdk.SettingConfig.encode(message.setting, writer.uint32(/* id 14, wireType 2 =*/114).fork()).ldelim();
+            writer.uint32(/* id 8, wireType 0 =*/64).uint32(message.shareTimesOfToday);
+            writer.uint32(/* id 9, wireType 0 =*/72).uint32(message.recordDayOfShareTimes);
+            writer.uint32(/* id 10, wireType 0 =*/80).uint32(message.advTimesOfToday);
+            writer.uint32(/* id 11, wireType 0 =*/88).uint32(message.recordDayOfAdvTimes);
+            $root.qysdk.SettingConfig.encode(message.setting, writer.uint32(/* id 12, wireType 2 =*/98).fork()).ldelim();
+            writer.uint32(/* id 13, wireType 2 =*/106).string(message.coin);
+            writer.uint32(/* id 14, wireType 2 =*/114).string(message.totalCoin);
             return writer;
         };
 
@@ -1881,25 +1909,25 @@ $root.qysdk = (function() {
                     message.headUrl = reader.string();
                     break;
                 case 8:
-                    message.coin = reader.string();
-                    break;
-                case 9:
-                    message.totalCoin = reader.string();
-                    break;
-                case 10:
                     message.shareTimesOfToday = reader.uint32();
                     break;
-                case 11:
+                case 9:
                     message.recordDayOfShareTimes = reader.uint32();
                     break;
-                case 12:
+                case 10:
                     message.advTimesOfToday = reader.uint32();
                     break;
-                case 13:
+                case 11:
                     message.recordDayOfAdvTimes = reader.uint32();
                     break;
-                case 14:
+                case 12:
                     message.setting = $root.qysdk.SettingConfig.decode(reader, reader.uint32());
+                    break;
+                case 13:
+                    message.coin = reader.string();
+                    break;
+                case 14:
+                    message.totalCoin = reader.string();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1920,10 +1948,6 @@ $root.qysdk = (function() {
                 throw $util.ProtocolError("missing required 'sex'", { instance: message });
             if (!message.hasOwnProperty("headUrl"))
                 throw $util.ProtocolError("missing required 'headUrl'", { instance: message });
-            if (!message.hasOwnProperty("coin"))
-                throw $util.ProtocolError("missing required 'coin'", { instance: message });
-            if (!message.hasOwnProperty("totalCoin"))
-                throw $util.ProtocolError("missing required 'totalCoin'", { instance: message });
             if (!message.hasOwnProperty("shareTimesOfToday"))
                 throw $util.ProtocolError("missing required 'shareTimesOfToday'", { instance: message });
             if (!message.hasOwnProperty("recordDayOfShareTimes"))
@@ -1934,6 +1958,10 @@ $root.qysdk = (function() {
                 throw $util.ProtocolError("missing required 'recordDayOfAdvTimes'", { instance: message });
             if (!message.hasOwnProperty("setting"))
                 throw $util.ProtocolError("missing required 'setting'", { instance: message });
+            if (!message.hasOwnProperty("coin"))
+                throw $util.ProtocolError("missing required 'coin'", { instance: message });
+            if (!message.hasOwnProperty("totalCoin"))
+                throw $util.ProtocolError("missing required 'totalCoin'", { instance: message });
             return message;
         };
 
@@ -1978,10 +2006,6 @@ $root.qysdk = (function() {
                 return "sex: integer expected";
             if (!$util.isString(message.headUrl))
                 return "headUrl: string expected";
-            if (!$util.isString(message.coin))
-                return "coin: string expected";
-            if (!$util.isString(message.totalCoin))
-                return "totalCoin: string expected";
             if (!$util.isInteger(message.shareTimesOfToday))
                 return "shareTimesOfToday: integer expected";
             if (!$util.isInteger(message.recordDayOfShareTimes))
@@ -1995,6 +2019,10 @@ $root.qysdk = (function() {
                 if (error)
                     return "setting." + error;
             }
+            if (!$util.isString(message.coin))
+                return "coin: string expected";
+            if (!$util.isString(message.totalCoin))
+                return "totalCoin: string expected";
             return null;
         };
 
@@ -2024,10 +2052,6 @@ $root.qysdk = (function() {
                 message.sex = object.sex >>> 0;
             if (object.headUrl != null)
                 message.headUrl = String(object.headUrl);
-            if (object.coin != null)
-                message.coin = String(object.coin);
-            if (object.totalCoin != null)
-                message.totalCoin = String(object.totalCoin);
             if (object.shareTimesOfToday != null)
                 message.shareTimesOfToday = object.shareTimesOfToday >>> 0;
             if (object.recordDayOfShareTimes != null)
@@ -2041,6 +2065,10 @@ $root.qysdk = (function() {
                     throw TypeError(".qysdk.PlayerInfo.setting: object expected");
                 message.setting = $root.qysdk.SettingConfig.fromObject(object.setting);
             }
+            if (object.coin != null)
+                message.coin = String(object.coin);
+            if (object.totalCoin != null)
+                message.totalCoin = String(object.totalCoin);
             return message;
         };
 
@@ -2065,13 +2093,13 @@ $root.qysdk = (function() {
                 object.nickname = "";
                 object.sex = 0;
                 object.headUrl = "";
-                object.coin = "";
-                object.totalCoin = "";
                 object.shareTimesOfToday = 0;
                 object.recordDayOfShareTimes = 0;
                 object.advTimesOfToday = 0;
                 object.recordDayOfAdvTimes = 0;
                 object.setting = null;
+                object.coin = "";
+                object.totalCoin = "";
             }
             if (message.openID != null && message.hasOwnProperty("openID"))
                 object.openID = message.openID;
@@ -2087,10 +2115,6 @@ $root.qysdk = (function() {
                 object.sex = message.sex;
             if (message.headUrl != null && message.hasOwnProperty("headUrl"))
                 object.headUrl = message.headUrl;
-            if (message.coin != null && message.hasOwnProperty("coin"))
-                object.coin = message.coin;
-            if (message.totalCoin != null && message.hasOwnProperty("totalCoin"))
-                object.totalCoin = message.totalCoin;
             if (message.shareTimesOfToday != null && message.hasOwnProperty("shareTimesOfToday"))
                 object.shareTimesOfToday = message.shareTimesOfToday;
             if (message.recordDayOfShareTimes != null && message.hasOwnProperty("recordDayOfShareTimes"))
@@ -2101,6 +2125,10 @@ $root.qysdk = (function() {
                 object.recordDayOfAdvTimes = message.recordDayOfAdvTimes;
             if (message.setting != null && message.hasOwnProperty("setting"))
                 object.setting = $root.qysdk.SettingConfig.toObject(message.setting, options);
+            if (message.coin != null && message.hasOwnProperty("coin"))
+                object.coin = message.coin;
+            if (message.totalCoin != null && message.hasOwnProperty("totalCoin"))
+                object.totalCoin = message.totalCoin;
             return object;
         };
 
@@ -2122,4 +2150,4 @@ $root.qysdk = (function() {
 })();
 
 var qysdk = $root.qysdk;
-export { qysdk };
+export {qysdk as default};

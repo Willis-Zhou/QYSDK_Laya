@@ -3,9 +3,10 @@
 * 支持多种后台同时上报
 */
 
-import { qy } from "../../external/qy/qy";
-import { ald } from "../../external/ald/ald-game";
-import { ald_qq } from "../../external/ald/ald-qq-game";
+import qy from "../../external/qy/qy";
+import qy_ov from "../../external/qy/qy-ov";
+import ald from "../../external/ald/ald-game";
+import ald_qq from "../../external/ald/ald-qq-game";
 
 var _Reportor = (function () {
 	var _instance;
@@ -37,9 +38,9 @@ var _Reportor = (function () {
 						self.enable("ald")
 
 						// report to open_id to ald
-						if (window.wx && window.wx.aldSendOpenid === "function") {
+						if (G_PlatHelper.getPlat() && typeof G_PlatHelper.getPlat().aldSendOpenid === "function") {
 							// load ald sdk succ
-							window.wx.aldSendOpenid(open_id)
+							G_PlatHelper.getPlat().aldSendOpenid(open_id)
 						}
 					}
 				})
@@ -58,38 +59,43 @@ var _Reportor = (function () {
 			enable: function ( type ) {
 				// body...
 				if (type === "ald") {
-					if (window.wx) {
-						if (!window.wx.aldSendEvent) {
+					if (G_PlatHelper.getPlat()) {
+						if (!G_PlatHelper.getPlat().aldSendEvent) {
 							// load ald sdk
-						if (G_WXHelper.isQQPlatform()) {
+							if (G_PlatHelper.isQQPlatform()) {
 								ald_qq.init()
 							}
-							else {
+							else if (G_PlatHelper.isWXPlatform()) {
 								ald.init()
 							}
 						}
 
-						if (window.wx.aldSendEvent) {
+						if (G_PlatHelper.getPlat().aldSendEvent) {
 							// load ald sdk succ
 							_reportors.push({
 								type: type,
-								sender: window.wx.aldSendEvent
+								sender: G_PlatHelper.getPlat().aldSendEvent
 							})
 						}
 					}
 				}
 				else if (type === "qy") {
-					if (window.wx) {
-						if (!window.wx.h_SendEvent) {
+					if (G_PlatHelper.getPlat()) {
+						if (!G_PlatHelper.getPlat().h_SendEvent) {
 							// load qy sdk
-							qy.init()
+							if (G_PlatHelper.isOVPlatform()) {
+								qy_ov.init()
+							}
+							else if (G_PlatHelper.isWXPlatform() || G_PlatHelper.isQQPlatform()) {
+								qy.init()
+							}
 						}
 
-						if (window.wx.h_SendEvent) {
+						if (G_PlatHelper.getPlat().h_SendEvent) {
 							// load qy sdk succ
 							_reportors.push({
 								type: type,
-								sender: window.wx.h_SendEvent
+								sender: G_PlatHelper.getPlat().h_SendEvent
 							})
 						}
 					}

@@ -15,10 +15,10 @@ var _Scheduler = function() {
 			/**
 			 * 创建定时器
 			 * @param {String} key 标识符(全局唯一)
-			 * @param {Boolean} cb 回调
+			 * @param {Function} cb 回调
 			 * @param {Boolean} useFrame 是否帧循环
-			 * @param {Boolean} interval useFrame为true时，单位为帧，默认为0; useFrame为false时，单位为毫秒，默认为0
-			 * @param {Boolean} repeat 重复次数（默认G_Const.C_SCHEDULE_REPEAT_FOREVER), 传0和1都是回调一次，但0次无法取消
+			 * @param {Number} interval useFrame为true时，单位为帧，默认为0; useFrame为false时，单位为毫秒，默认为0
+			 * @param {Number} repeat 重复次数（默认G_Const.C_SCHEDULE_REPEAT_FOREVER), 传0和1都是回调一次，但0次无法取消
 			 * @returns {Boolean} 成功或失败
 			 */
 			schedule: function ( key, cb, useFrame, interval, repeat ) {
@@ -145,10 +145,6 @@ var _Scheduler = function() {
 				}
 
 				_scheduledInfos = {}
-			},
-
-			print: function () {
-				console.log(_scheduledInfos)	
 			},
 
 			_checkKey: function ( key ) {

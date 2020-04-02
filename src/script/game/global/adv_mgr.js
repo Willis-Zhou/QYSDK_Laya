@@ -148,9 +148,8 @@ let _ADVMgr = (function () {
               return
            }
 
-           if (typeof window.wx === 'object'
-              && typeof wx.h_GetAdvListPlat === 'function') {
-              wx.h_GetAdvListPlat({
+           if (G_PlatHelper.getPlat() && typeof G_PlatHelper.getPlat().h_GetAdvListPlat === "function") {
+              G_PlatHelper.getPlat().h_GetAdvListPlat({
                  adv_key: advKey,
                  success: res => {
                     if (res.Status === 200) {
@@ -171,7 +170,7 @@ let _ADVMgr = (function () {
                  }
               });
            } else {
-              console.warn('wx.h_GetAdvListPlat 方法不存在，请检查 qy.js');
+              console.warn('wx(qg).h_GetAdvListPlat 方法不存在，请检查 qy(-ov).js');
               _finishTry(advKey, false)
            }
         }
