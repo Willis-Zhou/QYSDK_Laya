@@ -55,21 +55,6 @@ export default class MoreGamePopup extends BaseUI {
 
     onCloseTouched( btn ) {
         G_UIHelper.playBtnTouchAction(btn, function () {
-            let ret = G_UIManager.getUI("moreGameAd")
-      
-            if (ret) {
-                let cls = ret[1]
-    
-                let closeCb = null
-                closeCb = function () {
-                    // body...
-                    cls.unregisterCallback("close", closeCb)
-                    G_UIManager.showUI("fullSceneAd")
-                }.bind(this)
-      
-                cls.registerCallback("close", closeCb)
-            }
-
             G_UIManager.hideUI("moreGameAd")
         }.bind(this), 0.7)
         

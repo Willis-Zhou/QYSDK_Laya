@@ -63,17 +63,7 @@ export default class FullScenePopup extends BaseUI {
 
     onCloseTouched( btn ) {
         G_UIHelper.playBtnTouchAction(btn, () => {
-            if (this._advLoadMgrs.length > 0) {
-                let randomIndex = G_Utils.random(0, this._advLoadMgrs.length - 1)
-                console.log(randomIndex, this._advLoadMgrs)
-                let advLoadMgr = this._advLoadMgrs[randomIndex]
-                advLoadMgr.randomNavigate((bOpen, bSucc) => {
-                    G_UIManager.hideUI("fullSceneAd")
-                })
-            }
-            else {
-                G_UIManager.hideUI("fullSceneAd")
-            }
+            G_UIManager.hideUI("fullSceneAd")
         })
         
         G_SoundMgr.playSound(G_SoundName.SN_CLICK)

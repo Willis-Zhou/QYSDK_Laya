@@ -48,6 +48,11 @@ var _UIHelper = (function () {
 					}))
 				}
 			},
+			
+			playOpenPopupAction: function (popup, cb) {
+				// body...
+				this.playUIScaleAction(popup, 0.8, 1.0, 500, cb)
+			},
 
 			playUIScaleAction: function (ui, fromScale, endScale, duration, cb) {
 				// body...
@@ -62,6 +67,46 @@ var _UIHelper = (function () {
 	
 					ui._tween = Laya.Tween.to(ui, {scaleX: endScale, scaleY: endScale}, duration, Laya.Ease.elasticOut, Laya.Handler.create(null, function () {
 						ui._tween = null
+	
+						if (typeof cb === "function") {
+							cb()
+						}
+					}))
+				}
+			},
+
+			playOpenPopupAction_FromLeft: function (popup, cb) {
+				// body...
+				if (popup) {
+					if (popup._tween) {
+						popup._tween.clear()
+						popup._tween = null
+					}
+	
+					popup.x = 240
+	
+					popup._tween = Laya.Tween.to(popup, {x: 360}, 500, Laya.Ease.elasticOut, Laya.Handler.create(null, function () {
+						popup._tween = null
+	
+						if (typeof cb === "function") {
+							cb()
+						}
+					}))
+				}
+			},
+
+			playOpenPopupAction_FromBottom: function (popup, cb) {
+				// body...
+				if (popup) {
+					if (popup._tween) {
+						popup._tween.clear()
+						popup._tween = null
+					}
+	
+					popup.y = Laya.stage.height / 4
+	
+					popup._tween = Laya.Tween.to(popup, {y: Laya.stage.height - popup.height}, 500, Laya.Ease.elasticOut, Laya.Handler.create(null, function () {
+						popup._tween = null
 	
 						if (typeof cb === "function") {
 							cb()
