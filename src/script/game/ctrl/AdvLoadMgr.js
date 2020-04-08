@@ -246,7 +246,7 @@ export default class AdvLoadMgr extends Laya.Script {
         }
         else if (this.advType === "list") {
             let extendTimes = 0
-            let designHeight = 1334
+            let designHeight = Laya.stage.designHeight
 
             if (this.autoExtend && !this.isHorizontal) {
                 if (Laya.stage.height - designHeight > this.cellHeight) {
