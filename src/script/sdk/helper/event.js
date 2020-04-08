@@ -44,7 +44,7 @@ var _Event = function() {
 						let listernerInfo = _listerners[event_name][i]
 
 						if (listernerInfo.key === key) {
-							listernerInfo.splice(i, 1)
+							_listerners[event_name].splice(i, 1)
 							return
 						}
 					}
@@ -63,8 +63,8 @@ var _Event = function() {
 					for (let i = 0; i < _listerners[event_name].length; i++) {
 						let listernerInfo = _listerners[event_name][i]
 
-						if (listernerInfo.listerner === listerner && listernerInfo.caller === caller) {
-							listernerInfo.splice(i, 1)
+						if (listernerInfo.method === listerner && listernerInfo.caller === caller) {
+							_listerners[event_name].splice(i, 1)
 							return
 						}
 					}
