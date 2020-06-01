@@ -6,7 +6,11 @@ declare class G_EventName {
     /**
      * 第一次打开主场景
      */
-	static EN_FIRST_OPEN_MAIN_SCENE: String;
+    static EN_FIRST_OPEN_MAIN_SCENE: String;
+    /**
+     * 第一次开始游戏
+     */
+    static EN_FIRST_START_GAME: String;
     /**
      * 显示banner广告
      */
@@ -23,6 +27,10 @@ declare class G_EventName {
      * 显示自己的插屏广告
      */
     static EN_SHOW_OWN_INSERT_AD: String;
+    /**
+     * 刷新悬浮广告
+     */
+	static EN_REFRESH_FLOW_AD: String;
     /**
      * 显示自己的banner广告
      */
@@ -219,6 +227,12 @@ declare class G_Event {
 declare class G_Utils {
     /**** 以下为框架相关，勿主动修改 ****/
     /**
+     * 获取注册的lodash第三方开源库
+     * 
+     */
+    static getLodash():any;
+            
+    /**
      * 格式化时间, 默认格式 2018年1月1日 01:02:03,当first = 2时日期格式为 2018/01/01 23:45:08
      * @param date 目标时间结构
      * @param first 是否需要年月日
@@ -347,7 +361,7 @@ declare class G_UIHelper {
      * 封装按钮，使其支持通用免费获取逻辑，按钮里面必须含名为icon的图片节点
      * 封装后，添加btn.getWay():G_FreeGetWay方法，获取当前按钮的免费领取方式
      * 封装后，添加btn.refreshWay():void方法，当按钮每次显示时，调用
-     * 封装后，添加btn.doTouch(shareScene:String, succCb?:Function):void方法其中shareScene为分享场景名，succCb为成功回调，当按钮被点击时调用
+     * 封装后，添加btn.doTouch(shareScene:String, succCb?:Function, failCb?:Function):void方法其中shareScene为分享场景名，succCb为成功回调，failCb为失败回调。此方法当按钮被点击时调用
      * @param btn 按钮
      * @param videoIconPath 当免费获取方法为视频时，icon节点的使用图片，默认"comm/video_icon.png"
      * @param shareIconPath 当免费获取方法为分享时，icon节点的使用图片，默认"comm/share_icon.png"
@@ -428,6 +442,24 @@ declare class G_UIHelper {
      * @returns OpenGL的Size
      */
     static convertToOpenGLSize(worldSize:any):any;
+
+    /**
+     * 将OpenGL坐标转化为世界坐标（2D）
+     * @param openGLPt OpenGL坐标
+     * @param openGLPt.x X轴OpenGL坐标
+     * @param openGLPt.y y轴OpenGL坐标
+     * @returns OpenGL坐标
+     */
+    static convertToWorldPt(openGLPt:any):any;
+
+    /**
+     * 将OpenGL的Size转化为世界Size（2D）
+     * @param openGLSize OpenGLSize
+     * @param openGLSize.width OpenGLSize的宽度
+     * @param openGLSize.height OpenGLSize的高度
+     * @returns OpenGL的Size
+     */
+    static convertToWorldSize(openGLSize:any):any;
     /**** 以上为框架相关，勿主动修改 ****/
 }
 
@@ -560,6 +592,16 @@ declare class G_PlatHelper {
 	 * @param bLong 长/短
 	 */
     static vibratePhone(bLong:Boolean):void;
+
+    /**
+	 * 生成桌面图标(OV平台适用)
+	 */
+    static installShortcut(succCb?:Function):void;
+    
+    /**
+	 * 展示更多游戏弹出窗(TT平台适用)
+	 */
+	static showMoreGamesModal(closeCb?:Function, succCb?:Function, failCb?:Function):void;
     
     /**
 	 * 打开客服对话框，微信平台支持
@@ -586,6 +628,11 @@ declare class G_PlatHelper {
 	 * @param key 键名(全局唯一)，不能为空
 	 */
     static clearStorage(key:String):void;
+
+    /**
+	 * 是否Windows平台
+	 */
+    static isWINPlatform():Boolean;
     
     /**
 	 * 是否微信平台
@@ -616,6 +663,11 @@ declare class G_PlatHelper {
 	 * 是否头条平台
 	 */
     static isTTPlatform():Boolean;
+
+    /**
+	 * 是否趣头条平台
+	 */
+    static isQTTPlatform():Boolean;
     /**** 以上为框架相关，勿主动修改 ****/
 }
 
@@ -674,6 +726,19 @@ declare class G_Adv {
 	 * 当前是否支持Interstitial广告
      */
     static isSupportInterstitialAd():Boolean;
+
+    /**
+	 * 创建盒子广告（仅QQ平台支持）
+     * @param closeCb 关闭回调函数
+     * 
+     * @returns 失败为null，成功为盒子广告对象
+     */
+    static createBoxAdv(closeCb?:Function):any;
+
+    /**
+	 * 添加彩签（仅QQ平台支持）
+     */
+    static addColorSign():void;
     /**** 以上为框架相关，勿主动修改 ****/
 }
 
@@ -847,6 +912,12 @@ declare class G_Switch {
      * @param cb 回调函数
      */
     static isPublishing(cb:Function):void;
+
+    /**
+     * 是否新游戏，默认false
+     * @param cb 回调函数
+     */
+    static isNewGame(cb:Function):void;
     
     /**
      * 指定位置的导出商业广告是否可用，默认false
@@ -933,6 +1004,16 @@ declare class G_SoundMgr {
     static stopMusic():void;
 
     /**
+     * 暂停播放背景音乐
+     */
+    static pauseMusic():void;
+
+    /**
+     * 恢复播放背景音乐
+     */
+    static resumeMusic():void;
+
+    /**
      * 设置是否允许音效开启
      * @param isEnabled 是否允许
      */
@@ -957,10 +1038,50 @@ declare class G_MistakeMgr {
     static isClickMistakeEnabled(cb:Function):void;
 
     /**
+     * 是否允许展现狂点误触
+     * 
+     * @returns 允许与否
+     */
+    static isClickMistakeEnabledAsync():Boolean;
+
+    /**
      * 是否允许展现位移误触
      * @param cb 回调函数
      */
     static isMoveMistakeEnabled(cb:Function):void;
+
+    /**
+     * 是否允许展现位移误触
+     * 
+     * @returns 允许与否
+     */
+    static isMoveMistakeEnabledAsync():Boolean;
+
+    /**
+     * 是否允许展现按钮状态误触
+     * @param cb 回调函数
+     */
+    static isBtnMistakeEnabled(cb:Function):void;
+
+    /**
+     * 是否允许展现按钮状态误触
+     * 
+     * @returns 允许与否
+     */
+    static isBtnMistakeEnabledAsync():Boolean;
+
+    /**
+     * 是否允许展现退出误触
+     * @param cb 回调函数
+     */
+    static isExitMistakeEnabled(cb:Function):void;
+
+    /**
+     * 是否允许展现退出误触
+     * 
+     * @returns 允许与否
+     */
+    static isExitMistakeEnabledAsync():Boolean;
     /**** 以上为框架相关，勿主动修改 ****/
 }
 

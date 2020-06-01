@@ -31,6 +31,9 @@ var _FreeGetMgr = function() {
 						cb(G_FreeGetWay.FGW_NONE)
 					}
 				}
+				else if (G_PlatHelper.isQTTPlatform()) {
+					cb(G_FreeGetWay.FGW_ADV)
+				}
 				else {
 					G_PlayerInfo.isNoMoreAdvTimesToday(function( isNoMore ) {
 						if (isNoMore) {

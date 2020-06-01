@@ -117,7 +117,7 @@ class QQShare extends ShareBase {
 				}
 				else {
 					G_SDKCfg.isQyReportEnabled(isEnabled => {
-						if (isEnabled) {
+						if (isEnabled && G_PlatHelper.getPlat().h_OnShareAppMessage) {
 							cb(G_PlatHelper.getPlat().h_OnShareAppMessage)
 						}
 						else {

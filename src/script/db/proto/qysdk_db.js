@@ -21,7 +21,7 @@ $root.qysdk = (function() {
     /**
      * BaseConfigIDs enum.
      * @name qysdk.BaseConfigIDs
-     * @enum {string}
+     * @enum {number}
      * @property {number} BC_NET_ADDR=1 BC_NET_ADDR value
      * @property {number} BC_SHOT_NAME=2 BC_SHOT_NAME value
      * @property {number} BC_HTTP_ADDR_OF_SERVER=3 BC_HTTP_ADDR_OF_SERVER value
@@ -39,17 +39,10 @@ $root.qysdk = (function() {
      * @property {number} BC_VIVO_MINI_PROGRAM_APP_SECRET=15 BC_VIVO_MINI_PROGRAM_APP_SECRET value
      * @property {number} BC_TT_MINI_PROGRAM_APP_ID=16 BC_TT_MINI_PROGRAM_APP_ID value
      * @property {number} BC_TT_MINI_PROGRAM_APP_SECRET=17 BC_TT_MINI_PROGRAM_APP_SECRET value
-     * @property {number} BC_BANNER_AD_UNIT_IDS=18 BC_BANNER_AD_UNIT_IDS value
-     * @property {number} BC_VIDEO_AD_UNIT_IDS=19 BC_VIDEO_AD_UNIT_IDS value
-     * @property {number} BC_RECOMMEND_ICON_AD_UNIT_IDS=20 BC_RECOMMEND_ICON_AD_UNIT_IDS value
-     * @property {number} BC_QQ_BANNER_AD_UNIT_IDS=21 BC_QQ_BANNER_AD_UNIT_IDS value
-     * @property {number} BC_QQ_VIDEO_AD_UNIT_IDS=22 BC_QQ_VIDEO_AD_UNIT_IDS value
-     * @property {number} BC_TT_BANNER_AD_UNIT_IDS=23 BC_TT_BANNER_AD_UNIT_IDS value
-     * @property {number} BC_TT_VIDEO_AD_UNIT_IDS=24 BC_TT_VIDEO_AD_UNIT_IDS value
+     * @property {number} BC_QTT_MINI_PROGRAM_APP_ID=18 BC_QTT_MINI_PROGRAM_APP_ID value
+     * @property {number} BC_QTT_MINI_PROGRAM_APP_SECRET=19 BC_QTT_MINI_PROGRAM_APP_SECRET value
+     * @property {number} BC_QTT_MINI_PROGRAM_APP_NAME=20 BC_QTT_MINI_PROGRAM_APP_NAME value
      * @property {number} BC_MAX_ADV_TIMES_OF_ONE_DAY=25 BC_MAX_ADV_TIMES_OF_ONE_DAY value
-     * @property {number} BC_INTERSTITIAL_AD_UNIT_IDS=26 BC_INTERSTITIAL_AD_UNIT_IDS value
-     * @property {number} BC_QQ_INTERSTITIAL_AD_UNIT_IDS=27 BC_QQ_INTERSTITIAL_AD_UNIT_IDS value
-     * @property {number} BC_TT_INTERSTITIAL_AD_UNIT_IDS=28 BC_TT_INTERSTITIAL_AD_UNIT_IDS value
      * @property {number} BC_BORN_COIN_NUM=101 BC_BORN_COIN_NUM value
      */
     qysdk.BaseConfigIDs = (function() {
@@ -71,17 +64,10 @@ $root.qysdk = (function() {
         values[valuesById[15] = "BC_VIVO_MINI_PROGRAM_APP_SECRET"] = 15;
         values[valuesById[16] = "BC_TT_MINI_PROGRAM_APP_ID"] = 16;
         values[valuesById[17] = "BC_TT_MINI_PROGRAM_APP_SECRET"] = 17;
-        values[valuesById[18] = "BC_BANNER_AD_UNIT_IDS"] = 18;
-        values[valuesById[19] = "BC_VIDEO_AD_UNIT_IDS"] = 19;
-        values[valuesById[20] = "BC_RECOMMEND_ICON_AD_UNIT_IDS"] = 20;
-        values[valuesById[21] = "BC_QQ_BANNER_AD_UNIT_IDS"] = 21;
-        values[valuesById[22] = "BC_QQ_VIDEO_AD_UNIT_IDS"] = 22;
-        values[valuesById[23] = "BC_TT_BANNER_AD_UNIT_IDS"] = 23;
-        values[valuesById[24] = "BC_TT_VIDEO_AD_UNIT_IDS"] = 24;
+        values[valuesById[18] = "BC_QTT_MINI_PROGRAM_APP_ID"] = 18;
+        values[valuesById[19] = "BC_QTT_MINI_PROGRAM_APP_SECRET"] = 19;
+        values[valuesById[20] = "BC_QTT_MINI_PROGRAM_APP_NAME"] = 20;
         values[valuesById[25] = "BC_MAX_ADV_TIMES_OF_ONE_DAY"] = 25;
-        values[valuesById[26] = "BC_INTERSTITIAL_AD_UNIT_IDS"] = 26;
-        values[valuesById[27] = "BC_QQ_INTERSTITIAL_AD_UNIT_IDS"] = 27;
-        values[valuesById[28] = "BC_TT_INTERSTITIAL_AD_UNIT_IDS"] = 28;
         values[valuesById[101] = "BC_BORN_COIN_NUM"] = 101;
         return values;
     })();
@@ -170,11 +156,11 @@ $root.qysdk = (function() {
             if (!writer)
                 writer = $Writer.create();
             writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.id);
-            if (message.num != null && message.hasOwnProperty("num"))
+            if (message.num != null && Object.hasOwnProperty.call(message, "num"))
                 writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.num);
-            if (message.decimal != null && message.hasOwnProperty("decimal"))
+            if (message.decimal != null && Object.hasOwnProperty.call(message, "decimal"))
                 writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.decimal);
-            if (message.str != null && message.hasOwnProperty("str"))
+            if (message.str != null && Object.hasOwnProperty.call(message, "str"))
                 writer.uint32(/* id 4, wireType 2 =*/34).string(message.str);
             return writer;
         };
@@ -551,7 +537,7 @@ $root.qysdk = (function() {
     /**
      * UIWordIDs enum.
      * @name qysdk.UIWordIDs
-     * @enum {string}
+     * @enum {number}
      * @property {number} UIWORD_ID_APP_NAME=1 UIWORD_ID_APP_NAME value
      * @property {number} UIWORD_ID_SYSTEM_ERROR_TITLE=2 UIWORD_ID_SYSTEM_ERROR_TITLE value
      * @property {number} UIWORD_ID_SYSTEM_ERROR_CONTENT=3 UIWORD_ID_SYSTEM_ERROR_CONTENT value

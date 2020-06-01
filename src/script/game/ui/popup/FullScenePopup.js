@@ -12,6 +12,7 @@ export default class FullScenePopup extends BaseUI {
         // privates
         this._closeBtn = null
         this._advLoadMgrs = []
+        this._isMoveMistakeEnabled = false
     }
 
     onAwake() {
@@ -28,6 +29,9 @@ export default class FullScenePopup extends BaseUI {
     _initUI() {
         let closeBtn = G_UIHelper.seekNodeByName(this.owner, "closeBtn")
         if (closeBtn) {
+            // reset
+            closeBtn._isTouching = false
+
             // save
             this._closeBtn = closeBtn
 
@@ -50,20 +54,52 @@ export default class FullScenePopup extends BaseUI {
     }
 
     onInit() {
-        if (this._closeBtn) {
-            G_UIHelper.delayShow(this._closeBtn)
-        }
+        // check mistake state
+        this._isMoveMistakeEnabled = false
+        G_MistakeMgr.isMoveMistakeEnabled(isEnabled => {
+            this._isMoveMistakeEnabled = isEnabled
+
+            if (!isEnabled) {
+                G_UIHelper.delayShow(this._closeBtn)
+            }
+        })
 
         if (this._advLoadMgrs.length > 0) {
             this._advLoadMgrs.forEach(advLoadMgr => {
                 advLoadMgr.refreshAdv()
             })
         }
+
+        // hide banner
+        G_Event.dispatchEvent(G_EventName.EN_HIDE_BANNER_AD)
     }
 
     onCloseTouched( btn ) {
         G_UIHelper.playBtnTouchAction(btn, () => {
-            G_UIManager.hideUI("fullSceneAd")
+            if (btn._isTouching) {
+                return
+            }
+
+            if (!this._isMoveMistakeEnabled) {
+                G_UIManager.hideUI("fullSceneAd")
+            }
+            else {
+                // mark
+                btn._isTouching = true
+
+                G_UIHelper.autoMove(btn, 0, 1000, 1000, 0, false, new Laya.Vector2(0, 0), step => {
+                    if (step === "hold_finished_1") {
+                        // show banner
+                        G_Event.dispatchEvent(G_EventName.EN_SHOW_BANNER_AD)
+                    }
+                    else if (step === "move_finished") {
+                        // reset
+                        btn._isTouching = false
+
+                        G_UIManager.hideUI("fullSceneAd")
+                    }
+                })
+            }
         })
         
         G_SoundMgr.playSound(G_SoundName.SN_CLICK)

@@ -311,7 +311,7 @@ export default class AdvItem extends Laya.Box {
             this._flagType = flagType
             
             // set skin
-            this._advImg.setImage(this._advImgUrls)
+            this._advImg.setImageData(this._advImgUrls)
 
             // set title
             if (this._advName) {

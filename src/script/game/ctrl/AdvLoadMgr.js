@@ -4,6 +4,32 @@ import ImageAnimation from "../ui/view/ImageAnimation";
 var TAG_OF_NEW = "New"
 var TAG_OF_HOT = "Hot"
 
+var SK_FORMAT_OF_NAVAGATED_APPIDS = "navagated_appids_of_player_{0}"
+
+var _loadNavigatedAppIds = function () {
+    let save_json_str = G_PlatHelper.getStorage(SK_FORMAT_OF_NAVAGATED_APPIDS.format(G_PlayerInfo.getOpenID()))
+
+	if (save_json_str && save_json_str !== "") {
+        let save_json = JSON.parse(save_json_str)
+
+        if (typeof save_json["ids"] !== "undefined") {
+            return save_json["ids"]
+        }
+    }
+
+    return []
+}
+
+var _saveNavigatedAppIds = function ( ids ) {
+    if (Array.isArray(ids) && ids.length > 0) {
+        let save_json = {
+            ids: ids
+        }
+
+        G_PlatHelper.setStorage(SK_FORMAT_OF_NAVAGATED_APPIDS.format(G_PlayerInfo.getOpenID()), JSON.stringify(save_json))
+    }
+}
+
 export default class AdvLoadMgr extends Laya.Script {
     constructor() {
         super()
@@ -11,13 +37,13 @@ export default class AdvLoadMgr extends Laya.Script {
         /** @prop {name:advType, tips:"展示类型，btn代表是按钮，list代表是列表", type:Option, option:"btn,list", default:"btn"}*/
         this.advType = "btn";
 
-        /** @prop {name:newTagPath, tips:"new标签图片地址", type:String, default:"ad/new_tag.png"}*/
+        /** @prop {name:newTagPath, tips:"new标签图片地址", type:String, accept:res, default:"ad/new_tag.png"}*/
         this.newTagPath = "ad/new_tag.png";
 
-        /** @prop {name:hotTagPath, tips:"hot标签图片地址", type:String, default:"ad/hot_tag.png"}*/
+        /** @prop {name:hotTagPath, tips:"hot标签图片地址", type:String, accept:res, default:"ad/hot_tag.png"}*/
         this.hotTagPath = "ad/hot_tag.png";
 
-        /** @prop {name:sweepEffectPath, tips:"扫光图片地址", type:String, default:"ad/sweep_effect.png"}*/
+        /** @prop {name:sweepEffectPath, tips:"扫光图片地址", type:String, accept:res, default:"ad/sweep_effect.png"}*/
         this.sweepEffectPath = "ad/sweep_effect.png";
 
         /** @prop {name:needMask, tips:"是否无扫光也启动边角弧形遮罩", type:Bool, default:false}*/
@@ -26,7 +52,7 @@ export default class AdvLoadMgr extends Laya.Script {
         /** @prop {name:nameCfg, tips:"小程序的名称的配置，格式为：字体大小||与图片的间隔||(文字颜色代码不要#号-By:Hmok)，当advType为list有效", type:String, default:""}*/
         this.nameCfg = "";
 
-        /** @prop {name:framePath, tips:"外框图片地址，当advType为list有效", type:String, default:""}*/
+        /** @prop {name:framePath, tips:"外框图片地址，当advType为list有效", type:String, accept:res, default:""}*/
         this.framePath = "";
 
         /** @prop {name:framePathCount, tips:"外框图片资源数量，当advType为list有效", type:Number, default:1}*/
@@ -62,6 +88,9 @@ export default class AdvLoadMgr extends Laya.Script {
         /** @prop {name:advCount, tips:"当advType为btn时，表示广告节点数量，每个广告节点的命名为'adv_索引'，当advType为list时，表示最大广告数量", type:Number, default:0}*/
         this.advCount = 0;
 
+        /** @prop {name:isCanDynamicChange, tips:"当advType为list时有效，是否允许后台强行修改广告数量", type:Bool, default:true}*/
+        this.isCanDynamicChange = true;
+
         /** @prop {name:delayToLoad, tips:"延迟加载的毫秒数", type:Number, default:0}*/
         this.delayToLoad = 0;
 
@@ -86,11 +115,24 @@ export default class AdvLoadMgr extends Laya.Script {
         this._originalAdvInfos = null
         this._advInfos = null
         this._onShowAdvImgs = []
+        this._navagatedAppIds = []
+    }
+
+    onAwake() {
+        if (this.advType === "list") {
+            // init
+            this._initUI()
+        }
+
+        // load
+        this._navagatedAppIds = _loadNavigatedAppIds()
     }
 
     onEnable() {
-        // init
-        this._initUI()
+        if (this.advType === "btn") {
+            // init
+            this._initUI()
+        }
 
         G_Scheduler.schedule("Delay_To_Load_Ad_" + this.advKey, function () {
             // init from data
@@ -104,14 +146,16 @@ export default class AdvLoadMgr extends Laya.Script {
             }
 
             let onGotDatas = function (res) {
+                console.log(res)
                 if (res && res.ret && res[_advKey]) {
                     // adv infos
                     let advInfos = res[_advKey]
 
                     // adv count
-                    if (!this.autoExtend && this.advType === "list") {
+                    console.log(this.advType, this.isCanDynamicChange)
+                    if (this.advType === "list" && this.isCanDynamicChange) {
                         if (typeof res.Count !== "undefined" && res.Count[_advKey] !== 0) {
-                            this.advCount = parseInt(res.Count[_advKey], 10) 
+                            this.advCount = parseInt(res.Count[_advKey], 10)
                         }
                     }
 
@@ -219,7 +263,7 @@ export default class AdvLoadMgr extends Laya.Script {
                             btn._advInfo = advInfo
 
                             if (btn._advImg) {
-                                btn._advImg.setImage(advInfo.logo_url)
+                                btn._advImg.setImageData(advInfo.logo_url)
                             }
                             
                             let name =  G_UIHelper.seekNodeByName(btn, "name")
@@ -249,10 +293,9 @@ export default class AdvLoadMgr extends Laya.Script {
             let designHeight = Laya.stage.designHeight
 
             if (this.autoExtend && !this.isHorizontal) {
-                if (Laya.stage.height - designHeight > this.cellHeight) {
-                    extendTimes = Math.floor((Laya.stage.height - designHeight) / this.cellHeight)
+                if (Laya.stage.height - designHeight > 0) {
+                    extendTimes = Math.ceil((Laya.stage.height - designHeight) / this.cellHeight)
                 }
-
                 console.log("extendTimes: ", extendTimes)
             }
 
@@ -474,14 +517,24 @@ export default class AdvLoadMgr extends Laya.Script {
         if (advInfo) {
             G_Reportor.report(G_ReportEventName.REN_NAVIGATION_TO_MINIPROGRAM)
 
+            let realAppId = this._getWillNavagatedAppId(advInfo.appid)
+
             let toMin = {
                 adv_id: advInfo.adv_id,
-                appId: advInfo.appid,
-                pkgName: advInfo.appid,
+                appId: realAppId,
+                pkgName: realAppId,
                 path: advInfo.path,
             }
 
-            toMin.success = function () {
+            toMin.success = () => {
+                if (G_PlatHelper.isWXPlatform()) {
+                    // push
+                    this._navagatedAppIds.push(toMin.appId)
+
+                    // save to local
+                    _saveNavigatedAppIds(this._navagatedAppIds)
+                }
+
                 G_Reportor.report(G_ReportEventName.REN_NAVIGATION_TO_MINIPROGRAM_SUCCESS)
 
                 if (typeof touchCb === "function") {
@@ -489,7 +542,7 @@ export default class AdvLoadMgr extends Laya.Script {
                 }
             }
 
-            toMin.fail = function ( err ) {
+            toMin.fail = (err) => {
                 if (err && err.errMsg.indexOf("fail cancel") !== -1) {
                     G_Reportor.report(G_ReportEventName.REN_NAVIGATION_TO_MINIPROGRAM_CANCEL)
                 }
@@ -502,9 +555,52 @@ export default class AdvLoadMgr extends Laya.Script {
                 }
             }
 
-
-            if (G_PlatHelper.getPlat() && G_PlatHelper.getPlat().h_ToMinProgram) {
+            if (G_PlatHelper.isTTPlatform()) {
+                G_PlatHelper.showMoreGamesModal()
+            }
+            else if (G_PlatHelper.getPlat() && G_PlatHelper.getPlat().h_ToMinProgram) {
                 G_PlatHelper.getPlat().h_ToMinProgram(toMin)
+            }
+        }
+    }
+
+    _getWillNavagatedAppId( appId ) {
+        if (!G_PlatHelper.isWXPlatform()) {
+            return appId
+        }
+
+        let isNavigated = false
+
+        for (let index = 0; index < this._navagatedAppIds.length; index++) {
+            if (this._navagatedAppIds[index] === appId) {
+                isNavigated = true
+                break
+            }
+        }
+
+        if (!isNavigated) {
+            return appId
+        }
+        else {
+            let allAppIds = []
+
+            for (let i = 0; i < this._advInfos.length; i++) {
+                allAppIds.push(this._advInfos[i].appid)
+            }
+
+            // 去重
+            allAppIds = G_Utils.getLodash().uniq(allAppIds)
+
+            // 取差集
+            let neverNavagatedAppIds = G_Utils.getLodash().xor(allAppIds, this._navagatedAppIds)
+
+            if (neverNavagatedAppIds && neverNavagatedAppIds.length > 0) {
+                // 随机
+                let randomIndex = G_Utils.random(0, neverNavagatedAppIds.length - 1)
+                return neverNavagatedAppIds[randomIndex]
+            }
+            else {
+                return appId
             }
         }
     }

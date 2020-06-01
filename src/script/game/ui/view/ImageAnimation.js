@@ -12,7 +12,7 @@ export default class ImageAnimation extends Laya.Sprite {
         this._rowCount = 0
         this._colCount = 0
         this._offsetTexture = new Laya.Point()
-        this._tag = ""
+        this._isAnimating = false
 
         // privates
         this._imgTexture = null
@@ -24,7 +24,7 @@ export default class ImageAnimation extends Laya.Sprite {
         this.size(originalSize.width, originalSize.height)
     }
 
-    setImage( imgUrl ) {
+    setImageData( imgUrl ) {
         if (this._imgUrl !== imgUrl) {
             if (typeof imgUrl === "object") {
                 let imgData = imgUrl
@@ -61,7 +61,7 @@ export default class ImageAnimation extends Laya.Sprite {
             imgPath = imgUrl
         }
         else if (Array.isArray(imgUrl) && imgUrl.length > 0) {
-            let randomIndex = G_Utils.random(0, imgUrl.length - 1)
+            let randomIndex = this._random(0, imgUrl.length - 1)
             imgPath = imgUrl[randomIndex]
         }
         else {
@@ -74,16 +74,6 @@ export default class ImageAnimation extends Laya.Sprite {
             }
 
             if (this.texture) {
-                // if (this.width !== this.texture.width && this.height !== this.texture.height) {
-                //     // reset size
-                //     this.size(this.texture.width, this.texture.height)
-
-                //     if (this._onSizeChangedCb) {
-                //         this._onSizeChangedCb()
-                //     }
-                // }
-                
-                //修复可能显示不了广告图片的bug-20191219 by:hmok
                 this.size(this.texture.width, this.texture.height)
 
                 if (this._onSizeChangedCb) {
@@ -162,24 +152,32 @@ export default class ImageAnimation extends Laya.Sprite {
     _startAnimate() {
         this._endAnimate()
 
-        // new tag
-        this._tag = G_Utils.generateString(32)
-
-        G_Scheduler.schedule("Update_Image_Animation_" + this._tag, function () {
-            // body...
-            if (this._checkIsOnShow(this)) {
-                this._updateFrame()
-            }
-        }.bind(this), false, 100)
+        // mark
+        this._isAnimating = true
+        // timer
+        this.timerLoop(100, this, this._updateAnimate)
 
         // first update
         this._updateFrame()
     }
+
+    _updateAnimate() {
+        if (!this._isAnimating) {
+            return
+        }
+
+        if (this._checkIsOnShow(this)) {
+            this._updateFrame()
+        }
+    }
     
     _endAnimate() {
-        if (this._tag !== "") {
-            G_Scheduler.unschedule("Update_Image_Animation_" + this._tag)
-            this._tag = ""
+        if (this._isAnimating) {
+            // reset
+            this._isAnimating = false
+
+            // clear
+            this.clearTimer(this, this._updateAnimate)
         }
     }
 
@@ -195,5 +193,20 @@ export default class ImageAnimation extends Laya.Sprite {
 
     _checkIsOnShow( node ) {
         return (node === null) || (node && node.visible && this._checkIsOnShow(node.parent))
+    }
+
+    _random(min, max) {
+        if (min < 0 || max <= 0) {
+            return 0;
+        }
+
+        switch(arguments.length) {
+            case 1:
+                return Math.floor(Math.random() * min + 1);
+            case 2:
+                return Math.floor(Math.random() * (max - min + 1) + min); 
+            default: 
+                return 0;
+        }
     }
 }

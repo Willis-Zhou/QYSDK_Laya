@@ -41,6 +41,18 @@ var _SoundMgr = function() {
 				}
 			},
 
+			pauseMusic: function () {
+				Laya.SoundManager.stopMusic()
+			},
+
+			resumeMusic: function () {
+				if (G_PlayerInfo.isSoundEnable()) {
+					if (_bgmUrl !== "") {
+						this.playMusic(_bgmUrl)
+					}
+				}
+			},
+
 			setSoundEnable: function ( isEnabled ) {
 				// body...
 				if (G_PlayerInfo.isSoundEnable() !== isEnabled) {
@@ -48,6 +60,9 @@ var _SoundMgr = function() {
 
 					if (isEnabled && _bgmUrl !== "") {
 						this.playMusic(_bgmUrl)
+					}
+					else if (!isEnabled && _bgmUrl !== "") {
+						Laya.SoundManager.stopMusic()
 					}
 				}
 			},

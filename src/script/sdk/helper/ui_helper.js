@@ -175,11 +175,17 @@ var _UIHelper = (function () {
 					}
 
 					if (!btn.doTouch) {
-						btn.doTouch = function ( shareScene, succCb, ov_key ) {
+						btn.doTouch = function ( shareScene, succCb, failCb, ov_key ) {
 							G_UIHelper.playBtnTouchAction(btn, function () {
 								// video
 								if (btn.getWay() === G_FreeGetWay.FGW_ADV) {
+									// pause bgm
+									G_SoundMgr.pauseMusic()
+
 									let checkVideoRet = function ( isEnded ) {
+										// resume bgm
+										G_SoundMgr.resumeMusic()
+
 										if (isEnded) {
 											// succ cb
 											if (typeof succCb === "function") {
@@ -200,9 +206,12 @@ var _UIHelper = (function () {
 										let funcName = "show" + ov_key + "VideoAd"
 										let func = G_OVAdv[funcName]
 										if (func) {
-											func.call(G_OVAdv, function (isEnded) {
+											let adObj = func.call(G_OVAdv, function (isEnded) {
 												checkVideoRet(isEnded)
 											}, function (cdTime) {
+												// resume bgm
+												G_SoundMgr.resumeMusic()
+
 												if (cdTime === -1) {
 													// retry later
 													G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_VIDEO_NOT_READY_YET"]).word)
@@ -212,16 +221,59 @@ var _UIHelper = (function () {
 													let formatStr = G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_FORMAT_OF_VIDEO_NOT_READY_YET"]).word
 													G_PlatHelper.showToast(formatStr.format(cdTime.toString()))
 												}
+
+												// fail cb
+												if (typeof failCb === "function") {
+													failCb()
+												}
 											})
+
+											if (!adObj) {
+												// resume bgm
+												G_SoundMgr.resumeMusic()
+
+												// fail cb
+												if (typeof failCb === "function") {
+													failCb()
+												}
+											}
 										}
+									}
+									else if (G_PlatHelper.isQTTPlatform()) {
+										G_PlatHelper.getPlat().showVideo(res => {
+											if (res === 1 || res === 0) {
+												checkVideoRet(true)
+											}
+											else if (res === 2) {
+												checkVideoRet(false)
+											}
+											else {
+												// retry later
+												G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_VIDEO_NOT_READY_YET"]).word)
+												
+												// fail cb
+												if (typeof failCb === "function") {
+													failCb()
+												}
+											}
+										})
 									}
 									else {
 										G_Adv.createVideoAdv(function ( isEnded ) {
 											checkVideoRet(isEnded)
 										}, function () {
 											// not support video anymore
+											
+											// resume bgm
+											G_SoundMgr.resumeMusic()
+
 											// refresh
 											btn.refreshWay()
+
+											// fail cb
+											if (typeof failCb === "function") {
+												failCb()
+											}
 										})
 									}
 								}
@@ -235,11 +287,18 @@ var _UIHelper = (function () {
 												if (typeof succCb === "function") {
 													succCb()
 												}
+
+												return
 											}
 											else {
 												// no more
 												G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_NO_MORE_REWARD"]).word)
 											}
+										}
+										
+										// fail cb
+										if (typeof failCb === "function") {
+											failCb()
 										}
 									})
 								}
@@ -520,6 +579,44 @@ var _UIHelper = (function () {
 				openGLSize.height = worldSize.height / Laya.stage.height * sysInfo.screenHeight
 
 				return openGLSize
+			},
+
+			// 将OpenGL坐标转化为世界坐标
+			// Window端不会有变化
+			convertToWorldPt: function ( openGLPt ) {
+				// body...
+				let worldPt = new Laya.Vector2(0, 0)
+
+				if (typeof openGLPt.x === "undefined" || openGLPt.x === null
+					|| typeof openGLPt.y === "undefined" || openGLPt.y === null) {
+					return worldPt
+				}
+
+				let sysInfo = G_PlatHelper.getSysInfo()
+				
+				worldPt.x = openGLPt.x / sysInfo.screenWidth * Laya.stage.width
+				worldPt.y = openGLPt.y / sysInfo.screenHeight * Laya.stage.height
+
+				return worldPt
+			},
+
+			// 将OpenGL的Size转化为世界Size
+			// Window端不会有变化
+			convertToWorldSize: function ( openGLSize ) {
+				// body...
+				let worldSize = new Laya.Vector2(0, 0)
+
+				if (typeof openGLSize.width === "undefined" || openGLSize.width === null
+					|| typeof openGLSize.height === "undefined" || openGLSize.height === null) {
+					return worldSize
+				}
+
+				let sysInfo = G_PlatHelper.getSysInfo()
+				
+				worldSize.width = openGLSize.width / sysInfo.screenWidth * Laya.stage.width
+				worldSize.height = openGLSize.height / sysInfo.screenHeight * Laya.stage.height
+
+				return worldSize
 			},
 		
 			_caculateMultiply: function(first, second) {

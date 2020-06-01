@@ -5,6 +5,8 @@ APP_BASE_CONST.init = function () {
 	let _EventName = {
 		// 第一次打开主场景
 		EN_FIRST_OPEN_MAIN_SCENE: "EN_FIRST_OPEN_MAIN_SCENE",
+		// 第一次打开主场景
+		EN_FIRST_START_GAME: "EN_FIRST_START_GAME",
 		// 显示banner广告
 		EN_SHOW_BANNER_AD: "EN_SHOW_BANNER_AD",
 		// 隐藏banner广告
@@ -17,6 +19,8 @@ APP_BASE_CONST.init = function () {
 		EN_SHOW_INSERT_AD: "EN_SHOW_INSERT_AD",
 		// 显示自己的插屏广告
 		EN_SHOW_OWN_INSERT_AD: "EN_SHOW_OWN_INSERT_AD",
+		// 刷新悬浮广告
+		EN_REFRESH_FLOW_AD: "EN_REFRESH_FLOW_AD",
 		// 取消跳转
 		EN_CANCEL_NAVIGATION_FROM_AD: "EN_CANCEL_NAVIGATION_FROM_AD"
 	}
@@ -59,6 +63,7 @@ APP_BASE_CONST.init = function () {
 	// 上报事件名
 	// 需要先注册，才能正确上报完成
 	let _ReportEventName = {
+		REN_NAVIGATE_SUCC_ON_TT_PLAT: "navigate_succ_on_tt_plat"
 	}
 	
 	for (let key in _ReportEventName) {
@@ -111,11 +116,42 @@ APP_BASE_CONST.init = function () {
 	// global
 	window.G_GameDBConfigs = _GameDBConfigs
 
-	// Oppo广告配置
+	// wx/qq/tt流量主广告配置
+	let _advConfigs = {
+		bannerAdUnitIDs: null,
+		videoAdUnitIDs: null,
+		interstitialAdUnitIDs: null
+	}
+
+	// global
+	window.G_advConfigs = _advConfigs
+
+	// Oppo/Vivo流量主广告配置
 	let _OVAdvConfigs = []
 
 	// global
 	window.G_OVAdvConfigs = _OVAdvConfigs
+
+	// 推荐广告配置
+	window.G_RecommendAdUnitIDs = null
+
+	// 盒子广告配置
+	window.G_BoxAdUnitIDs = null
+
+	// 商业广告位配置
+	let _ADCfg = {
+		"Popup": "",
+		"Flow": "",
+		"Banner": "",
+		"Scroll": "",
+		"FullScene": "",
+		"FullSceneScroll": "",
+		"Exit": "",
+		"Finish": ""
+	}
+
+	// global
+	window.G_ADCfg = _ADCfg
 
 	// 预加载资源配置
 	let _PreloadAssets = []
@@ -135,6 +171,8 @@ APP_BASE_CONST.init = function () {
 		SN_MIN_DURATION_BETWEEN_SHARE: "min_duration_between_share",
 		// 上报到阿拉丁后台的百分比
 		SN_PERCENT_OF_REPORT_TO_ALD: "percent_of_report_to_ald",
+		// 屏蔽导出的渠道（wx专用）
+		SN_DISABLE_EXPORT_ADV_CHIDS: "disable_export_adv_chids",
 		// 提审开关
 		SN_IS_PUBLISHING: "is_publishing",
 		// 提审版本
@@ -143,12 +181,20 @@ APP_BASE_CONST.init = function () {
 		SN_OV_CLICK_STATUS: "onlineMistakeStatusOfClick",
 		// 线上版本位移类误触开关
 		SN_OV_MOVE_STATUS: "onlineMistakeStatusOfMove",
+		// 线上版本按钮类误触开关
+		SN_OV_BTN_STATUS: "onlineMistakeStatusOfBtn",
+		// 线上版本退出类误触开关
+		SN_OV_EXIT_STATUS: "onlineMistakeStatusOfExit",
 		// 提审版本狂点类误触开关
 		SN_CV_CLICK_STATUS: "commitMistakeStatusOfClick",
 		// 提审版本位移类误触开关
 		SN_CV_MOVE_STATUS: "commitMistakeStatusOfMove",
+		// 提审版本按钮类误触开关
+		SN_CV_BTN_STATUS: "commitMistakeStatusOfBtn",
+		// 提审版本退出类误触开关
+		SN_CV_EXIT_STATUS: "commitMistakeStatusOfExit",
 		// 今天最大误触触发数
-		SN_TODAY_MAX_MISTAKE_COUNT: "todayMaxMistakeCount",
+		SN_TODAY_MAX_MISTAKE_COUNTS: "todayMaxMistakeCounts",
 		// 误触的触发概率
 		SN_INVOKE_MISTAKE_RATE: "invokeMistakeRate",
 		// 误触的触发间隔
@@ -157,8 +203,12 @@ APP_BASE_CONST.init = function () {
 		SN_INTERVAL_OF_CLICK_MISTAKES: "intervalOfClickMistakes",
 		// 误触的触发间隔 --- 位移
 		SN_INTERVAL_OF_MOVE_MISTAKES: "intervalOfMoveMistakes",
-		// 屏蔽导出的渠道
-		SN_DISABLE_EXPORT_ADV_CHIDS: "disable_export_adv_chids",
+		// 误触的触发间隔 --- 按钮
+		SN_INTERVAL_OF_BTN_MISTAKES: "intervalOfBtnMistakes",
+		// 误触的触发间隔 --- 退出
+		SN_INTERVAL_OF_EXIT_MISTAKES: "intervalOfExitMistakes",
+		// 是否新游戏
+		SN_IS_NEW_GAME: "isNewGame",
 	}
 
 	// global
@@ -172,7 +222,7 @@ APP_BASE_CONST.init = function () {
 		// 分享App
 		SS_SHARE_APP: "ShareApp",
 		// 客服界面默认分享
-		SS_CUSTOMER_SERVER: "customer_server",
+		SS_CUSTOMER_SERVER: "CustomerServer",
 	}
 
 	// global
@@ -186,22 +236,15 @@ APP_BASE_CONST.init = function () {
 	// global
 	window.G_SoundName = _SoundName
 
-	// 广告位配置
-	let _ADCfg = {
-		"Popup": "",
-		"Flow": "",
-		"Banner": "",
-		"FullScene": "",
-		"FullSceneScroll": ""
-	}
-
-	window.G_ADCfg = _ADCfg
-
 	// 远程资源的基础地址，为空时不设定
 	window.G_BaseUrlPath = ""
 
 	// 开启远程资源的本地白名单的地址(支持文件，文件夹）
-	window.G_AppNativefiles = []
+	window.G_AppNativefiles = [
+		"res/atlas/",
+		"res/conf/",
+		"ad/"
+	]
 
 	// 是否允许离线登录（登录失败转成离线状态）
 	window.G_IsAllowLoginOffline = true
@@ -209,8 +252,8 @@ APP_BASE_CONST.init = function () {
 	// 是否使用自己的插屏广告
 	window.G_IsUseOwnInsertAd = false
 
-	// oppo平台使用自己的插屏广告
-	if (typeof window.qg !== "undefined" && (window.qg.getProvider().toLowerCase().indexOf("oppo") > -1)) {
+	// ov平台使用自己的插屏广告
+	if (typeof window.qg !== "undefined") {
 		G_IsUseOwnInsertAd = true
 	}
 }

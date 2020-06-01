@@ -14,7 +14,7 @@ import { } from "./game/global/ui_mgr";
 import qysdk from "./db/proto/qysdk_db.js"
 
 // extend
-import { } from "./extend/framework_extend";
+import {FW_EXTEND} from "./extend/framework_extend";
 
 export default class App extends Laya.Script {
 
@@ -28,6 +28,9 @@ export default class App extends Laya.Script {
         // for banner
         this._isBannerOnShow = false
         this._isMiniBanner = false
+
+        // for report
+        this._isFirstStartGame = false
 
         // start app
         this._startApp()
@@ -53,11 +56,11 @@ export default class App extends Laya.Script {
         G_GameDB.registerAll(G_GameDBConfigs)
         G_GameDB.onLoad(function () {
             // body...
+            // 框架扩展
+            FW_EXTEND.init()
+
             // init Reportor
             G_Reportor.registerAllEvents(G_ReportEventName)
-
-            // Oppo/Vivo Adv
-            G_OVAdv.registerAll(G_OVAdvConfigs)
 
             // load Server Time
             G_ServerInfo.load(function () {
@@ -134,12 +137,53 @@ export default class App extends Laya.Script {
 
             // install shortcut on ov platform
             if (G_PlatHelper.isOVPlatform()) {
-                G_PlatHelper.installShortcut(function () {
-                    console.log("install shortcut succ...")
-                    // G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_INSTALL_SHORTCUT_SUCCESS"]).word)
-                })
+                if (G_PlatHelper.isOPPOPlatform()) {
+                    // report to oppo
+                    if (G_PlatHelper.getPlat() && G_PlatHelper.getPlat().reportMonitor) {
+                        G_PlatHelper.getPlat().reportMonitor('game_scene', 0)
+                    }
+
+                    G_PlatHelper.installShortcut(function () {
+                        console.log("install shortcut succ...")
+                        // G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_INSTALL_SHORTCUT_SUCCESS"]).word)
+                    })
+                }
 
                 G_OVAdv.preload()
+            }
+
+            if (G_PlatHelper.isQTTPlatform() && G_PlatHelper.getPlat().reportData) {
+                G_PlatHelper.getPlat().reportData({
+                    type: 'load',
+                    open_id: G_PlayerInfo.getOpenID(),
+                    app_id: G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_QTT_MINI_PROGRAM_APP_ID"]).str,
+                    game_name: G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_QTT_MINI_PROGRAM_APP_NAME"]).str,
+                    extend_info: {}
+                })
+
+                console.log("report qtt load event succ...")
+            }
+        })
+
+        G_Event.addEventListerner(G_EventName.EN_FIRST_START_GAME, () => {
+            // body...
+            if (this._isFirstStartGame) {
+                return
+            }
+
+            // mark
+            this._isFirstStartGame = true
+
+            if (G_PlatHelper.isQTTPlatform() && G_PlatHelper.getPlat().reportData) {
+                G_PlatHelper.getPlat().reportData({
+                    type: 'start',
+                    open_id: G_PlayerInfo.getOpenID(),
+                    app_id: G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_QTT_MINI_PROGRAM_APP_ID"]).str,
+                    game_name: G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_QTT_MINI_PROGRAM_APP_NAME"]).str,
+                    extend_info: {}
+                })
+
+                console.log("report qtt start event succ...")
             }
         })
     }
@@ -222,15 +266,30 @@ export default class App extends Laya.Script {
         G_Event.addEventListerner(G_EventName.EN_SHOW_BANNER_AD, function (isMiniBanner, ov_key = "Random") {
             // body...
             if (G_PlatHelper.isOVPlatform()) {
+                // mark
+                this._isBannerOnShow = true
+                this._isMiniBanner = isMiniBanner
+
                 let funcName = "show" + ov_key + "BannerAd"
                 let func = G_OVAdv["show" + ov_key + "BannerAd"]
 
                 if (func) {
-                    func.call(G_OVAdv)
+                    func.call(G_OVAdv, bannerObj => {
+                        if (bannerObj && this._isBannerOnShow) {
+                            bannerObj.show()
+                        }
+                    })
                 }
                 else {
                     console.warn("there is no target func in G_OVAdv: " + funcName)
                 }
+            }
+            else if (G_PlatHelper.isQTTPlatform()) {
+                // mark
+                this._isBannerOnShow = true
+                this._isMiniBanner = isMiniBanner
+
+                G_PlatHelper.getPlat().showBanner()
             }
             else if (G_PlatHelper.getPlat()) {
                 doShowBanner(isMiniBanner)
@@ -240,7 +299,18 @@ export default class App extends Laya.Script {
         G_Event.addEventListerner(G_EventName.EN_HIDE_BANNER_AD, function () {
             // body...
             if (G_PlatHelper.isOVPlatform()) {
+                // mark
+                this._isBannerOnShow = false
+                this._isMiniBanner = false
+
                 G_OVAdv.hideOnShowBannerAd()
+            }
+            else if (G_PlatHelper.isQTTPlatform()) {
+                // mark
+                this._isBannerOnShow = false
+                this._isMiniBanner = false
+
+                G_PlatHelper.getPlat().hideBanner()
             }
             else if (G_PlatHelper.getPlat()) {
                 doHideBanner()
@@ -253,7 +323,12 @@ export default class App extends Laya.Script {
             // body...
             if (G_PlatHelper.isOVPlatform()) {
                 if (G_IsUseOwnInsertAd && G_OVAdv.isSupportNative()) {
-                    G_Event.dispatchEvent(G_EventName.EN_SHOW_OWN_INSERT_AD)
+                    // hide banner
+                    G_Event.dispatchEvent(G_EventName.EN_HIDE_BANNER_AD)
+
+                    G_Event.dispatchEvent(G_EventName.EN_SHOW_OWN_INSERT_AD, () => {
+                        G_Event.dispatchEvent(G_EventName.EN_SHOW_BANNER_AD)
+                    })
                 }
                 else {
                     if (G_IsUseOwnInsertAd && !G_OVAdv.isSupportNative()) {
@@ -264,12 +339,12 @@ export default class App extends Laya.Script {
                     let func = G_OVAdv["show" + ov_key + "InsertAd"]
 
                     if (func) {
-                        if (G_PlatHelper.isOPPOPlatform()) {
+                        if (G_PlatHelper.isOVPlatform()) {
                             G_Event.dispatchEvent(G_EventName.EN_HIDE_BANNER_AD)
                         }
 
                         func.call(G_OVAdv, () => {
-                            if (G_PlatHelper.isOPPOPlatform()) {
+                            if (G_PlatHelper.isOVPlatform()) {
                                 G_Event.dispatchEvent(G_EventName.EN_SHOW_BANNER_AD)
                             }
 
@@ -282,6 +357,9 @@ export default class App extends Laya.Script {
                         console.warn("there is no target func in G_OVAdv: " + funcName)
                     }
                 }
+            }
+            else if (G_PlatHelper.isQTTPlatform()) {
+                G_PlatHelper.getPlat().showHDReward({rewardtype: 1})
             }
             else if (G_Adv.isSupportInterstitialAd()) {
                 G_Adv.createInterstitialAdv(() => {

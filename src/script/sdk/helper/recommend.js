@@ -44,13 +44,15 @@ var _Recommend = function() {
 		return {
 			init: function () {
 				// body...
-				let iconAdUnitIDs = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_RECOMMEND_ICON_AD_UNIT_IDS"]).str.split("||")
+				if (G_RecommendAdUnitIDs && Array.isArray(G_RecommendAdUnitIDs) && G_RecommendAdUnitIDs.length > 0) {
+					let iconAdUnitIDs = G_Utils.cloneDeep(G_RecommendAdUnitIDs)
 
-				// shuffle
-				G_Utils.shuffleArray(iconAdUnitIDs)
+					// shuffle
+					G_Utils.shuffleArray(iconAdUnitIDs)
 
-				// register
-				_registerAdUnitIDs(iconAdUnitIDs)
+					// register
+					_registerAdUnitIDs(iconAdUnitIDs)
+				}
 			},
 
 			isSupportGameIconAd: function () {
@@ -218,9 +220,6 @@ var _Recommend = function() {
 		getInstance: function () {
 			if ( !_instance ) {
 				_instance = init();
-
-				// init
-				_instance.init()
 			}
 
 			return _instance;

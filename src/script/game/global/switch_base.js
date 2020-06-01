@@ -252,6 +252,29 @@ export default class SwitchBase {
 		}
 	}
 
+	// 是否新游戏，默认false
+	isNewGame( cb ) {
+		// body...
+		if (typeof cb !== "function") {
+			return
+		}
+
+		if (G_PlatHelper.getPlat()) {
+			this._getCfgByKey(G_SwitchName.SN_IS_NEW_GAME, function (bSucc, sCfg) {
+				// body...
+				if (bSucc) {
+					cb(parseInt(sCfg, 10) === 1)
+				}
+				else {
+					cb(false)
+				}
+			})
+		}
+		else {
+			cb(false)
+		}
+	}
+
 	// 导出商业广告是否可用，默认false
 	isExportAdvEnabled( key, cb ) {
 		// body...
@@ -259,7 +282,10 @@ export default class SwitchBase {
 			return
 		}
 
-		let isKeyInited = G_ADCfg[key] !== ""
+		let isKeyInited = false
+		if (typeof G_ADCfg[key] === "string" && G_ADCfg[key] !== "") {
+			isKeyInited = true
+		}
 
 		if (G_PlatHelper.isWXPlatform()) {
 			if (this._isExportAdvEnabled === null) {
@@ -301,7 +327,7 @@ export default class SwitchBase {
 				cb(this._isExportAdvEnabled && isKeyInited)
 			}
 		}
-		else if (G_PlatHelper.isOPPOPlatform()) {
+		else if (G_PlatHelper.isWINPlatform() || G_PlatHelper.isOPPOPlatform() || G_PlatHelper.isTTPlatform()) {
 			cb(isKeyInited)
 		}
 		else {
@@ -326,8 +352,13 @@ export default class SwitchBase {
 			if (this._isAdvStateNormal === null) {
 				var self = this
 
+				let scene = undefined
+				if (!G_PlatHelper.isOVPlatform()) {
+					scene = G_PlatHelper.getLaunchOptions().scene
+				}
+
 				G_PlatHelper.getPlat().h_JudgeRegion({
-					scene: G_PlatHelper.getLaunchOptions().scene,
+					scene: scene,
 					success: function (res) {
 						if (res.Status === 200) {
 							self._isAdvStateNormal = res.Result.Status === 0
@@ -344,9 +375,7 @@ export default class SwitchBase {
 			}
 		}
 		else {
-			if (G_PlatHelper.isWXPlatform() || G_PlatHelper.isQQPlatform()) {
-				console.warn('plat.h_JudgeRegion 方法不存在，请检查 qy.js');
-			}
+			console.warn('plat.h_JudgeRegion 方法不存在，请检查 qy(-plat).js');
 			cb(false)
 		}
 	}
@@ -433,18 +462,100 @@ export default class SwitchBase {
 		}
 	}
 
-	// 误触接口相关
-	// 今天最大误触数量，默认9999
-	getTodayMaxMistakeCount( cb ) {
+	// 误触相关接口
+	// 是否按钮误触可用
+	isBtnMistakeEnabled( cb ) {
+		// body...
 		if (typeof cb !== "function") {
 			return
 		}
 
 		if (G_PlatHelper.getPlat()) {
-			this._getCfgByKey(G_SwitchName.SN_TODAY_MAX_MISTAKE_COUNT, function (bSucc, sCfg) {
+			this.getCommitVersion(function ( commitVersion ) {
+				if (commitVersion === G_SDKCfg.getAppVersion()) {
+					// commit
+					this._getCfgByKey(G_SwitchName.SN_CV_BTN_STATUS, function (bSucc, sCfg) {
+						// body...
+						if (bSucc) {
+							cb(parseInt(sCfg, 10) === 1)
+						}
+						else {
+							cb(false)
+						}
+					})
+				}
+				else {
+					// online
+					this._getCfgByKey(G_SwitchName.SN_OV_BTN_STATUS, function (bSucc, sCfg) {
+						// body...
+						if (bSucc) {
+							cb(parseInt(sCfg, 10) === 1)
+						}
+						else {
+							cb(false)
+						}
+					})
+				}
+			}.bind(this))
+		}
+		else {
+			cb(false)
+		}
+	}
+
+	// 误触相关接口
+	// 是否退出误触可用
+	isExitMistakeEnabled( cb ) {
+		// body...
+		if (typeof cb !== "function") {
+			return
+		}
+
+		if (G_PlatHelper.getPlat()) {
+			this.getCommitVersion(function ( commitVersion ) {
+				if (commitVersion === G_SDKCfg.getAppVersion()) {
+					// commit
+					this._getCfgByKey(G_SwitchName.SN_CV_EXIT_STATUS, function (bSucc, sCfg) {
+						// body...
+						if (bSucc) {
+							cb(parseInt(sCfg, 10) === 1)
+						}
+						else {
+							cb(false)
+						}
+					})
+				}
+				else {
+					// online
+					this._getCfgByKey(G_SwitchName.SN_OV_EXIT_STATUS, function (bSucc, sCfg) {
+						// body...
+						if (bSucc) {
+							cb(parseInt(sCfg, 10) === 1)
+						}
+						else {
+							cb(false)
+						}
+					})
+				}
+			}.bind(this))
+		}
+		else {
+			cb(false)
+		}
+	}
+
+	// 误触接口相关
+	// 今天最大误触数量，默认全部9999
+	getTodayMaxMistakeCounts( cb ) {
+		if (typeof cb !== "function") {
+			return
+		}
+
+		if (G_PlatHelper.getPlat()) {
+			this._getCfgByKey(G_SwitchName.SN_TODAY_MAX_MISTAKE_COUNTS, function (bSucc, sCfg) {
 				// body...
 				if (bSucc) {
-					cb(parseInt(sCfg, 10))
+					cb(sCfg)
 				}
 				else {
 					cb(9999)
@@ -512,6 +623,28 @@ export default class SwitchBase {
 			}
 			else if (type === "click") {
 				this._getCfgByKey(G_SwitchName.SN_INTERVAL_OF_CLICK_MISTAKES, function (bSucc, sCfg) {
+					// body...
+					if (bSucc) {
+						cb(parseInt(sCfg, 10))
+					}
+					else {
+						getCommonInterval(cb)
+					}
+				})
+			}
+			else if (type === "btn") {
+				this._getCfgByKey(G_SwitchName.SN_INTERVAL_OF_BTN_MISTAKES, function (bSucc, sCfg) {
+					// body...
+					if (bSucc) {
+						cb(parseInt(sCfg, 10))
+					}
+					else {
+						getCommonInterval(cb)
+					}
+				})
+			}
+			else if (type === "exit") {
+				this._getCfgByKey(G_SwitchName.SN_INTERVAL_OF_EXIT_MISTAKES, function (bSucc, sCfg) {
 					// body...
 					if (bSucc) {
 						cb(parseInt(sCfg, 10))

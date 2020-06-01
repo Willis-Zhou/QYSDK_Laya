@@ -16,6 +16,13 @@ class WINPlatHelper extends PlatBaseHelper {
 	}
 
 	/**
+	 * 是否能远程保存（从后台拉取）
+	 */
+	canSaveOnline() {
+		return false
+	}
+
+	/**
 	 * 显示提示框
 	 * @param {String} title 提示框内容
 	 * @param {String} icon 只支持"success", "loading", "none"三种模式，默认为"none"
@@ -34,6 +41,13 @@ class WINPlatHelper extends PlatBaseHelper {
 	hideToast() {
 		// body...
 		G_Event.dispatchEvent(G_EventName.EN_HIDE_LOCAL_TIPS)
+	}
+
+	/**
+	 * 是否支持震动
+	 */
+	isSupportVibratePhone() {
+		return false
 	}
 }
 
@@ -59,6 +73,13 @@ class WXPlatHelper extends PlatBaseHelper {
 	canLoginOnline() {
 		return true
 	}
+
+	/**
+	 * 是否能远程保存（从后台拉取）
+	 */
+	canSaveOnline() {
+		return true
+	}
 }
 
 class QQPlatHelper extends PlatBaseHelper {
@@ -79,6 +100,13 @@ class QQPlatHelper extends PlatBaseHelper {
 	 * 是否能远程登录（从后台拉取）
 	 */
 	canLoginOnline() {
+		return true
+	}
+
+	/**
+	 * 是否能远程保存（从后台拉取）
+	 */
+	canSaveOnline() {
 		return true
 	}
 }
@@ -128,11 +156,22 @@ class OPPOPlatHelper extends PlatBaseHelper {
 	}
 
 	/**
+	 * 是否能远程保存（从后台拉取）
+	 */
+	canSaveOnline() {
+		return false
+	}
+
+	/**
 	 * 手机震动
 	 * @param {Boolean} bLong 长/短
 	 */
 	vibratePhone( bLong ) {
 		// body...
+		if (!G_PlayerInfo.isMuteEnable()) {
+			return
+		}
+		
 		if (bLong) {
 			if (this._plat && this._plat.vibrateLong) {
 				this._plat.vibrateLong({
@@ -168,6 +207,22 @@ class OPPOPlatHelper extends PlatBaseHelper {
 	hideToast() {
 		// body...
 		G_Event.dispatchEvent(G_EventName.EN_HIDE_LOCAL_TIPS)
+	}
+
+	// 隐藏loading提示框
+	hideLoading() {
+		// body...
+		if (this._isLoadingOnShow) {
+			this._isLoadingOnShow = false
+
+			if (this._plat && this._plat.hideLoading) {
+				this._plat.hideLoading({
+					success: null,
+					fail: null,
+					complete: null
+				})
+			}
+		}
 	}
 
 	/**
@@ -231,6 +286,13 @@ class VIVOPlatHelper extends PlatBaseHelper {
 	 * 是否能远程登录（从后台拉取）
 	 */
 	canLoginOnline() {
+		return false
+	}
+
+	/**
+	 * 是否能远程保存（从后台拉取）
+	 */
+	canSaveOnline() {
 		return false
 	}
 
@@ -402,6 +464,7 @@ class TTPlatHelper extends PlatBaseHelper {
 		this._platDesc = "TT小游戏平台"
 		this._onNavigateSuccCb = null
 		this._onNavigateFailCb = null
+		this._onMoreGamesModalCloseCb = null
 	}
 	
 	init() {
@@ -409,8 +472,11 @@ class TTPlatHelper extends PlatBaseHelper {
 
 		if (this._plat && this._plat.onNavigateToMiniProgram) {
 			this._plat.onNavigateToMiniProgram(res => {
-				if (res.errCode === 0) {
+				if (res.errCode === 0 || res.errCode === 1) {
 					console.log("跳转成功", res)
+
+					// report succ
+					G_Reportor.report(G_ReportEventName.REN_NAVIGATE_SUCC_ON_TT_PLAT)
 
 					if (typeof this._onNavigateSuccCb === "function") {
 						this._onNavigateSuccCb()
@@ -454,6 +520,13 @@ class TTPlatHelper extends PlatBaseHelper {
 	 * 是否能远程登录（从后台拉取）
 	 */
 	canLoginOnline() {
+		return false
+	}
+
+	/**
+	 * 是否能远程保存（从后台拉取）
+	 */
+	canSaveOnline() {
 		return false
 	}
 
@@ -535,6 +608,144 @@ class TTPlatHelper extends PlatBaseHelper {
 	}
 }
 
+class QTTPlatHelper extends PlatBaseHelper {
+    constructor() {
+		super()
+
+        this._plat = window.qttGame
+        this._platType = "QTT"
+		this._platDesc = "趣头条小游戏平台"
+	}
+
+    /**
+	 * 是否能远程登录（从后台拉取）
+	 */
+	canLoginOnline() {
+		return false
+	}
+
+	/**
+	 * 是否能远程保存（从后台拉取）
+	 */
+	canSaveOnline() {
+		return true
+	}
+
+	/**
+	 * 自动登录
+	 */
+	autoLogin( cb ) {
+		if (typeof cb === "function") {
+			cb(null)
+		}
+	}
+
+	_login( cb ) {
+		this.__login(cb)
+	}
+
+	/**
+	 * QTT登录
+	 */
+	__login( cb ) {
+		let locationParams = this._getLocationParams()
+
+		let values = {
+			app_id: G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_QTT_MINI_PROGRAM_APP_ID"]).str,
+			app_key: G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_QTT_MINI_PROGRAM_APP_SECRET"]).str,
+			platform: locationParams.platform,
+			ticket: locationParams.ticket,
+			time: Date.parse(new Date()) / 1000,
+		}
+
+		// get keys
+		let keys_arr = []
+		for(let key in values){
+			keys_arr.push(key)
+		}
+
+		// sort
+		keys_arr.sort()
+
+		// to string
+		let keys_str = ""
+		keys_arr.forEach(key => {
+			keys_str += key
+			keys_str += values[key]
+		})
+
+		// sign
+		values.sign = hex_md5(keys_str)
+
+		// login
+		let params_url = "app_id=" + values.app_id + "&platform=" + values.platform + "&ticket=" + values.ticket + "&time=" + values.time + "&sign=" + values.sign
+		G_HttpHelper.getJson("https://newidea4-gamecenter-backend.1sapp.com/x/open/user/ticket?" + params_url, (bSucc, jsonData) => {
+			console.log(jsonData)
+
+			if (bSucc && jsonData && jsonData.data && jsonData.data.open_id) {
+				if (typeof cb === "function") {
+					cb(jsonData.data.open_id, this._generateSessID())
+				}
+			}
+			else {
+				// notify
+				G_Event.dispatchEvent(G_EventName.EN_SYSTEM_ERROR)
+			}
+		})
+	}
+
+	/**
+	 * 显示提示框
+	 * @param {String} title 提示框内容
+	 * @param {String} icon 只支持"success", "loading", "none"三种模式，默认为"none"
+	 */
+	showToast(title, icon) {
+		// body...
+		this._clearToastAndLoading()
+
+		console.log("show toast: " + title)
+		G_Event.dispatchEvent(G_EventName.EN_SHOW_LOCAL_TIPS, title)
+	}
+
+	/**
+	 * 隐藏提示框
+	 */
+	hideToast() {
+		// body...
+		G_Event.dispatchEvent(G_EventName.EN_HIDE_LOCAL_TIPS)
+	}
+
+	/**
+	 * 是否支持震动
+	 */
+	isSupportVibratePhone() {
+		return false
+	}
+
+	_getLocationParams() {
+		let data = window.location.search.substring()
+
+		if (data) {
+			data = data.substring(data.indexOf("?") + 1)
+
+			let kvs_arr = data.split('&')
+			let kvs_map = {}
+
+			kvs_arr.forEach(each => {
+				let kvs = each.split("=")
+				if (kvs.length === 2) {
+					kvs_map[kvs[0]] = kvs[1]
+				}
+				 
+			})
+
+			return kvs_map
+		}
+
+		return {}
+	}
+}
+
 var _PlatHelper = null
 
 if (typeof window.qq !== "undefined") {
@@ -548,6 +759,9 @@ else if (typeof window.qg !== "undefined" && (window.qg.getProvider().toLowerCas
 }
 else if (typeof window.qg !== "undefined" && (window.qg.getProvider().toLowerCase().indexOf("vivo") > -1)) {
     _PlatHelper = VIVOPlatHelper
+}
+else if (typeof window.qttGame !== "undefined") {
+    _PlatHelper = QTTPlatHelper
 }
 else if (typeof window.wx !== "undefined") {
     _PlatHelper = WXPlatHelper

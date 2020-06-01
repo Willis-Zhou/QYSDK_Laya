@@ -56,7 +56,7 @@ export default class MoreGamePopup extends BaseUI {
     onCloseTouched( btn ) {
         G_UIHelper.playBtnTouchAction(btn, function () {
             G_UIManager.hideUI("moreGameAd")
-        }.bind(this), 0.7)
+        }.bind(this))
         
         G_SoundMgr.playSound(G_SoundName.SN_CLICK)
     }

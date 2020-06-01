@@ -19,7 +19,6 @@ export default class AdvBase {
 		this._failCountOfCreateBanner = 0
 		this._passedTimeFromLastRefresh = 0
 		this._bannerOnShow = false
-		this._bannerLoadOver = true		// banner是否加载完成
 
 		// video
 		this._videoAdUnitIDIndex = -1
@@ -105,60 +104,18 @@ export default class AdvBase {
 			console.log("Register All Ad Unit IDs Succ!")
 		}
 		else {
-			console.error("Register Ad Unit IDs Fail!")
+			if (!G_PlatHelper.isOVPlatform()) {
+				console.error("Register Ad Unit IDs Fail!")
+			}
 		}
 	}
 
 	init(initedCb) {
 		// body...
-		if (G_PlatHelper.isWXPlatform() || G_PlatHelper.isQQPlatform()) {
-			if (typeof G_PlatHelper.getPlat().h_GetAppFlowAdList === 'function') {
-				G_PlatHelper.getPlat().h_GetAppFlowAdList({
-					success: res => {
-						let bannerAdUnitIDs = []
-						let videoAdUnitIDs = []
-						let interstitialAdUnitIDs = []
+		this._registerAdUnitIDs([], [], [])
 
-						if (res.Status === 200 && res.Result.List.length > 0) {
-							let adList = res.Result.List
-
-							for (let i = 0; i < adList.length; i++) {
-								if (adList[i].type === "1") {
-									bannerAdUnitIDs.push(adList[i].ad_id)
-								}
-								else if (adList[i].type === "2") {
-									videoAdUnitIDs.push(adList[i].ad_id)
-								}
-								else if (adList[i].type === "3") {
-									interstitialAdUnitIDs.push(adList[i].ad_id)
-								}
-							}
-						}
-
-						this._registerAdUnitIDs(bannerAdUnitIDs, videoAdUnitIDs, interstitialAdUnitIDs)
-
-						if (typeof initedCb === "function") {
-							initedCb()
-						}
-					}
-				})
-			}
-			else {
-				console.warn('wx(qq).h_GetAppFlowAdList 方法不存在，请检查 qy.js');
-
-				this._registerAdUnitIDs([], [], [])
-
-				if (typeof initedCb === "function") {
-					initedCb()
-				}
-			}
-		}
-		else {
-			this._registerAdUnitIDs([], [], [])
-
-			if (typeof initedCb === "function") {
-				initedCb()
-			}
+		if (typeof initedCb === "function") {
+			initedCb()
 		}
 	}
 
@@ -286,34 +243,12 @@ export default class AdvBase {
 	 */
 	createBannerAdv(style, errCb, loadCb) {
 		// body...
-		if(!this._bannerLoadOver) {
-			console.error("banner is creating")
-			return;
-		}
-
-		console.log("begin load banner")
-		this._bannerLoadOver = false
-
-		let ecb = function() {
-			this._bannerLoadOver = true
-			console.log("create banner fail")
-
-			// cb
-			this._handlerFun(errCb)
-		}.bind(this)
-
-		let lcb = function(obj) {
-			this._bannerLoadOver = true
-			console.log("create banner success")
-
-			// cb
-			this._handlerFun(loadCb)
-		}.bind(this)
-
 		if (!this.isSupportBannerAd()) {
 			// notify
 			G_Event.dispatchEvent(G_EventName.EN_BANNER_NOT_SUPPORT_RIGHT_NOW)
-			ecb()
+
+			// cb
+			this._handlerFun(errCb)
 			return
 		}
 
@@ -324,13 +259,21 @@ export default class AdvBase {
 		if (this._bannerAdObj) {
 			let needDestroyObj = this._bannerAdObj
 
-			//延时销毁之前的旧banner-by:hmok20191231
-			G_Scheduler.schedule("Destroy_old_Banner", function () {
+			G_Scheduler.schedule("Destroy_Old_Banner", function () {
 				// body...
 				console.log("destory old banner...")
-
-				if(needDestroyObj){
-					needDestroyObj.destroy()
+				
+				if (G_PlatHelper.isQQPlatform()) {
+					if (!Laya.Browser.onAndroid) {
+						if(needDestroyObj){
+							needDestroyObj.destroy()
+						}
+					}
+				}
+				else {
+					if(needDestroyObj){
+						needDestroyObj.destroy()
+					}
 				}
 			}.bind(this), false, 60, 0);
 
@@ -338,15 +281,17 @@ export default class AdvBase {
 		}
 
 		// get banner ad obj
-		this._bannerAdObj = this._getBannerAdObj(style, ecb, function(obj) {
+		this._bannerAdObj = this._getBannerAdObj(style, errCb, function(obj) {
 			if (!this._bannerOnShow) {
 				this._hideBannerAdv()
 			}
 
 			if (obj) {
-				lcb()
+				// cb
+				this._handlerFun(loadCb)
 			} else {
-				ecb()
+				// cb
+				this._handlerFun(errCb)
 			}
 		}.bind(this))
 
@@ -397,11 +342,15 @@ export default class AdvBase {
 		else if (style) {
 			console.log("use preloaded banner obj...")
 
-			let platformStyle = this._convertToPlatformStyle(style)
-			bannerAdObj.style.left = platformStyle.left
-			bannerAdObj.style.top = platformStyle.top
-			bannerAdObj.style.width = platformStyle.width
-			loadCb(bannerAdObj);
+			if (this._isSupportResizeTwice()) {
+				let platformStyle = this._convertToPlatformStyle(style)
+				bannerAdObj.style.left = platformStyle.left
+				bannerAdObj.style.top = platformStyle.top
+				bannerAdObj.style.width = platformStyle.width
+			}
+
+			// load cb
+			loadCb(bannerAdObj)
 		}
 		
 		return bannerAdObj
@@ -413,6 +362,13 @@ export default class AdvBase {
 		if (!this.isSupportBannerAd()) {
 			this._handlerFun(errCb)
 			return
+		}
+
+		if (G_PlatHelper.isQQPlatform()) {
+			if (Laya.Browser.onAndroid) {
+				this._handlerFun(errCb)
+				return
+			}
 		}
 
 		if (this._preloadBannerAdObj === null) {
@@ -460,17 +416,17 @@ export default class AdvBase {
 
 		var self = this
 
-		bannerAdObj.onLoad(function () {
+		bannerAdObj.onLoad(() => {
 			// callback
 			let _loadCb = bannerAdObj.loadCb
-			bannerAdObj.loadCb = undefined
+			bannerAdObj.loadCb = null
 			
 			if (_loadCb) {
 				_loadCb(bannerAdObj)
 			}
 		})
 
-		bannerAdObj.onError(function ( err ) {
+		bannerAdObj.onError((err) => {
 			// body...
 			console.log("show banner fail...")
 
@@ -478,11 +434,18 @@ export default class AdvBase {
 
 			// destory
 			if (bannerAdObj) {
-				// destroy
-				//bannerAdObj.destroy()
+				// reset
+				if (self._bannerAdObj === bannerAdObj) {
+					self._bannerAdObj = null
+				}
 
 				// record
 				_errCb = bannerAdObj.errCb
+
+				// destroy
+				if (G_PlatHelper.isTTPlatform()) {
+					bannerAdObj.destroy()
+				}
 
 				// reset null
 				bannerAdObj = null
@@ -574,7 +537,7 @@ export default class AdvBase {
 		}
 
 		// windows平台
-		if (!G_PlatHelper.getPlat()) {
+		if (!G_PlatHelper.getPlat() || !G_PlatHelper.getPlat().createRewardedVideoAd) {
 			if (typeof closeCb === "function") {
 				closeCb(true)
 			}
@@ -659,9 +622,12 @@ export default class AdvBase {
 			this._videoAdUnitIDIndex = 0
 		}
 
-		this._videoAdIns = G_PlatHelper.getPlat().createRewardedVideoAd({
-			adUnitId: this._videoAdUnitIDs[this._videoAdUnitIDIndex]
-		})
+		this._videoAdIns = null
+		if (G_PlatHelper.getPlat().createRewardedVideoAd) {
+			this._videoAdIns = G_PlatHelper.getPlat().createRewardedVideoAd({
+				adUnitId: this._videoAdUnitIDs[this._videoAdUnitIDIndex]
+			})
+		}
 
 		if (this._videoAdIns) {
 			var self = this
@@ -685,9 +651,9 @@ export default class AdvBase {
 					let _closeCb = self._videoAdIns.closeCb
 					let _errCb = self._videoAdIns.errCb
 
-						// reset
-						self._videoAdIns.closeCb = null
-						self._videoAdIns.errCb = null
+					// reset
+					self._videoAdIns.closeCb = null
+					self._videoAdIns.errCb = null
 
 					if (!result || result.isEnded) {
 						if (_closeCb) {
@@ -706,7 +672,9 @@ export default class AdvBase {
 								}
 							}
 							else {
-								self._showConfirm(_closeCb, _errCb)
+								if (_closeCb || _errCb) {
+									self._showConfirm(_closeCb, _errCb)
+								}
 							}
 						})
 					}
@@ -716,9 +684,9 @@ export default class AdvBase {
 				}
 			})
 
-			this._videoAdIns.onError(function (result) {
+			this._videoAdIns.onError(function (err) {
 				// body...
-				console.log("show videoAd fail...")
+				console.log("show videoAd fail...", err)
 
 				// stop support video
 				self._stopSupportVideoAd()
@@ -1000,6 +968,12 @@ export default class AdvBase {
 		}
 	}
 
+	createBoxAdv( closeCb ) {
+		return null
+	}
+
+	addColorSign() {}
+
 	_convertToPlatformStyle( style ) {
 		// body...
 		let platformStyle = this._getDefaultPlatformStyle()
@@ -1030,13 +1004,8 @@ export default class AdvBase {
 			let bottom = style.bottom
 			if (G_PlatHelper.isIPhoneX()) {
 				if (typeof bottom === "number") {
-					if (G_PlatHelper.isQQPlatform() && bottom < 20) {
-						// at least 20
-						bottom = 20
-					}
-					else if (bottom < 40) {
-						// at least 40
-						bottom = 40
+					if (bottom < this._getMiniGapFromBottom()) {
+						bottom = this._getMiniGapFromBottom()
 					}
 				}
 			}
@@ -1071,6 +1040,14 @@ export default class AdvBase {
 			width: 960,
 			height: 334
 		}
+	}
+
+	_getMiniGapFromBottom() {
+		return 0
+	}
+
+	_isSupportResizeTwice() {
+		return true
 	}
 
 	_handlerFun(fun){

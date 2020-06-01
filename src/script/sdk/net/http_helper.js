@@ -284,7 +284,9 @@ var _HttpHelper = function() {
 		
 				var layaRequest = new Laya.HttpRequest()
 				var request = layaRequest._http
-				url = "{0}?timestamp={1}".format(url, this._getServerTime().toString())
+				if (url.indexOf('?') == -1) {
+					url = "{0}?timestamp={1}".format(url, this._getServerTime().toString())
+				}
 				request.open(way, url, true)
 		
 				// print...

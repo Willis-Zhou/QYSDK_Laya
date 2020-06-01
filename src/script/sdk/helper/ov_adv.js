@@ -1,5 +1,5 @@
 // for vivo
-var G_GapOfEachBanner = 10000
+var G_GapOfEachBanner = 15000
 var G_GapOfEachVideo = 60000
 
 /*
@@ -64,6 +64,11 @@ var _OVAdv = (function () {
 				return (_isSupport && _configs.length > 0)
             },
 
+            stopSupport: function () {
+                console.log("force stop support all advs...")
+                _isSupport = false
+            },
+
             isSupportBanner: function () {
                 return (_isSupport && _bannerConfigs.length > 0)  
             },
@@ -116,12 +121,12 @@ var _OVAdv = (function () {
 						if (info && _checkString(info.key) && _checkString(info.posId)) {
                             if (info.type === "Banner") {
                                 let funcName = "show" + info.key + "BannerAd"
-                                this[funcName] = function () {
+                                this[funcName] = function (loadCb) {
                                     // body...
                                     if (!G_PlatHelper.isOVPlatform()) {
                                         console.log("call {0} func...".format(funcName))
                                     }
-									return this._doShowBanner(info.posId)
+									return this._doShowBanner(info.posId, loadCb)
                                 }.bind(this)
                                 
                                 // push into banner cfgs
@@ -188,7 +193,7 @@ var _OVAdv = (function () {
                 }
             },
             
-            showRandomBannerAd: function () {
+            showRandomBannerAd: function ( loadCb ) {
                 if (_bannerConfigs && _bannerConfigs.length > 0) {
                     let randomIndex = G_Utils.random(0, _bannerConfigs.length - 1)
                     let info = _bannerConfigs[randomIndex]
@@ -198,10 +203,12 @@ var _OVAdv = (function () {
                         let func = this[funcName]
 
                         if (func) {
-                            func.call(this)
+                            return func.call(this, loadCb)
                         }
                     }
                 }
+
+                return null
             },
 
             showRandomVideoAd: function ( closeCb, errCb ) {
@@ -214,10 +221,12 @@ var _OVAdv = (function () {
                         let func = this[funcName]
 
                         if (func) {
-                            func.call(this, closeCb, errCb)
+                            return func.call(this, closeCb, errCb)
                         }
                     }
                 }
+
+                return null
             },
 
             showRandomInsertAd: function ( cb ) {
@@ -230,10 +239,12 @@ var _OVAdv = (function () {
                         let func = this[funcName]
 
                         if (func) {
-                            func.call(this, cb)
+                            return func.call(this, cb)
                         }
                     }
                 }
+
+                return null
             },
             
             loadRandomNativeAd: function ( cb ) {
@@ -252,7 +263,7 @@ var _OVAdv = (function () {
                 }
             },
 
-            _doShowBanner: function ( _posId ) {
+            _doShowBanner: function ( _posId, _loadCb = null ) {
                 if (!_isSupport) {
                     return null
                 }
@@ -289,6 +300,22 @@ var _OVAdv = (function () {
                         })
                     }
 
+                    if (typeof _loadCb === "function") {
+                        bannerObj._loadCb = _loadCb
+                    }
+
+                    if (G_PlatHelper.isVIVOPlatform()) {
+                        bannerObj.onLoad(function() {
+                            if (bannerObj._loadCb) {
+                                let loadCb = bannerObj._loadCb
+                                bannerObj._loadCb = null
+
+                                // cb
+                                loadCb(bannerObj)
+                            }
+                        })
+                    }
+
                     bannerObj.onError(function( err ) {
                         console.error(err)
 
@@ -306,10 +333,21 @@ var _OVAdv = (function () {
                     // save to on show
                     _onShowBannerObj = bannerObj
                     _onShowBannerObj._lastCreatedTime = G_ServerInfo.getServerTime()
-                }
 
-                // show
-                _onShowBannerObj.show()
+                    if (G_PlatHelper.isOPPOPlatform()) {
+                        if (bannerObj._loadCb) {
+                            let loadCb = bannerObj._loadCb
+                            bannerObj._loadCb = null
+
+                            // cb
+                            loadCb(bannerObj)
+                        }
+                        else {
+                            // direct show
+                            bannerObj.show()
+                        }
+                    }
+                }
         
                 return _onShowBannerObj
             },
@@ -467,6 +505,11 @@ var _OVAdv = (function () {
                     nativeObj.offLoad(onLoadHander)
                     nativeObj.offError(onErrorHander)
                     if (res.adList.length > 0) {
+                        res.adList.forEach(adInfo => {
+                            adInfo.localAdID = G_Utils.generateString(32)
+                        })
+
+                        // save
                         nativeObj._adList = res.adList
 
                         if(typeof _cb === "function") {
@@ -505,8 +548,8 @@ var _OVAdv = (function () {
                         candidateObjs = []
 
                         for (let i = 0; i < _unClickNativeObjs.length; i++) {
-                            let adID = _unClickNativeObjs[i]._adList[_unClickNativeObjs[i]._adList.length - 1].adId
-                            if (adID !== _lastUsedAdID) {
+                            let localAdID = _unClickNativeObjs[i]._adList[_unClickNativeObjs[i]._adList.length - 1].localAdID
+                            if (localAdID !== _lastUsedAdID) {
                                 candidateObjs.push(_unClickNativeObjs[i])
                             }
                         }
@@ -517,7 +560,9 @@ var _OVAdv = (function () {
                     let unClickNativeInfo = unClickNativeObj._adList[unClickNativeObj._adList.length - 1]
 
                     // save
-                    _lastUsedAdID = unClickNativeInfo.adId
+                    _lastUsedAdID = unClickNativeInfo.localAdID
+
+                    console.log("next used ad id: ", _lastUsedAdID)
 
                     return [unClickNativeObj, unClickNativeInfo]
                 }
@@ -526,8 +571,9 @@ var _OVAdv = (function () {
             },
 
             reportNativeAdShow: function ( nativeAdObj, adID ) {
+                console.log("just show native ad...")
+
                 if (nativeAdObj) {
-                    console.log("show native ad: ", adID)
                     nativeAdObj.reportAdShow({
                         adId: adID
                     })
@@ -535,6 +581,12 @@ var _OVAdv = (function () {
             },
 
             reportNativeAdHide: function () {
+                if (!_isSupport) {
+                    return
+                }
+
+                console.log("just hide native ad...")
+
                 this.loadRandomNativeAd(obj => {
                     if (obj) {
                         console.log("auto preload next native ad succ...")
@@ -547,8 +599,9 @@ var _OVAdv = (function () {
             },
 
             reportNativeAdClick: function ( nativeAdObj, adID ) {
+                console.log("just click native ad...")
+
                 if (nativeAdObj) {
-                    console.log("click native ad: ", adID)
                     nativeAdObj.reportAdClick({
                         adId: adID
                     })
@@ -566,7 +619,9 @@ var _OVAdv = (function () {
                         }
 
                         // destory
-                        nativeAdObj.destroy()
+                        if (G_PlatHelper.isOPPOPlatform()) {
+                            nativeAdObj.destroy()
+                        }
                     }
 
                     // preload more

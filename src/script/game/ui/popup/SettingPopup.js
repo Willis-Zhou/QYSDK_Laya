@@ -35,6 +35,9 @@ export default class SettingPopup extends BaseUI {
             shareBtn.on("click", null, function () {
                 this.onShareTouched(shareBtn)
             }.bind(this))
+
+            // visible
+            shareBtn.visible = G_Share.isSupport()
         }
 
         let soundSwitchBtn = G_UIHelper.seekNodeByName(this.owner, "soundSwitchBtn")
@@ -57,6 +60,11 @@ export default class SettingPopup extends BaseUI {
             // init
             this._initSwitchBtn(muteSwitchBtn)
             muteSwitchBtn.setWitchState(G_PlayerInfo.isMuteEnable())
+
+            // visible
+            G_UIHelper.seekNodeByName(this.owner, "muteIcon").visible = G_PlatHelper.isSupportVibratePhone()
+            G_UIHelper.seekNodeByName(this.owner, "muteText").visible = G_PlatHelper.isSupportVibratePhone()
+            G_UIHelper.seekNodeByName(this.owner, "muteSwitchBtn").visible = G_PlatHelper.isSupportVibratePhone()
         }
     }
 

@@ -23,7 +23,6 @@ var _Utils = (function () {
 		return {
 			/**
 			 * 注册lodash工具
-			 * QQ平台不支持
 			 * 
 			 */
 			registerLodash( lodash ) {
@@ -32,7 +31,6 @@ var _Utils = (function () {
 
 			/**
 			 * 获取注册的lodash工具
-			 * QQ平台不支持
 			 * 
 			 */
 			getLodash() {

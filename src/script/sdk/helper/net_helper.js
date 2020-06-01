@@ -207,23 +207,42 @@ var _NetHelper = (function () {
 				this.sendJsonOrForm("sendForm", this._getTag(), "/wx/checkLogin", sendObj, cb)
 			},
 
-			reqLoadPlayerInfo: function ( sessid, cb ) {
+			reqLoadPlayerInfo: function ( sessID, cb ) {
 				// body...
 				let sendObj = {
-					JavasessionId: sessid
+					JavasessionId: sessID
 				}
 
 				this.sendJsonOrForm("sendForm", this._getTag(), "/wx/getWxUserInfo", sendObj, cb)
 			},
 
-			reqSavePlayerInfo: function ( sessid, szStatus, cb ) {
+			reqSavePlayerInfo: function ( sessID, szStatus, cb ) {
 				// body...
 				let sendObj = {
-					JavasessionId: sessid,
+					JavasessionId: sessID,
 					selfStore: szStatus
 				}
 
 				this.sendJsonOrForm("sendForm", this._getTag(), "/wx/setWxUserInfo", sendObj, cb)
+			},
+
+			reqLoadPlayerInfo_WithOpenID: function ( openID, cb ) {
+				// body...
+				let sendObj = {
+					openId: openID
+				}
+
+				this.sendJsonOrForm("sendForm", this._getTag(), "/pip/getUserInfo", sendObj, cb)
+			},
+
+			reqSavePlayerInfo_WithOpenID: function ( openID, szStatus, cb ) {
+				// body...
+				let sendObj = {
+					openId: openID,
+					selfStore: szStatus
+				}
+
+				this.sendJsonOrForm("sendForm", this._getTag(), "/pip/setUserInfo", sendObj, cb)
 			},
 
 			reqGetServerTime: function ( cb ) {
@@ -245,6 +264,9 @@ var _NetHelper = (function () {
 				}
 				else if (G_PlatHelper.isVIVOPlatform()) {
 					sendObj.app_id = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_VIVO_MINI_PROGRAM_APP_ID"]).str
+				}
+				else if (G_PlatHelper.isQTTPlatform()) {
+					sendObj.app_id = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_QTT_MINI_PROGRAM_APP_ID"]).str
 				}
 				else {
 					sendObj.app_id = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_MINI_PROGRAM_APP_ID"]).str
@@ -315,6 +337,9 @@ var _NetHelper = (function () {
 					}
 					else if (G_PlatHelper.isVIVOPlatform()) {
 						header.appId = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_VIVO_MINI_PROGRAM_APP_ID"]).str
+					}
+					else if (G_PlatHelper.isQTTPlatform()) {
+						header.appId = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_QTT_MINI_PROGRAM_APP_ID"]).str
 					}
 					else {
 						header.appId = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_MINI_PROGRAM_APP_ID"]).str

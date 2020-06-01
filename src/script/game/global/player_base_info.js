@@ -113,6 +113,71 @@ export default class PlayerBaseInfo {
 			// inited
 			G_Switch.inited()
 
+			// business ads
+			if (jsonData.data.config.busAd) {
+				let adCfgs = jsonData.data.config.busAd
+
+				// 添加为全局（重复则覆盖）
+				for (let key in adCfgs) {
+					G_ADCfg[key] = adCfgs[key]
+				}
+			}
+
+			// flow ads
+			if (Array.isArray(jsonData.data.config.flowAd)) {
+				let adCfgs = jsonData.data.config.flowAd
+
+				adCfgs.forEach(adCfg => {
+					if (G_PlatHelper.isOVPlatform()) {
+						if (adCfg.flows_type === "banner") {
+							G_OVAdvConfigs.push({
+								key: "Common",
+								posId: adCfg.flows_id,
+								type: "Banner"
+							})
+						}
+						else if (adCfg.flows_type === "video") {
+							G_OVAdvConfigs.push({
+								key: "Common",
+								posId: adCfg.flows_id,
+								type: "Video"
+							})
+						}
+						else if (adCfg.flows_type === "insert") {
+							G_OVAdvConfigs.push({
+								key: "Common",
+								posId: adCfg.flows_id,
+								type: "Insert"
+							})
+						}
+						else if (adCfg.flows_type === "native") {
+							G_OVAdvConfigs.push({
+								key: "Common",
+								posId: adCfg.flows_id,
+								type: "Native"
+							})
+						}
+					}
+					else {
+						if (adCfg.flows_type === "banner") {
+							G_advConfigs.bannerAdUnitIDs = adCfg.flows_id.split("||")
+						}
+						else if (adCfg.flows_type === "video") {
+							G_advConfigs.videoAdUnitIDs = adCfg.flows_id.split("||")
+						}
+						else if (adCfg.flows_type === "insert") {
+							G_advConfigs.interstitialAdUnitIDs = adCfg.flows_id.split("||")
+						}
+						else if (adCfg.flows_type === "recommend") {
+							G_RecommendAdUnitIDs = adCfg.flows_id.split("||")
+						}
+						else if (adCfg.flows_type === "box") {
+							G_BoxAdUnitIDs = adCfg.flows_id.split("||")
+						}
+					}
+				})
+			}
+
 			// share
 			G_Share.addCfgs(jsonData.data.config.sense)
 		}
@@ -131,7 +196,7 @@ export default class PlayerBaseInfo {
 				cb(self._playerInfo)
 			}
 
-			if (G_PlatHelper.canLoginOnline()) {
+			if (G_PlatHelper.canSaveOnline()) {
 				// only auto save on wx/qq platform
 				G_Scheduler.schedule("Auto_Save_Player_Info", function () {
 					// body...
@@ -140,9 +205,8 @@ export default class PlayerBaseInfo {
 			}
 		}
 
-		if (G_PlatHelper.canLoginOnline()) {
-			G_NetHelper.reqLoadPlayerInfo(sessID, function (jsonData) {
-				// body...
+		if (G_PlatHelper.canSaveOnline()) {
+			let onGotPlayerInfo = (jsonData) => {
 				console.log(jsonData)
 
 				if (jsonData && jsonData.code === 0) {
@@ -184,7 +248,14 @@ export default class PlayerBaseInfo {
 					// notify
 					G_Event.dispatchEvent(G_EventName.EN_SYSTEM_ERROR)
 				}
-			})
+			}
+
+			if (G_PlatHelper.canLoginOnline()) {
+				G_NetHelper.reqLoadPlayerInfo(sessID, onGotPlayerInfo)
+			}
+			else {
+				G_NetHelper.reqLoadPlayerInfo_WithOpenID(openID, onGotPlayerInfo)
+			}
 		}
 		else {
 			// check local player info
@@ -254,25 +325,37 @@ export default class PlayerBaseInfo {
 	// 主动保存
 	save() {
 		// body...
-		if (G_PlatHelper.canLoginOnline() && this._playerInfo) {
+		if (G_PlatHelper.canSaveOnline() && this._playerInfo) {
 			var self = this
 
 			let serialize_btyes = this._playerInfo.constructor.encode(this._playerInfo).finish()
 			let serialize_text = G_Utils.Uint8Array2HexString(serialize_btyes)
-			G_NetHelper.reqSavePlayerInfo(this._playerInfo.sessID, serialize_text, function () {
-				// body...
-				self._playerInfo.lastSaveTime = Math.floor(G_ServerInfo.getServerTime() / 1000.0)
 
-				// save to wx
-				self.saveToWX()
-			})
+			if (G_PlatHelper.canLoginOnline()) {
+				G_NetHelper.reqSavePlayerInfo(this._playerInfo.sessID, serialize_text, function () {
+					// body...
+					self._playerInfo.lastSaveTime = Math.floor(G_ServerInfo.getServerTime() / 1000.0)
+	
+					// save to wx
+					self.saveToWX()
+				})
+			}
+			else {
+				G_NetHelper.reqSavePlayerInfo_WithOpenID(this._playerInfo.openID, serialize_text, function () {
+					// body...
+					self._playerInfo.lastSaveTime = Math.floor(G_ServerInfo.getServerTime() / 1000.0)
+	
+					// save to wx
+					self.saveToWX()
+				})
+			}
 		}
 	}
 
 	// 主动保存到微信
 	saveToWX() {
 		// body...
-		if (G_OpenHelper) {
+		if (typeof G_OpenHelper !== "undefined") {
 			let selfInfo = {}
 
 			if (typeof this.onFillSaveToWXData === "function") {

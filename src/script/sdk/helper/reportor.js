@@ -4,7 +4,7 @@
 */
 
 import qy from "../../external/qy/qy";
-import qy_ov from "../../external/qy/qy-ov";
+import qy_plat from "../../external/qy/qy-plat";
 import ald from "../../external/ald/ald-game";
 import ald_qq from "../../external/ald/ald-qq-game";
 
@@ -83,11 +83,11 @@ var _Reportor = (function () {
 					if (G_PlatHelper.getPlat()) {
 						if (!G_PlatHelper.getPlat().h_SendEvent) {
 							// load qy sdk
-							if (G_PlatHelper.isOVPlatform()) {
-								qy_ov.init()
-							}
-							else if (G_PlatHelper.isWXPlatform() || G_PlatHelper.isQQPlatform()) {
+							if (G_PlatHelper.isWXPlatform()) {
 								qy.init()
+							}
+							else {
+								qy_plat.init()
 							}
 						}
 

@@ -94,7 +94,9 @@ export default class PlatBaseHelper {
 					console.warn('On Memory Warning Received...')
 
 					// report
-					G_Reportor.report(G_ReportEventName.REN_RECEIVED_MEMORY_WARNING)
+					if (G_Reportor) {
+						G_Reportor.report(G_ReportEventName.REN_RECEIVED_MEMORY_WARNING)
+					}
 				})
 			}
 		}
@@ -183,11 +185,22 @@ export default class PlatBaseHelper {
 	}
 
 	/**
+	 * 是否支持手机震动
+	 */
+	isSupportVibratePhone() {
+		return true
+	}
+
+	/**
 	 * 手机震动
 	 * @param {Boolean} bLong 长/短
 	 */
 	vibratePhone( bLong ) {
 		// body...
+		if (!G_PlayerInfo.isMuteEnable()) {
+			return
+		}
+
 		if (bLong) {
 			if (this._plat && this._plat.vibrateLong) {
 				this._plat.vibrateLong()
@@ -339,7 +352,7 @@ export default class PlatBaseHelper {
 		if (this._isLoadingOnShow) {
 			this._isLoadingOnShow = false
 
-			if (this._plat && this._plat.showLoading) {
+			if (this._plat && this._plat.hideLoading) {
 				this._plat.hideLoading()
 			}
 		}
@@ -406,7 +419,7 @@ export default class PlatBaseHelper {
 				return true
 			}
 
-			if (sysInfo.SDKVersion >= "1.1.0") {
+			if (sysInfo.SDKVersion >= "1.1.0" && Laya.Browser.onIOS) {
 				if (sysInfo.screenHeight / sysInfo.screenWidth > 2) {
 					return true
 				}
@@ -535,6 +548,13 @@ export default class PlatBaseHelper {
 	 * 是否能远程登录（从后台拉取）
 	 */
 	canLoginOnline() {
+		return false
+	}
+
+	/**
+	 * 是否能远程保存（从后台拉取）
+	 */
+	canSaveOnline() {
 		return false
 	}
 
@@ -731,6 +751,10 @@ export default class PlatBaseHelper {
 		return res.code
 	}
 
+	isWINPlatform() {
+		return (this._plat === null)
+	}
+
 	isWXPlatform() {
 		if (typeof window.wx !== "undefined" && Laya.MiniAdpter) {
 			return true
@@ -782,6 +806,16 @@ export default class PlatBaseHelper {
 	isTTPlatform() {
 		// body...
 		if (typeof window.tt !== "undefined") {
+			return true
+		}
+		else {
+			return false
+		}
+	}
+
+	isQTTPlatform() {
+		// body...
+		if (typeof window.qttGame !== "undefined") {
 			return true
 		}
 		else {

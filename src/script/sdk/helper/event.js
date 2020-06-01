@@ -102,13 +102,11 @@ var _Event = function() {
 				let args = Array.prototype.slice.call(arguments)
 				args.shift()
 
-				if (!G_PlatHelper.getPlat()) {
-					if (args.length > 0) {
-						console.log("dispatch EventName: {0}, Params: {1}".format(event_name, args.toString()))
-					}
-					else {
-						console.log("dispatch EventName: {0}".format(event_name))
-					}
+				if (args.length > 0) {
+					console.log("dispatch EventName: {0}, Params: {1}".format(event_name, args.toString()))
+				}
+				else {
+					console.log("dispatch EventName: {0}".format(event_name))
 				}
 				
 				// 是否继续传播

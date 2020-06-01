@@ -1,12 +1,23 @@
-import tjconf from "./qy-ov-config";
+import tjconf from "./qy-plat-config";
 
-var qy_ov = {}
+var qy_plat = {}
 
-if (window.qg) {
+var plat = null
+if (typeof window.qq !== "undefined") {
+    plat = window.qq
+}
+else if (typeof window.tt !== "undefined") {
+    plat = window.tt
+}
+else if (typeof window.qg !== "undefined") {
+    plat = window.qg
+}
+
+if (plat) {
     var g_sendingCount = 0
 
-    qy_ov.init = function () {
-        console.log("start to load qy_ov sdk...")
+    qy_plat.init = function () {
+        console.log("start to load qy_plat sdk...")
 
         // 顶层通用函数
         /**
@@ -120,6 +131,24 @@ if (window.qg) {
             }
             else if (typeof cc !== "undefined") {
                 cc.sys.localStorage.removeItem(key)
+            }
+        }
+
+        var login = function () {
+            if (typeof window.qq !== "undefined") {
+                return new Promise(function (resolve, reject) {
+                    plat.login({
+                        success: function success(res) {
+                            g_code = res.code
+                            resolve("")
+                        }
+                    });
+                });
+            }
+            else {
+                return new Promise(function (resolve, reject) {
+                    resolve("")
+                });
             }
         }
 
@@ -269,14 +298,16 @@ if (window.qg) {
                     ++g_sendingCount
 
                     // report
-                    report(event_name, event_obj, function () {
-                        // release
-                        --g_sendingCount
-
-                        _doClearTargetUnsendInDict(key)
-                    }, function () {
-                        // release
-                        --g_sendingCount
+                    login().then(() => {
+                        report(event_name, event_obj, function () {
+                            // release
+                            --g_sendingCount
+    
+                            _doClearTargetUnsendInDict(key)
+                        }, function () {
+                            // release
+                            --g_sendingCount
+                        })
                     })
                 }
             }
@@ -305,8 +336,8 @@ if (window.qg) {
         }
 
         var _addSysInfoInto = function ( p ) {
-            if (p && qg.getSystemInfoSync) {
-                let T = qg.getSystemInfoSync()
+            if (p && plat.getSystemInfoSync) {
+                let T = plat.getSystemInfoSync()
                 if (T) {
                     p.br = T.brand
                     p.md = T.model
@@ -360,6 +391,7 @@ if (window.qg) {
                 ak: tjconf.app_key,
                 uu: g_uuid,
                 oid: "",
+                cd: g_code,
                 ev: "event",
                 tp: event_name,
                 ct: event_obj_str,
@@ -407,13 +439,13 @@ if (window.qg) {
          * @returns {String}
          */
         var getUUID = function () {
-            let uuid = getStorage("qy_ov_uuid")
+            let uuid = getStorage("qy_plat_uuid")
 
             if (uuid === null || uuid === "") {
                 uuid = _createUUID()
 
                 // save
-                setStorage("qy_ov_uuid", uuid)
+                setStorage("qy_plat_uuid", uuid)
             }
             
             return uuid
@@ -421,7 +453,7 @@ if (window.qg) {
 
         // 环境检查
         if (!_checkString(tjconf.app_key)) {
-            console.error("请在配置文件(qy-ov-config.js)中填写您的app_key")
+            console.error("请在配置文件(qy-plat-config.js)中填写您的app_key")
         }
 
         // 顶层变量
@@ -429,14 +461,15 @@ if (window.qg) {
         var g_uuid = getUUID()
         var g_domain = "https://appapi.game.hnquyou.com/api"
         var g_launchOpts = {}
-        if (qg.getLaunchOptionsSync) {
-            g_launchOpts = qg.getLaunchOptionsSync()
+        var g_code = ""
+        if (plat.getLaunchOptionsSync) {
+            g_launchOpts = plat.getLaunchOptionsSync()
         }
 
-        console.error("g_uuid: ", g_uuid)
+        console.log("g_uuid: ", g_uuid)
         
         // 添加的方法名
-        var g_funcNames = ["h_GetAdvListPlat", "h_ToMinProgram", "h_SendEvent"]
+        var g_funcNames = ["h_GetAdvListPlat", "h_ToMinProgram", "h_SendEvent", "h_JudgeRegion"]
         var g_funcs = {
             h_GetAdvListPlat: function ( _obj ) {
                 var timelog = Date.now()
@@ -464,7 +497,7 @@ if (window.qg) {
             },
 
             h_ToMinProgram: function ( _obj ) {
-                var obj = _obj
+                var obj = _typeof(_obj) === 'object' ? _obj : {}
                 var succCb = _obj.success
                 var failCb = _obj.fail
                 var timelog = Date.now()
@@ -480,15 +513,17 @@ if (window.qg) {
                 }
 
                 var doNavigationReport = function ( type ) {
-                    report("clickad", {
-                        adv_id: obj.adv_id,
-                        timelog: timelog,
-                        type: type
-                    }, null, function () {
-                        _saveToUnsendDict("clickad", {
+                    login().then(() => {
+                        report("clickad", {
                             adv_id: obj.adv_id,
                             timelog: timelog,
                             type: type
+                        }, null, function () {
+                            _saveToUnsendDict("clickad", {
+                                adv_id: obj.adv_id,
+                                timelog: timelog,
+                                type: type
+                            })
                         })
                     })
                 }
@@ -511,12 +546,12 @@ if (window.qg) {
                     }
                 }
 
-                if (qg && qg.navigateToMiniGame) {
+                if (plat && plat.navigateToMiniGame) {
                     // open
                     doNavigationReport(0)
 
                     // navigate
-                    qg.navigateToMiniGame(obj)
+                    plat.navigateToMiniGame(obj)
                 }
             },
 
@@ -524,18 +559,43 @@ if (window.qg) {
                 // clear if exist
                 _clearUnsendDict()
 
-                report(event_name, event_obj, null, function () {
-                    _saveToUnsendDict(event_name, event_obj)
+                login().then(() => {
+                    report(event_name, event_obj, null, function () {
+                        _saveToUnsendDict(event_name, event_obj)
+                    })
+                })
+            },
+
+            h_JudgeRegion: function ( _obj ) {
+                var obj = _typeof(_obj) === 'object' ? _obj : {scene: 1001}
+
+                if (typeof obj.scene === "undefined") {
+                    obj.scene = 1001
+                }
+
+                // request
+                request("form", {
+                    url: g_domain + "/Product/judgeRegion.html",
+                    data: "appid=" + tjconf.app_key + "&scene=" + obj.scene.toString(),
+                    success: function ( res ) {
+                        typeof obj.success === 'function' && obj.success(res.data)
+                    },
+                    fail: function ( res ) {
+                        typeof obj.fail === 'function' && obj.fail(res)
+                    },
+                    complete: function () {
+                        typeof obj.complete === 'function' && obj.complete()
+                    },
                 })
             }
         }
 
-        // add all func into qg
+        // add all func into plat
         for (let funcIndex = 0; funcIndex < g_funcNames.length; funcIndex++) {
             let funcName = g_funcNames[funcIndex]
             let func = g_funcs[funcName]
             
-            Object.defineProperty(window.qg, funcName, {
+            Object.defineProperty(plat, funcName, {
                 value: func,
                 writable: false,
                 enumerable: true,
@@ -544,16 +604,16 @@ if (window.qg) {
         }
 
         // report
-        if (window.qg.h_SendEvent) {
-            window.qg.h_SendEvent("qy_sdk_inited")
+        if (plat.h_SendEvent) {
+            plat.h_SendEvent("qy_sdk_inited")
         }
     }
 }
 else {
-    qy_ov.init = function () {
-        console.log("qy_ov sdk not support on windows platform....")
+    qy_plat.init = function () {
+        console.log("qy_plat sdk not support on windows platform....")
     }
 }
 
 // export
-export {qy_ov as default}
+export {qy_plat as default}
