@@ -155,6 +155,24 @@ export default class LoadingBase extends Laya.Scene {
     }
 
     _startCheckCfgs() {
+        if (G_PlatHelper.isOVPlatform()) {
+            // Oppo/Vivo Adv
+            G_OVAdv.registerAll(G_OVAdvConfigs)
+
+            if (G_PlatHelper.isVIVOPlatform()) {
+                // stop support ov adv if is publishing
+                G_Switch.isPublishing(function ( isPublishing ) {
+                    if (isPublishing) {
+                        G_OVAdv.stopSupport()
+                    }
+                })
+            }
+        }
+
+        if (G_PlatHelper.isWXPlatform()) {
+            G_Recommend.init()
+        }
+
         // init reportor
         G_Reportor.init(G_PlayerInfo.getOpenID())
         // init share

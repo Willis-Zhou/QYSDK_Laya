@@ -13,6 +13,7 @@ export default class NewGameExitPopup extends BaseUI {
         this._closeBtn = null
         this._advLoadMgr = null
         this._isMoveMistakeEnabled = false
+        this._isCanClose = false
     }
 
     onAwake() {
@@ -54,7 +55,11 @@ export default class NewGameExitPopup extends BaseUI {
             this._isMoveMistakeEnabled = isEnabled
 
             if (!isEnabled) {
+                this._isCanClose = true
                 G_UIHelper.delayShow(this._closeBtn)
+            }
+            else {
+                this._isCanClose = false
             }
         })
 
@@ -68,6 +73,11 @@ export default class NewGameExitPopup extends BaseUI {
 
     onCloseTouched( btn ) {
         G_UIHelper.playBtnTouchAction(btn, () => {
+            if (this._isCanClose) {
+                G_UIManager.hideUI("newGameExitAd")
+                return
+            }
+            
             if (btn._isTouching) {
                 return
             }
@@ -79,7 +89,7 @@ export default class NewGameExitPopup extends BaseUI {
                 // mark
                 btn._isTouching = true
 
-                G_UIHelper.autoMove(btn, 0, 1000, 1000, 0, false, new Laya.Vector2(0, 0), step => {
+                G_UIHelper.autoMoveWithDefaultConfig(btn, new Laya.Vector2(0, 0), step => {
                     if (step === "hold_finished_1") {
                         // show banner
                         G_Event.dispatchEvent(G_EventName.EN_SHOW_BANNER_AD)
@@ -87,8 +97,10 @@ export default class NewGameExitPopup extends BaseUI {
                     else if (step === "move_finished") {
                         // reset
                         btn._isTouching = false
+                        this._isCanClose = true
 
-                        G_UIManager.hideUI("newGameExitAd")
+                        // hide banner
+                        G_Event.dispatchEvent(G_EventName.EN_HIDE_BANNER_AD)
                     }
                 })
             }

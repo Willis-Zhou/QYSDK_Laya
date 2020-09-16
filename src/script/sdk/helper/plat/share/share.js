@@ -26,6 +26,13 @@ class WXShare extends ShareBase {
 		return true
 	}
 
+	/**
+	 * 是否支持分享回调
+	 */
+	isSupportCallback() {
+		return false
+	}
+
 	_makeAndSaveShareInfo( _scene_name, _extendParams, _cfg, _customQueryObj, _showFailTips, _cb ) {
 		let shareInfo = super._makeAndSaveShareInfo(_scene_name, _extendParams, _cfg, _customQueryObj, _showFailTips, _cb)
 
@@ -94,6 +101,13 @@ class QQShare extends ShareBase {
 		return true
 	}
 
+	/**
+	 * 是否支持分享回调
+	 */
+	isSupportCallback() {
+		return true
+	}
+
 	_makeAndSaveShareInfo( _scene_name, _extendParams, _cfg, _customQueryObj, _showFailTips, _cb ) {
 		let shareInfo = super._makeAndSaveShareInfo(_scene_name, _extendParams, _cfg, _customQueryObj, _showFailTips, _cb)
 
@@ -138,7 +152,12 @@ class QQShare extends ShareBase {
 				return G_PlatHelper.getPlat().aldShareAppMessage
 			}
 			else if (G_SDKCfg.isQyReportEnabledSync()) {
-				return G_PlatHelper.getPlat().h_ShareAppMessage
+				if (G_PlatHelper.getPlat().h_ShareAppMessage) {
+					return G_PlatHelper.getPlat().h_ShareAppMessage
+				}
+				else {
+					return G_PlatHelper.getPlat().shareAppMessage
+				}
 			}
 			else {
 				return G_PlatHelper.getPlat().shareAppMessage
@@ -159,6 +178,13 @@ class TTShare extends ShareBase {
 	 * 是否支持分享
 	 */
 	isSupport() {
+		return true
+	}
+
+	/**
+	 * 是否支持分享回调
+	 */
+	isSupportCallback() {
 		return true
 	}
 
@@ -202,6 +228,25 @@ class TTShare extends ShareBase {
 	_makeAndSaveShareInfo( _scene_name, _extendParams, _cfg, _customQueryObj, _showFailTips, _cb ) {
 		let shareInfo = super._makeAndSaveShareInfo(_scene_name, _extendParams, _cfg, _customQueryObj, _showFailTips, _cb)
 
+		shareInfo.success = (res) => {
+			// body...
+			console.log("share success!!!")
+
+			if (this._sharingSceneInfo) {
+				let bSucc = this._checkShareResult(this._sharingSceneInfo)
+
+				if (!bSucc && this._sharingSceneInfo.showFailTips) {
+					G_PlatHelper.showRandomToast(this._getShareFailTips())
+				}
+				
+				if (typeof this._sharingSceneInfo.cb === "function") {
+					this._sharingSceneInfo.cb(bSucc, res.videoId)
+				}
+
+				this._sharingSceneInfo = null
+			}
+		}
+
 		if (_cfg) {
 			shareInfo.templateId = _cfg.template_id
 		}
@@ -209,8 +254,35 @@ class TTShare extends ShareBase {
 		if (_extendParams && typeof _extendParams.videoPath !== "undefined") {
 			shareInfo.channel = "video"
 			shareInfo.extra = {
-				videoPath: _extendParams.videoPath
+				videoPath: _extendParams.videoPath,
+				withVideoId: true
 			}
+
+			if (typeof _extendParams.videoTopics !== "undefined") {
+				shareInfo.extra.videoTopics = _extendParams.videoTopics
+			}
+		}
+
+		let queryStr = ""
+		let launchOpts = G_PlatHelper.getPlat().getLaunchOptionsSync()
+		if (launchOpts && launchOpts.query) {
+			for (let key in launchOpts.query) {
+				let val = launchOpts.query[key].toString()
+
+				if (key === "sc") {
+					val = (parseInt(val) + 1).toString()
+				}
+
+				if (queryStr === "") {
+					queryStr += key + "=" + val
+				}
+				else {
+					queryStr += "&" + key + "=" + val
+				}
+			}
+		}
+		if (queryStr !== "") {
+			shareInfo.query = queryStr
 		}
 
 		return shareInfo
@@ -235,6 +307,21 @@ class TTShare extends ShareBase {
 		}
 
 		return null
+	}
+
+	_getShareFailTips( _extendParams ) {
+		// body...
+		if (_extendParams && typeof _extendParams.videoPath !== "undefined") {
+			if (!this._shareFailTips) {
+				this._shareFailTips = []
+				this._shareFailTips.push(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_SHARE_VIDEO_FAIL_TIPS_ONE"]).word)
+			}
+	
+			return this._shareFailTips
+		}
+		else {
+			return super._makeAndSaveShareInfo()
+		}
 	}
 }
 

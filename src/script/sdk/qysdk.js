@@ -9,8 +9,10 @@ import {_UIHelper} from "./helper/ui_helper.js";
 import {_Downloader} from "./helper/downloader.js";
 import {_GameDB} from "./db/game_db.js";
 import {_PlatHelper} from "./helper/plat/helper/plat_helper.js";
+import {_AudioHelper} from "./helper/plat/audio/audio_helper";
 import {_Share} from "./helper/plat/share/share.js";
 import {_Adv} from "./helper/plat/adv/adv.js";
+import {_Subscriber} from "./helper/plat/subscriber/subscriber.js";
 import {_SDKCfg} from "./conf/sdk_conf.js";
 import {_OpenHelper} from "./helper/open_helper.js";
 import {_WSHelper} from "./net/ws_helper.js";
@@ -54,6 +56,9 @@ QYSDK.init = function () {
     // temp
     window.G_WXHelper = G_PlatHelper
 
+    // Audio Helper
+    window.G_AudioHelper = new _AudioHelper()
+
     // Downloader
     window.G_Downloader = _Downloader.getInstance()
 
@@ -95,6 +100,9 @@ QYSDK.init = function () {
 
         // Adv
         window.G_Adv = new _Adv()
+
+        // Subscriber
+        window.G_Subscriber = new _Subscriber()
 
         // Recommend
         window.G_Recommend = _Recommend.getInstance()

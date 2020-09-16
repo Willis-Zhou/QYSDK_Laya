@@ -10,6 +10,8 @@ import { } from "./game/global/server_info";
 import { } from "./game/global/sound_mgr";
 import { } from "./game/global/mistake_mgr";
 import { } from "./game/global/ui_mgr";
+import { } from "./game/global/red_package_mgr";
+import { } from "./game/global/video_rank_mgr";
 
 import qysdk from "./db/proto/qysdk_db.js"
 
@@ -27,7 +29,7 @@ export default class App extends Laya.Script {
         
         // for banner
         this._isBannerOnShow = false
-        this._isMiniBanner = false
+        this._isForceMaxBanner = false
 
         // for report
         this._isFirstStartGame = false
@@ -88,6 +90,26 @@ export default class App extends Laya.Script {
 
     _onAppEventRegistered() {
         // body...
+        G_Event.addEventListerner(G_EventName.EN_APP_AFTER_ONSHOW, function () {
+            // body...
+            
+            if (G_PlatHelper.isOVPlatform()) {
+                if (!G_OVAdv.isWatchingVideoAdv()) {
+                    G_SoundMgr.resumeMusic()
+                }
+            }
+            else {
+                if (!G_Adv.isWatchingVideoAdv()) {
+                    G_SoundMgr.resumeMusic()
+                }
+            }
+        })
+
+        G_Event.addEventListerner(G_EventName.EN_APP_BEFORE_ONHIDE, function () {
+            // body...
+            G_SoundMgr.pauseMusic()
+        })
+
         G_Event.addEventListerner(G_EventName.EN_SYSTEM_ERROR, function () {
             // body...
             G_PlatHelper.showModal(
@@ -163,6 +185,11 @@ export default class App extends Laya.Script {
 
                 console.log("report qtt load event succ...")
             }
+
+            if (G_PlatHelper.isTTPlatform()) {
+                // 刷新过去已上报的视频信息（点赞数，封面图）
+                G_VideoRankMgr.refreshAndReport()
+            }
         })
 
         G_Event.addEventListerner(G_EventName.EN_FIRST_START_GAME, () => {
@@ -189,34 +216,58 @@ export default class App extends Laya.Script {
     }
 
     _onBannerEventRegistered() {
-        let doShowBanner = function ( isMiniBanner = false ) {
+        let doShowBanner = function ( isForceMaxBanner = false, cb = null ) {
             // body...
             console.log("do show banner...")
 
             if (G_Adv.isSupportBannerAd()) {
                 var self = this
 
-                G_Switch.isPublishing(function ( isPublished ) {
+                G_Switch.isPublishing(function ( isPublishing ) {
                     // mark
                     self._isBannerOnShow = true
-                    self._isMiniBanner = isMiniBanner
+                    self._isForceMaxBanner = isForceMaxBanner
 
                     let sysInfo = G_PlatHelper.getSysInfo()
-                    let bannerWidth = sysInfo.screenWidth
+                    let bannerWidth = 300
 
                     if (G_PlatHelper.isTTPlatform()) {
-                        if (sysInfo.screenWidth >= 300) {
-                            bannerWidth = 208
+                        bannerWidth = 128
+                    }
+                    else if (G_PlatHelper.isWXPlatform()) {
+                        if (!isForceMaxBanner) {
+                            let originalSize = G_Adv.getBannerOriginalSize()
+                            let bannerHeight = bannerWidth / originalSize.width * originalSize.height
+                            let height = bannerHeight
+                            if (G_PlatHelper.isIPhoneX()) {
+                                height += G_Adv.getMiniGapFromBottom()
+                            }
+                            let heightOnStage = height / sysInfo.screenHeight * Laya.stage.height
+
+                            if (heightOnStage > 280) {
+                                let _heightOnStage = 280
+                                let _height = _heightOnStage / Laya.stage.height * sysInfo.screenHeight
+                                let _bannerHeight = _height
+                                if (G_PlatHelper.isIPhoneX()) {
+                                    _bannerHeight -= G_Adv.getMiniGapFromBottom()
+                                }
+                                let _bannerWidth = _bannerHeight / originalSize.height * originalSize.width
+
+                                // fix
+                                if (_bannerWidth < 300) {
+                                    _bannerWidth = 300
+                                }
+
+                                // change
+                                bannerWidth = _bannerWidth
+                            }
                         }
                         else {
-                            bannerWidth = sysInfo.screenWidth / 300 * 208
+                            bannerWidth = sysInfo.screenWidth
                         }
                     }
-                    else if (isMiniBanner) {
-                        bannerWidth = 300
-                    }
                     
-                    if (isPublished) {
+                    if (isPublishing) {
                         G_Adv.createBannerAdv({centerX: 0, bottom: 0, width: bannerWidth}, function () {
                             console.log("show own banner...")
                             if (self._isBannerOnShow) {
@@ -240,6 +291,21 @@ export default class App extends Laya.Script {
                             }
                         })
                     }
+
+                    if (G_PlatHelper.isWXPlatform()) {
+                        if (typeof cb === "function") {
+                            let originalSize = G_Adv.getBannerOriginalSize()
+                            let bannerHeight = bannerWidth / originalSize.width * originalSize.height
+                            let height = bannerHeight
+                            if (G_PlatHelper.isIPhoneX()) {
+                                height += G_Adv.getMiniGapFromBottom()
+                            }
+                            let heightOnStage = height / sysInfo.screenHeight * Laya.stage.height
+                            
+                            // cb
+                            cb(heightOnStage)
+                        }
+                    }
                 })
                 
             }
@@ -254,7 +320,7 @@ export default class App extends Laya.Script {
 
             // mark
             this._isBannerOnShow = false
-            this._isMiniBanner = false
+            this._isForceMaxBanner = false
 
             // wx banner
             G_Adv.hideBannerAdv()
@@ -263,15 +329,20 @@ export default class App extends Laya.Script {
             this._onHideOwnBanner()
         }.bind(this)
 
-        G_Event.addEventListerner(G_EventName.EN_SHOW_BANNER_AD, function (isMiniBanner, ov_key = "Random") {
+        G_Event.addEventListerner(G_EventName.EN_SHOW_BANNER_AD, function (isForceMaxBanner = false, cb = null) {
             // body...
-            if (G_PlatHelper.isOVPlatform()) {
+            if (G_PlatHelper.isQQPlatform()) {
+                // fix banner can not be destory
+                G_Event.dispatchEvent(G_EventName.EN_HIDE_BANNER_AD)
+            }
+
+            if (G_PlatHelper.isOVPlatform() || G_PlatHelper.isMZPlatform()) {
                 // mark
                 this._isBannerOnShow = true
-                this._isMiniBanner = isMiniBanner
+                this._isForceMaxBanner = isForceMaxBanner
 
-                let funcName = "show" + ov_key + "BannerAd"
-                let func = G_OVAdv["show" + ov_key + "BannerAd"]
+                let funcName = "showRandomBannerAd"
+                let func = G_OVAdv[funcName]
 
                 if (func) {
                     func.call(G_OVAdv, bannerObj => {
@@ -287,28 +358,28 @@ export default class App extends Laya.Script {
             else if (G_PlatHelper.isQTTPlatform()) {
                 // mark
                 this._isBannerOnShow = true
-                this._isMiniBanner = isMiniBanner
+                this._isForceMaxBanner = isForceMaxBanner
 
                 G_PlatHelper.getPlat().showBanner()
             }
             else if (G_PlatHelper.getPlat()) {
-                doShowBanner(isMiniBanner)
+                doShowBanner(isForceMaxBanner, cb)
             }
         }.bind(this))
 
         G_Event.addEventListerner(G_EventName.EN_HIDE_BANNER_AD, function () {
             // body...
-            if (G_PlatHelper.isOVPlatform()) {
+            if (G_PlatHelper.isOVPlatform() || G_PlatHelper.isMZPlatform()) {
                 // mark
                 this._isBannerOnShow = false
-                this._isMiniBanner = false
+                this._isForceMaxBanner = false
 
                 G_OVAdv.hideOnShowBannerAd()
             }
             else if (G_PlatHelper.isQTTPlatform()) {
                 // mark
                 this._isBannerOnShow = false
-                this._isMiniBanner = false
+                this._isForceMaxBanner = false
 
                 G_PlatHelper.getPlat().hideBanner()
             }
@@ -321,7 +392,7 @@ export default class App extends Laya.Script {
     _onInsertEventRegistered() {
         G_Event.addEventListerner(G_EventName.EN_SHOW_INSERT_AD, function (closeCb, ov_key = "Random") {
             // body...
-            if (G_PlatHelper.isOVPlatform()) {
+            if (G_PlatHelper.isOVPlatform() || G_PlatHelper.isMZPlatform()) {
                 if (G_IsUseOwnInsertAd && G_OVAdv.isSupportNative()) {
                     // hide banner
                     G_Event.dispatchEvent(G_EventName.EN_HIDE_BANNER_AD)
@@ -376,7 +447,7 @@ export default class App extends Laya.Script {
     _onShowOwnBanner() {
         // mark
         this._isBannerOnShow = true
-        this._isMiniBanner = false
+        this._isForceMaxBanner = false
 
         G_Switch.isExportAdvEnabled("Banner", isEnabled => {
             if (isEnabled) {

@@ -17,6 +17,8 @@ import ExitBtnPopup from "./script/game/ui/popup/ExitBtnPopup"
 import FullScenePopup from "./script/game/ui/popup/FullScenePopup"
 import NewGameExitPopup from "./script/game/ui/popup/NewGameExitPopup"
 import ScrollPopup from "./script/game/ui/popup/ScrollPopup"
+import ClickPopup from "./script/game/ui/popup/ClickPopup"
+import Modal from "./script/game/ui/popup/Modal"
 import SettingPopup from "./script/game/ui/popup/SettingPopup"
 import Tips from "./script/game/ui/popup/Tips"
 
@@ -42,6 +44,8 @@ export default class GameConfig {
 		reg("script/game/ui/popup/FullScenePopup.js",FullScenePopup);
 		reg("script/game/ui/popup/NewGameExitPopup.js",NewGameExitPopup);
 		reg("script/game/ui/popup/ScrollPopup.js",ScrollPopup);
+		reg("script/game/ui/popup/ClickPopup.js",ClickPopup);
+		reg("script/game/ui/popup/Modal.js",Modal);
 		reg("script/game/ui/popup/SettingPopup.js",SettingPopup);
 		reg("script/game/ui/popup/Tips.js",Tips);
     }

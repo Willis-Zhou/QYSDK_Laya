@@ -25,12 +25,11 @@ var _GameDB = (function () {
 				for (let index = 0; index < G_Dbs.length; index++) {
 					let url = G_Dbs[index].url
 					let class_name = _getClassName(url)
-					let content_str = Laya.loader.getRes(url)
+					let serialize_btyes = Laya.loader.getRes(url)
 	
 					// save
-					if (class_name != '' && content_str != '' && _db[class_name]) {
-						let serialize_btyes = G_Utils.HexString2Uint8Array(content_str)
-						let conf = new _db[class_name].decode(serialize_btyes)
+					if (class_name != '' && serialize_btyes && _db[class_name]) {
+						let conf = new _db[class_name].decode(new Uint8Array(serialize_btyes))
 	
 						if (conf) {
 							_dbs[class_name] = conf
@@ -46,7 +45,7 @@ var _GameDB = (function () {
 				}
 	
 				_onLoadCbs = []
-			}))
+			}), null, Laya.Loader.BUFFER)
 		}
 
 		return {

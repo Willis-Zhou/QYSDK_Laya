@@ -52,9 +52,9 @@ export default class GameBase extends Laya.Scene {
         })
 
         // 原生插屏广告相关
-        G_Event.addEventListerner(G_EventName.EN_SHOW_OWN_INSERT_AD, function () {
+        G_Event.addEventListerner(G_EventName.EN_SHOW_OWN_INSERT_AD, function ( closeCb ) {
             if (typeof this.onShowOwnInsertAd === "function") {
-                this.onShowOwnInsertAd()
+                this.onShowOwnInsertAd(closeCb)
             }
             
         }.bind(this))
@@ -64,12 +64,35 @@ export default class GameBase extends Laya.Scene {
             if (typeof this.onShowLocalTips === "function") {
                 this.onShowLocalTips(content)
             }
-            
+            else {
+                G_UIManager.showUI("tips", null, content)
+            }
         }.bind(this))
 
         G_Event.addEventListerner(G_EventName.EN_HIDE_LOCAL_TIPS, function () {
             if (typeof this.onHideLocalTips === "function") {
                 this.onHideLocalTips()
+            }
+            else {
+                G_UIManager.hideUI("tips")
+            }
+        }.bind(this))
+
+        // 本地提示相关
+        G_Event.addEventListerner(G_EventName.EN_SHOW_LOCAL_MODAL, function ( obj ) {
+            if (typeof this.onShowLocalModal === "function") {
+                this.onShowLocalModal(obj)
+            }
+            else {
+                G_UIManager.showUI("modal", null, obj)
+            }
+        }.bind(this))
+
+        G_Event.addEventListerner(G_EventName.EN_CANCEL_NAVIGATION_FROM_AD, function (advKey) {
+            if (advKey !== "Popup" && advKey !== "FullScene" && advKey !== "FullSceneScroll" && advKey !== "Exit") {
+                if (typeof this.onShowFullSceneAd === "function") {
+                    this.onShowFullSceneAd()
+                }
             }
         }.bind(this))
 

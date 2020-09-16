@@ -79,41 +79,37 @@ var _NodePoolMgr = function() {
 			},
 
 			_preloadAll(assets, cb) {
-				this._preload(1, assets, cb)
-			},
-		
-			_preload(index, assets, cb) {
-				let loadFunc = function (_asset, _cb) {
+				let _tNum = assets.length
+
+				let loadedFunc = ( _cb ) => {
+					_tNum -= 1
+
+					if (_tNum <= 0 && typeof _cb === "function") {
+						_cb()
+					}
+				}
+
+				let loadFunc = (_asset, _cb) => {
 					if (typeof _preloadedAssets[_asset] === "undefined") {
-						Laya.Sprite3D.load(_asset, Laya.Handler.create(null, function (sprite) {
+						Laya.Sprite3D.load(_asset, Laya.Handler.create(this, sprite => {
+							sprite._asset = _asset
+
 							_preloadedAssets[_asset] = {
 								origin: sprite,
-								backups: []
+								backups: [sprite]
 							}
-				
-							if (typeof _cb === "function") {
-								_cb()
-							}
+
+							loadedFunc(_cb)
 						}))
 					}
 					else {
-						if (typeof _cb === "function") {
-							_cb()
-						}
+						loadedFunc(_cb)
 					}
 				}
-		
-				if (index <= assets.length) {
-					let asset = assets[index - 1]
-					loadFunc(asset, function () {
-						this._preload(index + 1, assets, cb)
-					}.bind(this))
-				}
-				else {
-					if (typeof cb === "function") {
-						cb()
-					}
-				}
+
+				assets.forEach(each => {
+					loadFunc(each, cb)
+				})
 			}
 		}
 	};

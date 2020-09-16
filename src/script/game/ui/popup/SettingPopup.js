@@ -38,6 +38,9 @@ export default class SettingPopup extends BaseUI {
 
             // visible
             shareBtn.visible = G_Share.isSupport()
+            if (G_PlatHelper.isTTPlatform()) {
+                shareBtn.visible = false
+            }
         }
 
         let soundSwitchBtn = G_UIHelper.seekNodeByName(this.owner, "soundSwitchBtn")

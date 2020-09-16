@@ -26,20 +26,35 @@ var _UIHelper = (function () {
                 return target
 			},
 
+			/**
+			 * 通过名称查找指定组件
+			 * @param {Laya.Node} node 
+			 * @param {string} clsName 
+			 */
+			getComponentByName: function (node, clsName) {
+				// body...
+				let target = undefined
+				node._components.forEach(component => {
+					if (!target && component && component.runtime.indexOf(clsName) != -1) target = component
+                })
+
+                return target
+			},
+
             playBtnTouchAction: function (btn, cb, originalScale = 1, scaleExternal = 1, durationScale = 1) {
 				// body...
 				if (btn) {
-					if (btn._tween) {
-						btn._tween.clear()
-						btn._tween = null
+					if (btn._touchTween) {
+						btn._touchTween.clear()
+						btn._touchTween = null
 					}
 	
 					btn.scaleX = originalScale
 					btn.scaleY = originalScale
 	
-					btn._tween = Laya.Tween.to(btn, {scaleX: (originalScale * 1.1 * scaleExternal), scaleY: (originalScale * 1.1 * scaleExternal)}, 100 * durationScale, null, Laya.Handler.create(null, function () {
-						btn._tween = Laya.Tween.to(btn, {scaleX: originalScale, scaleY: originalScale}, 50 * durationScale, null, Laya.Handler.create(null, function () {
-							btn._tween = null
+					btn._touchTween = Laya.Tween.to(btn, {scaleX: (originalScale * 1.1 * scaleExternal), scaleY: (originalScale * 1.1 * scaleExternal)}, 100 * durationScale, null, Laya.Handler.create(null, function () {
+						btn._touchTween = Laya.Tween.to(btn, {scaleX: originalScale, scaleY: originalScale}, 50 * durationScale, null, Laya.Handler.create(null, function () {
+							btn._touchTween = null
 	
 							if (typeof cb === "function") {
 								cb()
@@ -57,16 +72,16 @@ var _UIHelper = (function () {
 			playUIScaleAction: function (ui, fromScale, endScale, duration, cb) {
 				// body...
 				if (ui) {
-					if (ui._tween) {
-						ui._tween.clear()
-						ui._tween = null
+					if (ui._scaleTween) {
+						ui._scaleTween.clear()
+						ui._scaleTween = null
 					}
 	
 					ui.scaleX = fromScale
 					ui.scaleY = fromScale
 	
-					ui._tween = Laya.Tween.to(ui, {scaleX: endScale, scaleY: endScale}, duration, Laya.Ease.elasticOut, Laya.Handler.create(null, function () {
-						ui._tween = null
+					ui._scaleTween = Laya.Tween.to(ui, {scaleX: endScale, scaleY: endScale}, duration, Laya.Ease.elasticOut, Laya.Handler.create(null, function () {
+						ui._scaleTween = null
 	
 						if (typeof cb === "function") {
 							cb()
@@ -78,15 +93,15 @@ var _UIHelper = (function () {
 			playOpenPopupAction_FromLeft: function (popup, cb) {
 				// body...
 				if (popup) {
-					if (popup._tween) {
-						popup._tween.clear()
-						popup._tween = null
+					if (popup._leftPopupTween) {
+						popup._leftPopupTween.clear()
+						popup._leftPopupTween = null
 					}
 	
 					popup.x = 240
 	
-					popup._tween = Laya.Tween.to(popup, {x: 360}, 500, Laya.Ease.elasticOut, Laya.Handler.create(null, function () {
-						popup._tween = null
+					popup._leftPopupTween = Laya.Tween.to(popup, {x: 360}, 500, Laya.Ease.elasticOut, Laya.Handler.create(null, function () {
+						popup._leftPopupTween = null
 	
 						if (typeof cb === "function") {
 							cb()
@@ -98,15 +113,15 @@ var _UIHelper = (function () {
 			playOpenPopupAction_FromBottom: function (popup, cb) {
 				// body...
 				if (popup) {
-					if (popup._tween) {
-						popup._tween.clear()
-						popup._tween = null
+					if (popup._bottomPopupTween) {
+						popup._bottomPopupTween.clear()
+						popup._bottomPopupTween = null
 					}
 	
 					popup.y = Laya.stage.height / 4
 	
-					popup._tween = Laya.Tween.to(popup, {y: Laya.stage.height - popup.height}, 500, Laya.Ease.elasticOut, Laya.Handler.create(null, function () {
-						popup._tween = null
+					popup._bottomPopupTween = Laya.Tween.to(popup, {y: Laya.stage.height - popup.height}, 500, Laya.Ease.elasticOut, Laya.Handler.create(null, function () {
+						popup._bottomPopupTween = null
 	
 						if (typeof cb === "function") {
 							cb()
@@ -142,6 +157,10 @@ var _UIHelper = (function () {
 
 			refreshFreeWayOfBtn: function (btn, videoIconPath = "comm/video_icon.png", shareIconPath = "comm/share_icon.png") {
 				if (btn) {
+					if (G_PlatHelper.isTTPlatform()) {
+						shareIconPath = videoIconPath
+					}
+
 					if (!btn.getWay) {
 						// default
 						btn._way = G_FreeGetWay.FGW_NONE
@@ -175,132 +194,215 @@ var _UIHelper = (function () {
 					}
 
 					if (!btn.doTouch) {
-						btn.doTouch = function ( shareScene, succCb, failCb, ov_key ) {
+						btn.doTouch = function ( shareScene, succCb, failCb, showFailTips = true ) {
 							G_UIHelper.playBtnTouchAction(btn, function () {
 								// video
 								if (btn.getWay() === G_FreeGetWay.FGW_ADV) {
 									// pause bgm
 									G_SoundMgr.pauseMusic()
 
-									let checkVideoRet = function ( isEnded ) {
+									let showConfirm = function ( stopCb, rewatchCb ) {
+										// body...
+										G_PlatHelper.showModal(
+											null,
+											G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_ADV_NOT_FINISH_CONTENT"]).word,
+											true,
+											function ( bOK ) {
+												// body...
+												if (bOK) {
+													// rewatch adv
+													if (typeof rewatchCb === "function") {
+														rewatchCb()
+													}
+												}
+												else {
+													if (typeof stopCb === "function") {
+														stopCb()
+													}
+												}
+											}, {
+												confirmText: G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_ADV_NOT_FINISH_CONFIRM_TEXT"]).word, 
+												cancelText: G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_ADV_NOT_FINISH_CANCEL_TEXT"]).word
+											}
+										)
+									}
+
+									let checkVideoRet = function ( isEnded, rewatchCb ) {
 										// resume bgm
 										G_SoundMgr.resumeMusic()
 
 										if (isEnded) {
+											// 观看视频完成，增加有效领奖次数（即广告次数）
+											G_PlayerInfo.plusTodayAdvimes()
+
 											// succ cb
 											if (typeof succCb === "function") {
 												succCb()
 											}
 										}
 										else {
-											// no finish
-											G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_ADV_FAIL"]).word)
+											let doFailCb = () => {
+												if (showFailTips) {
+													// show watch video fail tips
+													G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_ADV_FAIL"]).word)
+												}
+
+												// fail cb
+												if (typeof failCb === "function") {
+													failCb()
+												}
+											}
+
+											if (G_PlatHelper.isVIVOPlatform()) {
+												doFailCb()
+											}
+											else {
+												// no finish
+												G_Switch.isPublishing(function ( isPublishing ) {
+													// body...
+													if (isPublishing) {
+														doFailCb()
+													}
+													else {
+														showConfirm(doFailCb, rewatchCb)
+													}
+												})
+											}
 										}
 									}
 
-									if (G_PlatHelper.isOPPOPlatform() || G_PlatHelper.isVIVOPlatform()) {
-										if (typeof ov_key !== "string" || ov_key === "") {
-											ov_key = "Random"
-										}
-
-										let funcName = "show" + ov_key + "VideoAd"
+									if (G_PlatHelper.isOVPlatform() || G_PlatHelper.isMZPlatform()) {
+										let funcName = "showRandomVideoAd"
 										let func = G_OVAdv[funcName]
 										if (func) {
-											let adObj = func.call(G_OVAdv, function (isEnded) {
-												checkVideoRet(isEnded)
-											}, function (cdTime) {
-												// resume bgm
-												G_SoundMgr.resumeMusic()
+											let doWatchAdv = () => {
+												let adObj = func.call(G_OVAdv, function (isEnded) {
+													checkVideoRet(isEnded, doWatchAdv)
+												}, function (cdTime) {
+													// resume bgm
+													G_SoundMgr.resumeMusic()
+	
+													if (showFailTips) {
+														if (cdTime === -1) {
+															// retry later
+															G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_VIDEO_NOT_READY_YET"]).word)
+														}
+														else {
+															// not ready yet
+															let formatStr = G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_FORMAT_OF_VIDEO_NOT_READY_YET"]).word
+															G_PlatHelper.showToast(formatStr.format(cdTime.toString()))
+														}
+													}
+	
+													// fail cb
+													if (typeof failCb === "function") {
+														failCb()
+													}
+												})
+	
+												if (!adObj) {
+													// resume bgm
+													G_SoundMgr.resumeMusic()
 
-												if (cdTime === -1) {
 													// retry later
 													G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_VIDEO_NOT_READY_YET"]).word)
+	
+													// fail cb
+													if (typeof failCb === "function") {
+														failCb()
+													}
+												}
+											}
+
+											// watch
+											doWatchAdv()
+										}
+									}
+									else if (G_PlatHelper.isQTTPlatform()) {
+										let doWatchAdv = () => {
+											G_PlatHelper.getPlat().showVideo(res => {
+												if (res === 1 || res === 0) {
+													checkVideoRet(true, doWatchAdv)
+												}
+												else if (res === 2) {
+													checkVideoRet(false, doWatchAdv)
 												}
 												else {
-													// not ready yet
-													let formatStr = G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_FORMAT_OF_VIDEO_NOT_READY_YET"]).word
-													G_PlatHelper.showToast(formatStr.format(cdTime.toString()))
+													if (showFailTips) {
+														// retry later
+														G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_VIDEO_NOT_READY_YET"]).word)
+													}
+													
+													// fail cb
+													if (typeof failCb === "function") {
+														failCb()
+													}
 												}
+											})
+										}
 
+										// watch
+										doWatchAdv()
+									}
+									else {
+										let doWatchAdv = () => {
+											G_Adv.createVideoAdv(function ( isEnded ) {
+												checkVideoRet(isEnded, doWatchAdv)
+											}, function () {
+												// not support video anymore
+												
+												// resume bgm
+												G_SoundMgr.resumeMusic()
+	
+												// refresh
+												btn.refreshWay()
+	
 												// fail cb
 												if (typeof failCb === "function") {
 													failCb()
 												}
 											})
+										}
 
-											if (!adObj) {
-												// resume bgm
-												G_SoundMgr.resumeMusic()
-
-												// fail cb
-												if (typeof failCb === "function") {
-													failCb()
-												}
-											}
+										// watch
+										doWatchAdv()
+									}
+								}
+								else {
+									if (G_PlatHelper.isTTPlatform() && btn.getWay() === G_FreeGetWay.FGW_NONE) {
+										// retry later
+										G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_VIDEO_NOT_READY_YET"]).word)
+												
+										// fail cb
+										if (typeof failCb === "function") {
+											failCb()
 										}
 									}
-									else if (G_PlatHelper.isQTTPlatform()) {
-										G_PlatHelper.getPlat().showVideo(res => {
-											if (res === 1 || res === 0) {
-												checkVideoRet(true)
-											}
-											else if (res === 2) {
-												checkVideoRet(false)
-											}
-											else {
-												// retry later
-												G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_VIDEO_NOT_READY_YET"]).word)
-												
-												// fail cb
-												if (typeof failCb === "function") {
-													failCb()
+									else {
+										// share
+										G_Share.share(shareScene, null, true, function (bSucc) {
+											// body...
+											if (bSucc) {
+												if (btn.getWay() === G_FreeGetWay.FGW_SHARE) {
+													// succ cb
+													if (typeof succCb === "function") {
+														succCb()
+													}
+	
+													return
+												}
+												else {
+													// no more
+													G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_NO_MORE_REWARD"]).word)
 												}
 											}
-										})
-									}
-									else {
-										G_Adv.createVideoAdv(function ( isEnded ) {
-											checkVideoRet(isEnded)
-										}, function () {
-											// not support video anymore
 											
-											// resume bgm
-											G_SoundMgr.resumeMusic()
-
-											// refresh
-											btn.refreshWay()
-
 											// fail cb
 											if (typeof failCb === "function") {
 												failCb()
 											}
 										})
 									}
-								}
-								else {
-									// share
-									G_Share.share(shareScene, null, true, function (bSucc) {
-										// body...
-										if (bSucc) {
-											if (btn.getWay() === G_FreeGetWay.FGW_SHARE) {
-												// succ cb
-												if (typeof succCb === "function") {
-													succCb()
-												}
-
-												return
-											}
-											else {
-												// no more
-												G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_NO_MORE_REWARD"]).word)
-											}
-										}
-										
-										// fail cb
-										if (typeof failCb === "function") {
-											failCb()
-										}
-									})
 								}
 							}, btn._originalScale)
 					
@@ -329,6 +431,12 @@ var _UIHelper = (function () {
 				}
 			},
 
+			autoMoveWithDefaultConfig(node, offsetPos, cb) {
+				G_Switch.getMoveMistakeConfig(cfg => {
+					this.autoMove(node, 0, cfg.hold1, cfg.hold2, cfg.move, true, offsetPos, cb)
+				})
+			},
+
 			autoMove: function ( node, hideDuration, holdDuration_1, holdDuration_2, moveDuration, isTween, offsetPos, cb ) {
 				if (node) {
 					if (!node._originalPos) {
@@ -336,9 +444,9 @@ var _UIHelper = (function () {
 					}
 
 					// clear
-					if (node._tween) {
-						node._tween.clear()
-						node._tween = null
+					if (node._moveTween) {
+						node._moveTween.clear()
+						node._moveTween = null
 					}
 					if (node._scheduleKey) {
 						G_Scheduler.unschedule(node._scheduleKey)
@@ -377,8 +485,8 @@ var _UIHelper = (function () {
 								}
 
 								if (isTween) {
-									node._tween = Laya.Tween.to(node, {x: node._originalPos.x, y: node._originalPos.y}, moveDuration, null, Laya.Handler.create(null, function () {
-										node._tween = null
+									node._moveTween = Laya.Tween.to(node, {x: node._originalPos.x, y: node._originalPos.y}, moveDuration, null, Laya.Handler.create(null, function () {
+										node._moveTween = null
 
 										// move to default pos
 										node.x = node._originalPos.x
@@ -604,7 +712,7 @@ var _UIHelper = (function () {
 			// Window端不会有变化
 			convertToWorldSize: function ( openGLSize ) {
 				// body...
-				let worldSize = new Laya.Vector2(0, 0)
+				let worldSize = new Laya.Size(0, 0)
 
 				if (typeof openGLSize.width === "undefined" || openGLSize.width === null
 					|| typeof openGLSize.height === "undefined" || openGLSize.height === null) {

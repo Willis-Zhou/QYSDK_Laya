@@ -98,20 +98,15 @@ export default class SwitchBase {
 			return
 		}
 
-		if (G_PlatHelper.getPlat()) {
-			this._getCfgByKey(G_SwitchName.SN_COMMIT_VERSION, function (bSucc, sCfg) {
-				// body...
-				if (bSucc) {
-					cb(parseInt(sCfg, 10))
-				}
-				else {
-					cb(0)
-				}
-			})
-		}
-		else {
-			cb(0)
-		}
+		this._getCfgByKey(G_SwitchName.SN_COMMIT_VERSION, function (bSucc, sCfg) {
+			// body...
+			if (bSucc) {
+				cb(parseInt(sCfg, 10))
+			}
+			else {
+				cb(0)
+			}
+		})
 	}
 
 	// 每次最大领奖次数，默认走本地配置
@@ -121,20 +116,15 @@ export default class SwitchBase {
 			return
 		}
 
-		if (G_PlatHelper.getPlat()) {
-			this._getCfgByKey(G_SwitchName.SN_REWARD_TIMES_OF_EACH_DAY, function (bSucc, sCfg) {
-				// body...
-				if (bSucc) {
-					cb(parseInt(sCfg, 10))
-				}
-				else {
-					cb(G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_MAX_ADV_TIMES_OF_ONE_DAY"]).num)
-				}
-			})
-		}
-		else {
-			cb(G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_MAX_ADV_TIMES_OF_ONE_DAY"]).num)
-		}
+		this._getCfgByKey(G_SwitchName.SN_REWARD_TIMES_OF_EACH_DAY, function (bSucc, sCfg) {
+			// body...
+			if (bSucc) {
+				cb(parseInt(sCfg, 10))
+			}
+			else {
+				cb(G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_MAX_ADV_TIMES_OF_ONE_DAY"]).num)
+			}
+		})
 	}
 
 	// 分享概率，默认100
@@ -144,20 +134,15 @@ export default class SwitchBase {
 			return
 		}
 
-		if (G_PlatHelper.getPlat()) {
-			this._getCfgByKey(G_SwitchName.SN_RATE_OF_SHARE, function (bSucc, sCfg) {
-				// body...
-				if (bSucc) {
-					cb(parseInt(sCfg, 10))
-				}
-				else {
-					cb(100)
-				}
-			})
-		}
-		else {
-			cb(100)
-		}
+		this._getCfgByKey(G_SwitchName.SN_RATE_OF_SHARE, function (bSucc, sCfg) {
+			// body...
+			if (bSucc) {
+				cb(parseInt(sCfg, 10))
+			}
+			else {
+				cb(100)
+			}
+		})
 	}
 
 	// 开启分享前的广告次数，默认0
@@ -167,20 +152,15 @@ export default class SwitchBase {
 			return
 		}
 
-		if (G_PlatHelper.getPlat()) {
-			this._getCfgByKey(G_SwitchName.SN_ADV_TIMES_BEFORE_SHARE, function (bSucc, sCfg) {
-				// body...
-				if (bSucc) {
-					cb(parseInt(sCfg, 10))
-				}
-				else {
-					cb(0)
-				}
-			})
-		}
-		else {
-			cb(0)
-		}
+		this._getCfgByKey(G_SwitchName.SN_ADV_TIMES_BEFORE_SHARE, function (bSucc, sCfg) {
+			// body...
+			if (bSucc) {
+				cb(parseInt(sCfg, 10))
+			}
+			else {
+				cb(0)
+			}
+		})
 	}
 
 	// 获取上报到Ald的百分比，默认100
@@ -190,20 +170,15 @@ export default class SwitchBase {
 			return
 		}
 
-		if (G_PlatHelper.getPlat()) {
-			this._getCfgByKey(G_SwitchName.SN_PERCENT_OF_REPORT_TO_ALD, function (bSucc, sCfg) {
-				// body...
-				if (bSucc) {
-					cb(parseInt(sCfg, 10))
-				}
-				else {
-					cb(100)
-				}
-			})
-		}
-		else {
-			cb(100)
-		}
+		this._getCfgByKey(G_SwitchName.SN_PERCENT_OF_REPORT_TO_ALD, function (bSucc, sCfg) {
+			// body...
+			if (bSucc) {
+				cb(parseInt(sCfg, 10))
+			}
+			else {
+				cb(100)
+			}
+		})
 	}
 
 	// 分享成功的最小间隔时间，默认3000
@@ -213,20 +188,15 @@ export default class SwitchBase {
 			return
 		}
 
-		if (G_PlatHelper.getPlat()) {
-			this._getCfgByKey(G_SwitchName.SN_MIN_DURATION_BETWEEN_SHARE, function (bSucc, sCfg) {
-				// body...
-				if (bSucc) {
-					cb(parseInt(sCfg, 10))
-				}
-				else {
-					cb(3000)
-				}
-			})
-		}
-		else {
-			cb(3000)
-		}
+		this._getCfgByKey(G_SwitchName.SN_MIN_DURATION_BETWEEN_SHARE, function (bSucc, sCfg) {
+			// body...
+			if (bSucc) {
+				cb(parseInt(sCfg, 10))
+			}
+			else {
+				cb(3000)
+			}
+		})
 	}
 
 	// 是否正在提审，默认false
@@ -236,20 +206,15 @@ export default class SwitchBase {
 			return
 		}
 
-		if (G_PlatHelper.getPlat()) {
-			this._getCfgByKey(G_SwitchName.SN_IS_PUBLISHING, function (bSucc, sCfg) {
-				// body...
-				if (bSucc) {
-					cb(parseInt(sCfg, 10) === 1)
-				}
-				else {
-					cb(false)
-				}
-			})
-		}
-		else {
-			cb(false)
-		}
+		this._getCfgByKey(G_SwitchName.SN_IS_PUBLISHING, function (bSucc, sCfg) {
+			// body...
+			if (bSucc) {
+				cb(parseInt(sCfg, 10) === 1)
+			}
+			else {
+				cb(false)
+			}
+		})
 	}
 
 	// 是否新游戏，默认false
@@ -259,20 +224,15 @@ export default class SwitchBase {
 			return
 		}
 
-		if (G_PlatHelper.getPlat()) {
-			this._getCfgByKey(G_SwitchName.SN_IS_NEW_GAME, function (bSucc, sCfg) {
-				// body...
-				if (bSucc) {
-					cb(parseInt(sCfg, 10) === 1)
-				}
-				else {
-					cb(false)
-				}
-			})
-		}
-		else {
-			cb(false)
-		}
+		this._getCfgByKey(G_SwitchName.SN_IS_NEW_GAME, function (bSucc, sCfg) {
+			// body...
+			if (bSucc) {
+				cb(parseInt(sCfg, 10) === 1)
+			}
+			else {
+				cb(false)
+			}
+		})
 	}
 
 	// 导出商业广告是否可用，默认false
@@ -335,7 +295,7 @@ export default class SwitchBase {
 		}
 	}
 
-	// 是否正常显示广告，默认False
+	// 是否正常显示广告，默认(Windows为True，其他平台为False)
 	// True代表允许误触
 	// False代表不允许误触
 	isAdvStateNormal( forceReload, cb ) {
@@ -376,172 +336,55 @@ export default class SwitchBase {
 		}
 		else {
 			console.warn('plat.h_JudgeRegion 方法不存在，请检查 qy(-plat).js');
-			cb(false)
+			cb(true)
 		}
 	}
 
 	// 误触相关接口
-	// 是否点击误触可用
-	isClickMistakeEnabled( cb ) {
+	isMistakeEnabled( type, cb ) {
 		// body...
 		if (typeof cb !== "function") {
 			return
 		}
 
-		if (G_PlatHelper.getPlat()) {
-			this.getCommitVersion(function ( commitVersion ) {
-				if (commitVersion === G_SDKCfg.getAppVersion()) {
-					// commit
-					this._getCfgByKey(G_SwitchName.SN_CV_CLICK_STATUS, function (bSucc, sCfg) {
-						// body...
-						if (bSucc) {
-							cb(parseInt(sCfg, 10) === 1)
-						}
-						else {
-							cb(false)
-						}
-					})
-				}
-				else {
-					// online
-					this._getCfgByKey(G_SwitchName.SN_OV_CLICK_STATUS, function (bSucc, sCfg) {
-						// body...
-						if (bSucc) {
-							cb(parseInt(sCfg, 10) === 1)
-						}
-						else {
-							cb(false)
-						}
-					})
-				}
-			}.bind(this))
-		}
-		else {
+		let isSupport = false
+
+		G_SupportMistakeTypes.forEach(each => {
+			if (type === each) {
+				isSupport = true
+			}
+		})
+
+		if (!isSupport) {
 			cb(false)
 		}
-	}
 
-	// 误触相关接口
-	// 是否移动误触可用
-	isMoveMistakeEnabled( cb ) {
-		// body...
-		if (typeof cb !== "function") {
-			return
-		}
-
-		if (G_PlatHelper.getPlat()) {
-			this.getCommitVersion(function ( commitVersion ) {
-				if (commitVersion === G_SDKCfg.getAppVersion()) {
-					// commit
-					this._getCfgByKey(G_SwitchName.SN_CV_MOVE_STATUS, function (bSucc, sCfg) {
-						// body...
-						if (bSucc) {
-							cb(parseInt(sCfg, 10) === 1)
-						}
-						else {
-							cb(false)
-						}
-					})
-				}
-				else {
-					// online
-					this._getCfgByKey(G_SwitchName.SN_OV_MOVE_STATUS, function (bSucc, sCfg) {
-						// body...
-						if (bSucc) {
-							cb(parseInt(sCfg, 10) === 1)
-						}
-						else {
-							cb(false)
-						}
-					})
-				}
-			}.bind(this))
-		}
-		else {
-			cb(false)
-		}
-	}
-
-	// 误触相关接口
-	// 是否按钮误触可用
-	isBtnMistakeEnabled( cb ) {
-		// body...
-		if (typeof cb !== "function") {
-			return
-		}
-
-		if (G_PlatHelper.getPlat()) {
-			this.getCommitVersion(function ( commitVersion ) {
-				if (commitVersion === G_SDKCfg.getAppVersion()) {
-					// commit
-					this._getCfgByKey(G_SwitchName.SN_CV_BTN_STATUS, function (bSucc, sCfg) {
-						// body...
-						if (bSucc) {
-							cb(parseInt(sCfg, 10) === 1)
-						}
-						else {
-							cb(false)
-						}
-					})
-				}
-				else {
-					// online
-					this._getCfgByKey(G_SwitchName.SN_OV_BTN_STATUS, function (bSucc, sCfg) {
-						// body...
-						if (bSucc) {
-							cb(parseInt(sCfg, 10) === 1)
-						}
-						else {
-							cb(false)
-						}
-					})
-				}
-			}.bind(this))
-		}
-		else {
-			cb(false)
-		}
-	}
-
-	// 误触相关接口
-	// 是否退出误触可用
-	isExitMistakeEnabled( cb ) {
-		// body...
-		if (typeof cb !== "function") {
-			return
-		}
-
-		if (G_PlatHelper.getPlat()) {
-			this.getCommitVersion(function ( commitVersion ) {
-				if (commitVersion === G_SDKCfg.getAppVersion()) {
-					// commit
-					this._getCfgByKey(G_SwitchName.SN_CV_EXIT_STATUS, function (bSucc, sCfg) {
-						// body...
-						if (bSucc) {
-							cb(parseInt(sCfg, 10) === 1)
-						}
-						else {
-							cb(false)
-						}
-					})
-				}
-				else {
-					// online
-					this._getCfgByKey(G_SwitchName.SN_OV_EXIT_STATUS, function (bSucc, sCfg) {
-						// body...
-						if (bSucc) {
-							cb(parseInt(sCfg, 10) === 1)
-						}
-						else {
-							cb(false)
-						}
-					})
-				}
-			}.bind(this))
-		}
-		else {
-			cb(false)
-		}
+		this.getCommitVersion(function ( commitVersion ) {
+			if (commitVersion === G_SDKCfg.getAppVersion()) {
+				// commit
+				this._getCfgByKey(G_SwitchName.SN_FORMAT_OF_CV_STATUS.format(type.charAt(0).toUpperCase() + type.slice(1)), function (bSucc, sCfg) {
+					// body...
+					if (bSucc) {
+						cb(parseInt(sCfg, 10) === 1)
+					}
+					else {
+						cb(false)
+					}
+				})
+			}
+			else {
+				// online
+				this._getCfgByKey(G_SwitchName.SN_FORMAT_OF_OV_STATUS.format(type.charAt(0).toUpperCase() + type.slice(1)), function (bSucc, sCfg) {
+					// body...
+					if (bSucc) {
+						cb(parseInt(sCfg, 10) === 1)
+					}
+					else {
+						cb(false)
+					}
+				})
+			}
+		}.bind(this))
 	}
 
 	// 误触接口相关
@@ -551,20 +394,15 @@ export default class SwitchBase {
 			return
 		}
 
-		if (G_PlatHelper.getPlat()) {
-			this._getCfgByKey(G_SwitchName.SN_TODAY_MAX_MISTAKE_COUNTS, function (bSucc, sCfg) {
-				// body...
-				if (bSucc) {
-					cb(sCfg)
-				}
-				else {
-					cb(9999)
-				}
-			})
-		}
-		else {
-			cb(9999)
-		}
+		this._getCfgByKey(G_SwitchName.SN_TODAY_MAX_MISTAKE_COUNTS, function (bSucc, sCfg) {
+			// body...
+			if (bSucc) {
+				cb(sCfg)
+			}
+			else {
+				cb(9999)
+			}
+		})
 	}
 
 	// 误触接口相关
@@ -574,20 +412,15 @@ export default class SwitchBase {
 			return
 		}
 
-		if (G_PlatHelper.getPlat()) {
-			this._getCfgByKey(G_SwitchName.SN_INVOKE_MISTAKE_RATE, function (bSucc, sCfg) {
-				// body...
-				if (bSucc) {
-					cb(parseInt(sCfg, 10))
-				}
-				else {
-					cb(100)
-				}
-			})
-		}
-		else {
-			cb(100)
-		}
+		this._getCfgByKey(G_SwitchName.SN_INVOKE_MISTAKE_RATE, function (bSucc, sCfg) {
+			// body...
+			if (bSucc) {
+				cb(parseInt(sCfg, 10))
+			}
+			else {
+				cb(100)
+			}
+		})
 	}
 
 	// 误触接口相关
@@ -597,70 +430,110 @@ export default class SwitchBase {
 			return
 		}
 
-		if (G_PlatHelper.getPlat()) {
-			let getCommonInterval = function ( _cb ) {
-				this._getCfgByKey(G_SwitchName.SN_INTERVAL_OF_MISTAKES, function (bSucc, sCfg) {
-					// body...
-					if (bSucc) {
-						_cb(parseInt(sCfg, 10))
-					}
-					else {
-						_cb(0)
-					}
-				})
-			}.bind(this)
+		let getCommonInterval = function ( _cb ) {
+			this._getCfgByKey(G_SwitchName.SN_INTERVAL_OF_MISTAKES, function (bSucc, sCfg) {
+				// body...
+				if (bSucc) {
+					_cb(parseInt(sCfg, 10))
+				}
+				else {
+					_cb(0)
+				}
+			})
+		}.bind(this)
 
-			if (type === "move") {
-				this._getCfgByKey(G_SwitchName.SN_INTERVAL_OF_MOVE_MISTAKES, function (bSucc, sCfg) {
-					// body...
-					if (bSucc) {
-						cb(parseInt(sCfg, 10))
-					}
-					else {
-						getCommonInterval(cb)
-					}
-				})
+		let isSupport = false
+
+		G_SupportMistakeTypes.forEach(each => {
+			if (type === each) {
+				isSupport = true
 			}
-			else if (type === "click") {
-				this._getCfgByKey(G_SwitchName.SN_INTERVAL_OF_CLICK_MISTAKES, function (bSucc, sCfg) {
-					// body...
-					if (bSucc) {
-						cb(parseInt(sCfg, 10))
-					}
-					else {
-						getCommonInterval(cb)
-					}
-				})
-			}
-			else if (type === "btn") {
-				this._getCfgByKey(G_SwitchName.SN_INTERVAL_OF_BTN_MISTAKES, function (bSucc, sCfg) {
-					// body...
-					if (bSucc) {
-						cb(parseInt(sCfg, 10))
-					}
-					else {
-						getCommonInterval(cb)
-					}
-				})
-			}
-			else if (type === "exit") {
-				this._getCfgByKey(G_SwitchName.SN_INTERVAL_OF_EXIT_MISTAKES, function (bSucc, sCfg) {
-					// body...
-					if (bSucc) {
-						cb(parseInt(sCfg, 10))
-					}
-					else {
-						getCommonInterval(cb)
-					}
+		})
+
+		if (isSupport) {
+			this._getCfgByKey(G_SwitchName.SN_FORMAT_OF_INTERVAL_OF_MISTAKES.format(type.charAt(0).toUpperCase() + type.slice(1)), function (bSucc, sCfg) {
+				// body...
+				if (bSucc) {
+					cb(parseInt(sCfg, 10))
+				}
+				else {
+					getCommonInterval(cb)
+				}
+			})
+		}
+		else {
+			getCommonInterval(cb)
+		}
+	}
+
+	// 获取位移类误触配置
+	// 默认按钮开始出现，1.5秒后出现底部banner，2秒后按钮上移，上移时间为0.3秒
+	getMoveMistakeConfig( cb ) {
+		if (typeof cb !== "function") {
+			return
+		}
+
+		this._getCfgByKey(G_SwitchName.SN_MOVE_MISTAKE_CFG, function (bSucc, sCfg) {
+			// body...
+			if (bSucc) {
+				let arrCfgs = sCfg.split('||')
+				cb({
+					hold1: (parseFloat(arrCfgs[0]) * 1000),
+					hold2: (parseFloat(arrCfgs[1]) * 1000),
+					move: (parseFloat(arrCfgs[2]) * 1000)
 				})
 			}
 			else {
-				getCommonInterval(cb)
+				cb({hold1: 1500, hold2: 2000, move: 300})
 			}
+		})
+	}
+
+	// 获取导出位移类误触配置
+	// 默认进入导出页后1.5秒出现banner，banner停留0.5秒消失
+	getExportMoveMistakeConfig( cb ) {
+		if (typeof cb !== "function") {
+			return
 		}
-		else {
-			cb(0)
+
+		this._getCfgByKey(G_SwitchName.SN_EXPORT_MOVE_MISTAKE_CFG, function (bSucc, sCfg) {
+			// body...
+			if (bSucc) {
+				let arrCfgs = sCfg.split('||')
+				cb({
+					delay: (parseFloat(arrCfgs[0]) * 1000),
+					stay: (parseFloat(arrCfgs[1]) * 1000)
+				})
+			}
+			else {
+				cb({delay: 1500, stay: 500})
+			}
+		})
+	}
+
+	// 获取狂点类误触配置
+	// 默认进度条自动下降每次0.05，进度条点击增加0.175，最小触发进度条值为0.5，触发后最少点击1次，最大点击3次
+	getClickMistakeConfig( cb ) {
+		if (typeof cb !== "function") {
+			return
 		}
+
+		this._getCfgByKey(G_SwitchName.SN_CLICK_MISTAKE_CFG, function (bSucc, sCfg) {
+			// body...
+			if (bSucc) {
+				let arrCfgs = sCfg.split('||')
+				cb({
+					mimus: parseFloat(arrCfgs[0]),
+					add: parseFloat(arrCfgs[1]),
+					target: parseFloat(arrCfgs[2]),
+					miniClick: parseInt(arrCfgs[3].split('-')[0]),
+					maxClick: parseInt(arrCfgs[3].split('-')[1])
+				})
+			}
+			else {
+				cb({mimus: 0.05, add: 0.175, target: 0.5, miniClick: 1, maxClick: 3})
+			}
+		})
 	}
 
 	//根据key名获取配置_无本配置就返回null

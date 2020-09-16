@@ -1,6 +1,10 @@
 import AdvBase from "./adv_base";
 
 var SK_KEY_OF_COLOR_SIGN_INFO = "storage_key_of_color_sign_info"
+var GAP_OF_EACH_INTERSTITIAL_AD = 30 * 1000
+if (typeof window.tt !== "undefined") {
+	GAP_OF_EACH_INTERSTITIAL_AD = 60 * 1000
+}
 
 class UnSupportAdv extends AdvBase {
     constructor() {
@@ -11,6 +15,7 @@ class UnSupportAdv extends AdvBase {
 class WXAdv extends AdvBase {
     constructor() {
 		super()
+		this._gapOfEachInterstitialAd = GAP_OF_EACH_INTERSTITIAL_AD
     }
 
 	_registerAdUnitIDs(bannerAdUnitIDs, videoAdUnitIDs, interstitialAdUnitIDs) {
@@ -46,14 +51,14 @@ class WXAdv extends AdvBase {
 		}
 	}
 
-	_getBannerOriginalSize() {
+	getBannerOriginalSize() {
 		return {
 			width: 960,
 			height: 334
 		}
 	}
 
-	_getMiniGapFromBottom() {
+	getMiniGapFromBottom() {
 		return 40
 	}
 
@@ -199,7 +204,7 @@ class QQAdv extends AdvBase {
 		let sysInfo = G_PlatHelper.getSysInfo()
 
 		let bannerWidth = 300
-		let bannerHeight = this._getBannerOriginalSize().height / this._getBannerOriginalSize().width * bannerWidth
+		let bannerHeight = this.getBannerOriginalSize().height / this.getBannerOriginalSize().width * bannerWidth
 
 		let defaultStyle = {
 			left: (sysInfo.screenWidth - bannerWidth) / 2,
@@ -214,14 +219,14 @@ class QQAdv extends AdvBase {
 		return defaultStyle
 	}
 
-	_getBannerOriginalSize() {
+	getBannerOriginalSize() {
 		return {
 			width: 960,
 			height: 223
 		}
 	}
 
-	_getMiniGapFromBottom() {
+	getMiniGapFromBottom() {
 		return 20
 	}
 
@@ -239,11 +244,20 @@ class QQAdv extends AdvBase {
 			}
 		}
 	}
+
+	_isSupportPreloadBanner() {
+		return false
+	}
+
+	_isSupportDelayDestroyBanner() {
+		return false
+	}
 }
 
 class TTAdv extends AdvBase {
     constructor() {
 		super()
+		this._gapOfEachInterstitialAd = GAP_OF_EACH_INTERSTITIAL_AD
 	}
 	
 	_registerAdUnitIDs(bannerAdUnitIDs, videoAdUnitIDs, interstitialAdUnitIDs) {
@@ -286,6 +300,42 @@ class TTAdv extends AdvBase {
 		return bannerAdObj
 	}
 
+	// 内部接口
+	_doCreateInterstitialAdObj(closeCb, loadCb, errCb) {
+		let interstitialAdObj = super._doCreateInterstitialAdObj(() => {
+			let needDestroyObj = interstitialAdObj
+
+			G_Scheduler.schedule("Destroy_Interstitial_Ad", function () {
+				// body...
+				if(needDestroyObj) {
+					console.log("destory interstitial ad...")
+					needDestroyObj.destroy()
+				}
+			}.bind(this), false, 60, 0);
+
+			// reset
+			this._interstitialAdObj = null
+
+			if (typeof closeCb === "function") {
+				closeCb()
+			}
+		}, loadCb, errCb)
+
+		// load
+		console.log("start to load interstitial ad...")
+		interstitialAdObj.load()
+
+		return interstitialAdObj
+	}
+
+	_isSupportPreloadInterstitial() {
+		return false
+	}
+
+	_isSupportDelayDestroyInterstitial() {
+		return false
+	}
+
 	_getDefaultPlatformStyle() {
 		return {
 			left: 0,
@@ -298,14 +348,14 @@ class TTAdv extends AdvBase {
 		return bannerWidth / 208 * 300
 	}
 
-	_getBannerOriginalSize() {
+	getBannerOriginalSize() {
 		return {
 			width: 960,
 			height: 336
 		}
 	}
 
-	_getMiniGapFromBottom() {
+	getMiniGapFromBottom() {
 		return 40
 	}
 

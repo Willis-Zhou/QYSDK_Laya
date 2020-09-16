@@ -20,6 +20,11 @@ export default class Finish extends BaseUI {
         this._refreshAd()
     }
 
+    onDisable() {
+        // uninit event
+        this._unInitEvent()
+    }
+
     _initUI() {
         let advLoadMgr = this.owner.getComponent(AdvLoadMgr)
         if (advLoadMgr) {
@@ -29,12 +34,19 @@ export default class Finish extends BaseUI {
     }
 
     _initEvent() {
-        G_Event.addEventListerner(G_EventName.EN_REFRESH_FLOW_AD, () => {
-            // show
-            this.showUI()
+        G_Event.addEventListerner(G_EventName.EN_REFRESH_FLOW_AD, this._doShowAndRefreshAd, this)
+    }
 
-            this._refreshAd()
-        })
+    _unInitEvent() {
+        G_Event.removeEventListerner(G_EventName.EN_REFRESH_FLOW_AD, this._doShowAndRefreshAd, this)
+    }
+
+    _doShowAndRefreshAd() {
+        // show
+        this.showUI()
+
+        // refresh
+        this._refreshAd()
     }
 
     onInit() {

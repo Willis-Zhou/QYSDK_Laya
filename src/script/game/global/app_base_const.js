@@ -153,6 +153,9 @@ APP_BASE_CONST.init = function () {
 	// global
 	window.G_ADCfg = _ADCfg
 
+	// 误触管理配置
+	window.G_SupportMistakeTypes = null
+
 	// 预加载资源配置
 	let _PreloadAssets = []
 
@@ -177,36 +180,24 @@ APP_BASE_CONST.init = function () {
 		SN_IS_PUBLISHING: "is_publishing",
 		// 提审版本
 		SN_COMMIT_VERSION: "commitVersion",
-		// 线上版本狂点类误触开关
-		SN_OV_CLICK_STATUS: "onlineMistakeStatusOfClick",
-		// 线上版本位移类误触开关
-		SN_OV_MOVE_STATUS: "onlineMistakeStatusOfMove",
-		// 线上版本按钮类误触开关
-		SN_OV_BTN_STATUS: "onlineMistakeStatusOfBtn",
-		// 线上版本退出类误触开关
-		SN_OV_EXIT_STATUS: "onlineMistakeStatusOfExit",
-		// 提审版本狂点类误触开关
-		SN_CV_CLICK_STATUS: "commitMistakeStatusOfClick",
-		// 提审版本位移类误触开关
-		SN_CV_MOVE_STATUS: "commitMistakeStatusOfMove",
-		// 提审版本按钮类误触开关
-		SN_CV_BTN_STATUS: "commitMistakeStatusOfBtn",
-		// 提审版本退出类误触开关
-		SN_CV_EXIT_STATUS: "commitMistakeStatusOfExit",
+		// 线上版本狂点类误触开关 --- 格式字符
+		SN_FORMAT_OF_OV_STATUS: "onlineMistakeStatusOf{0}",
+		// 提审版本开局类误触开关 --- 格式字符
+		SN_FORMAT_OF_CV_STATUS: "commitMistakeStatusOf{0}",
 		// 今天最大误触触发数
 		SN_TODAY_MAX_MISTAKE_COUNTS: "todayMaxMistakeCounts",
 		// 误触的触发概率
 		SN_INVOKE_MISTAKE_RATE: "invokeMistakeRate",
 		// 误触的触发间隔
 		SN_INTERVAL_OF_MISTAKES: "intervalOfMistakes",
-		// 误触的触发间隔 --- 狂点
-		SN_INTERVAL_OF_CLICK_MISTAKES: "intervalOfClickMistakes",
-		// 误触的触发间隔 --- 位移
-		SN_INTERVAL_OF_MOVE_MISTAKES: "intervalOfMoveMistakes",
-		// 误触的触发间隔 --- 按钮
-		SN_INTERVAL_OF_BTN_MISTAKES: "intervalOfBtnMistakes",
-		// 误触的触发间隔 --- 退出
-		SN_INTERVAL_OF_EXIT_MISTAKES: "intervalOfExitMistakes",
+		// 误触的触发间隔 --- 格式字符
+		SN_FORMAT_OF_INTERVAL_OF_MISTAKES: "intervalOf{0}Mistakes",
+		// 位移类误触配置
+		SN_MOVE_MISTAKE_CFG: "moveMistakeCfg",
+		// 导出位移类误触配置
+		SN_EXPORT_MOVE_MISTAKE_CFG: "exportMoveMistakeCfg",
+		// 狂点类误触配置
+		SN_CLICK_MISTAKE_CFG: "clickMistakeCfg",
 		// 是否新游戏
 		SN_IS_NEW_GAME: "isNewGame",
 	}
@@ -230,7 +221,7 @@ APP_BASE_CONST.init = function () {
 
 	// 为""时不启动
 	let _SoundName = {
-        SN_CLICK: "res/sounds/click.mp3",
+		SN_CLICK: "res/sounds/click.mp3",
     }
 
 	// global

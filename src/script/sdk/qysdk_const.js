@@ -43,7 +43,9 @@ QYSDK_CONST.init = function () {
 		// 显示提示框
 		EN_SHOW_LOCAL_TIPS: "EN_SHOW_LOCAL_TIPS",
 		// 隐藏提示框
-		EN_HIDE_LOCAL_TIPS: "EN_HIDE_LOCAL_TIPS"
+		EN_HIDE_LOCAL_TIPS: "EN_HIDE_LOCAL_TIPS",
+		// 显示对话框
+		EN_SHOW_LOCAL_MODAL: "EN_SHOW_LOCAL_MODAL"
 	}
 
 	// global

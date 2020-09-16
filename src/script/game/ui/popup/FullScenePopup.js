@@ -13,6 +13,8 @@ export default class FullScenePopup extends BaseUI {
         this._closeBtn = null
         this._advLoadMgrs = []
         this._isMoveMistakeEnabled = false
+        this._isCanClose = false
+        this._scheduleKey = null
     }
 
     onAwake() {
@@ -60,7 +62,39 @@ export default class FullScenePopup extends BaseUI {
             this._isMoveMistakeEnabled = isEnabled
 
             if (!isEnabled) {
+                this._isCanClose = true
                 G_UIHelper.delayShow(this._closeBtn)
+            }
+            else {
+                // disable close btn
+                this._isCanClose = false
+
+                // load cfg then invoke mistake
+                G_Switch.getExportMoveMistakeConfig(cfg => {
+                    if (this._scheduleKey) {
+						G_Scheduler.unschedule(this._scheduleKey)
+						this._scheduleKey = null
+                    }
+                    
+                    this._scheduleKey = G_Utils.generateString(32)
+                    G_Scheduler.schedule(this._scheduleKey, () => {
+                        this._scheduleKey = null
+                        
+                        // show banner
+                        G_Event.dispatchEvent(G_EventName.EN_SHOW_BANNER_AD)
+
+                        this._scheduleKey = G_Utils.generateString(32)
+                        G_Scheduler.schedule(this._scheduleKey, () => {
+                            this._scheduleKey = null
+
+                            // hide banner
+                            G_Event.dispatchEvent(G_EventName.EN_HIDE_BANNER_AD)
+
+                            // enable close btn
+                            this._isCanClose = true
+                        }, false, cfg.stay, 1)
+                    }, false, cfg.delay, 1)
+                })
             }
         })
 
@@ -76,30 +110,37 @@ export default class FullScenePopup extends BaseUI {
 
     onCloseTouched( btn ) {
         G_UIHelper.playBtnTouchAction(btn, () => {
-            if (btn._isTouching) {
+            if (this._isCanClose) {
+                G_UIManager.hideUI("fullSceneAd")
                 return
             }
 
-            if (!this._isMoveMistakeEnabled) {
-                G_UIManager.hideUI("fullSceneAd")
-            }
-            else {
-                // mark
-                btn._isTouching = true
+            // if (btn._isTouching) {
+            //     return
+            // }
 
-                G_UIHelper.autoMove(btn, 0, 1000, 1000, 0, false, new Laya.Vector2(0, 0), step => {
-                    if (step === "hold_finished_1") {
-                        // show banner
-                        G_Event.dispatchEvent(G_EventName.EN_SHOW_BANNER_AD)
-                    }
-                    else if (step === "move_finished") {
-                        // reset
-                        btn._isTouching = false
+            // if (!this._isMoveMistakeEnabled) {
+            //     G_UIManager.hideUI("fullSceneAd")
+            // }
+            // else {
+            //     // mark
+            //     btn._isTouching = true
 
-                        G_UIManager.hideUI("fullSceneAd")
-                    }
-                })
-            }
+            //     G_UIHelper.autoMoveWithDefaultConfig(btn, new Laya.Vector2(0, 0), step => {
+            //         if (step === "hold_finished_1") {
+            //             // show banner
+            //             G_Event.dispatchEvent(G_EventName.EN_SHOW_BANNER_AD)
+            //         }
+            //         else if (step === "move_finished") {
+            //             // reset
+            //             btn._isTouching = false
+            //             this._isCanClose = true
+
+            //             // hide banner
+            //             G_Event.dispatchEvent(G_EventName.EN_HIDE_BANNER_AD)
+            //         }
+            //     })
+            // }
         })
         
         G_SoundMgr.playSound(G_SoundName.SN_CLICK)

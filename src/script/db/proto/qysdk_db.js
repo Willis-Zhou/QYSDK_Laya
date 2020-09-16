@@ -42,8 +42,8 @@ $root.qysdk = (function() {
      * @property {number} BC_QTT_MINI_PROGRAM_APP_ID=18 BC_QTT_MINI_PROGRAM_APP_ID value
      * @property {number} BC_QTT_MINI_PROGRAM_APP_SECRET=19 BC_QTT_MINI_PROGRAM_APP_SECRET value
      * @property {number} BC_QTT_MINI_PROGRAM_APP_NAME=20 BC_QTT_MINI_PROGRAM_APP_NAME value
+     * @property {number} BC_MZ_MINI_PROGRAM_APP_ID=21 BC_MZ_MINI_PROGRAM_APP_ID value
      * @property {number} BC_MAX_ADV_TIMES_OF_ONE_DAY=25 BC_MAX_ADV_TIMES_OF_ONE_DAY value
-     * @property {number} BC_BORN_COIN_NUM=101 BC_BORN_COIN_NUM value
      */
     qysdk.BaseConfigIDs = (function() {
         var valuesById = {}, values = Object.create(valuesById);
@@ -67,8 +67,86 @@ $root.qysdk = (function() {
         values[valuesById[18] = "BC_QTT_MINI_PROGRAM_APP_ID"] = 18;
         values[valuesById[19] = "BC_QTT_MINI_PROGRAM_APP_SECRET"] = 19;
         values[valuesById[20] = "BC_QTT_MINI_PROGRAM_APP_NAME"] = 20;
+        values[valuesById[21] = "BC_MZ_MINI_PROGRAM_APP_ID"] = 21;
         values[valuesById[25] = "BC_MAX_ADV_TIMES_OF_ONE_DAY"] = 25;
-        values[valuesById[101] = "BC_BORN_COIN_NUM"] = 101;
+        return values;
+    })();
+
+    /**
+     * UIWordIDs enum.
+     * @name qysdk.UIWordIDs
+     * @enum {number}
+     * @property {number} UIWORD_ID_APP_NAME=1 UIWORD_ID_APP_NAME value
+     * @property {number} UIWORD_ID_SYSTEM_ERROR_TITLE=2 UIWORD_ID_SYSTEM_ERROR_TITLE value
+     * @property {number} UIWORD_ID_SYSTEM_ERROR_CONTENT=3 UIWORD_ID_SYSTEM_ERROR_CONTENT value
+     * @property {number} UIWORD_ID_SYSTEM_ERROR_RELOAD_GAME=4 UIWORD_ID_SYSTEM_ERROR_RELOAD_GAME value
+     * @property {number} UIWORD_ID_SYSTEM_ERROR_EXIT_GAME=5 UIWORD_ID_SYSTEM_ERROR_EXIT_GAME value
+     * @property {number} UIWORD_ID_QQ_PLATFORM_NAME=6 UIWORD_ID_QQ_PLATFORM_NAME value
+     * @property {number} UIWORD_ID_WX_PLATFORM_NAME=7 UIWORD_ID_WX_PLATFORM_NAME value
+     * @property {number} UIWORD_ID_SDK_NOT_SUPPORT_FORMAT=8 UIWORD_ID_SDK_NOT_SUPPORT_FORMAT value
+     * @property {number} UIWORD_ID_NOT_FINISHED_YET=9 UIWORD_ID_NOT_FINISHED_YET value
+     * @property {number} UIWORD_ID_PLAYER_BLOCKED_TITLE=10 UIWORD_ID_PLAYER_BLOCKED_TITLE value
+     * @property {number} UIWORD_ID_PLAYER_BLOCKED_CONTENT=11 UIWORD_ID_PLAYER_BLOCKED_CONTENT value
+     * @property {number} UIWORD_ID_VIDEO_NOT_SUPPORT=12 UIWORD_ID_VIDEO_NOT_SUPPORT value
+     * @property {number} UIWORD_ID_SHARE_SUCCESS=13 UIWORD_ID_SHARE_SUCCESS value
+     * @property {number} UIWORD_ID_ADV_SUCCESS=14 UIWORD_ID_ADV_SUCCESS value
+     * @property {number} UIWORD_ID_ADV_FAIL=15 UIWORD_ID_ADV_FAIL value
+     * @property {number} UIWORD_ID_ADV_NOT_FINISH_CONTENT=16 UIWORD_ID_ADV_NOT_FINISH_CONTENT value
+     * @property {number} UIWORD_ID_ADV_NOT_FINISH_CANCEL_TEXT=17 UIWORD_ID_ADV_NOT_FINISH_CANCEL_TEXT value
+     * @property {number} UIWORD_ID_ADV_NOT_FINISH_CONFIRM_TEXT=18 UIWORD_ID_ADV_NOT_FINISH_CONFIRM_TEXT value
+     * @property {number} UIWORD_ID_SUBSCRIBE_FAIL_CONTENT=19 UIWORD_ID_SUBSCRIBE_FAIL_CONTENT value
+     * @property {number} UIWORD_ID_SUBSCRIBE_FAIL_CANCEL_TEXT=20 UIWORD_ID_SUBSCRIBE_FAIL_CANCEL_TEXT value
+     * @property {number} UIWORD_ID_SUBSCRIBE_FAIL_CONFIRM_TEXT=21 UIWORD_ID_SUBSCRIBE_FAIL_CONFIRM_TEXT value
+     * @property {number} UIWORD_ID_NO_MORE_REWARD=22 UIWORD_ID_NO_MORE_REWARD value
+     * @property {number} UIWORD_ID_UNIT_DAY=23 UIWORD_ID_UNIT_DAY value
+     * @property {number} UIWORD_ID_UNIT_WEEK=24 UIWORD_ID_UNIT_WEEK value
+     * @property {number} UIWORD_ID_UNIT_HOUR=25 UIWORD_ID_UNIT_HOUR value
+     * @property {number} UIWORD_ID_UNIT_MINUTE=26 UIWORD_ID_UNIT_MINUTE value
+     * @property {number} UIWORD_ID_VIDEO_NOT_READY_YET=27 UIWORD_ID_VIDEO_NOT_READY_YET value
+     * @property {number} UIWORD_ID_FORMAT_OF_VIDEO_NOT_READY_YET=28 UIWORD_ID_FORMAT_OF_VIDEO_NOT_READY_YET value
+     * @property {number} UIWORD_ID_INSTALL_SHORTCUT_SUCCESS=29 UIWORD_ID_INSTALL_SHORTCUT_SUCCESS value
+     * @property {number} UIWORD_ID_NOT_SUPPORT_ON_IOS_PLATFORM=30 UIWORD_ID_NOT_SUPPORT_ON_IOS_PLATFORM value
+     * @property {number} UIWORD_ID_SHARE_FAIL_TIPS_ONE=1001 UIWORD_ID_SHARE_FAIL_TIPS_ONE value
+     * @property {number} UIWORD_ID_SHARE_FAIL_TIPS_TWO=1002 UIWORD_ID_SHARE_FAIL_TIPS_TWO value
+     * @property {number} UIWORD_ID_SHARE_FAIL_TIPS_THREE=1003 UIWORD_ID_SHARE_FAIL_TIPS_THREE value
+     * @property {number} UIWORD_ID_SHARE_VIDEO_FAIL_TIPS_ONE=1004 UIWORD_ID_SHARE_VIDEO_FAIL_TIPS_ONE value
+     */
+    qysdk.UIWordIDs = (function() {
+        var valuesById = {}, values = Object.create(valuesById);
+        values[valuesById[1] = "UIWORD_ID_APP_NAME"] = 1;
+        values[valuesById[2] = "UIWORD_ID_SYSTEM_ERROR_TITLE"] = 2;
+        values[valuesById[3] = "UIWORD_ID_SYSTEM_ERROR_CONTENT"] = 3;
+        values[valuesById[4] = "UIWORD_ID_SYSTEM_ERROR_RELOAD_GAME"] = 4;
+        values[valuesById[5] = "UIWORD_ID_SYSTEM_ERROR_EXIT_GAME"] = 5;
+        values[valuesById[6] = "UIWORD_ID_QQ_PLATFORM_NAME"] = 6;
+        values[valuesById[7] = "UIWORD_ID_WX_PLATFORM_NAME"] = 7;
+        values[valuesById[8] = "UIWORD_ID_SDK_NOT_SUPPORT_FORMAT"] = 8;
+        values[valuesById[9] = "UIWORD_ID_NOT_FINISHED_YET"] = 9;
+        values[valuesById[10] = "UIWORD_ID_PLAYER_BLOCKED_TITLE"] = 10;
+        values[valuesById[11] = "UIWORD_ID_PLAYER_BLOCKED_CONTENT"] = 11;
+        values[valuesById[12] = "UIWORD_ID_VIDEO_NOT_SUPPORT"] = 12;
+        values[valuesById[13] = "UIWORD_ID_SHARE_SUCCESS"] = 13;
+        values[valuesById[14] = "UIWORD_ID_ADV_SUCCESS"] = 14;
+        values[valuesById[15] = "UIWORD_ID_ADV_FAIL"] = 15;
+        values[valuesById[16] = "UIWORD_ID_ADV_NOT_FINISH_CONTENT"] = 16;
+        values[valuesById[17] = "UIWORD_ID_ADV_NOT_FINISH_CANCEL_TEXT"] = 17;
+        values[valuesById[18] = "UIWORD_ID_ADV_NOT_FINISH_CONFIRM_TEXT"] = 18;
+        values[valuesById[19] = "UIWORD_ID_SUBSCRIBE_FAIL_CONTENT"] = 19;
+        values[valuesById[20] = "UIWORD_ID_SUBSCRIBE_FAIL_CANCEL_TEXT"] = 20;
+        values[valuesById[21] = "UIWORD_ID_SUBSCRIBE_FAIL_CONFIRM_TEXT"] = 21;
+        values[valuesById[22] = "UIWORD_ID_NO_MORE_REWARD"] = 22;
+        values[valuesById[23] = "UIWORD_ID_UNIT_DAY"] = 23;
+        values[valuesById[24] = "UIWORD_ID_UNIT_WEEK"] = 24;
+        values[valuesById[25] = "UIWORD_ID_UNIT_HOUR"] = 25;
+        values[valuesById[26] = "UIWORD_ID_UNIT_MINUTE"] = 26;
+        values[valuesById[27] = "UIWORD_ID_VIDEO_NOT_READY_YET"] = 27;
+        values[valuesById[28] = "UIWORD_ID_FORMAT_OF_VIDEO_NOT_READY_YET"] = 28;
+        values[valuesById[29] = "UIWORD_ID_INSTALL_SHORTCUT_SUCCESS"] = 29;
+        values[valuesById[30] = "UIWORD_ID_NOT_SUPPORT_ON_IOS_PLATFORM"] = 30;
+        values[valuesById[1001] = "UIWORD_ID_SHARE_FAIL_TIPS_ONE"] = 1001;
+        values[valuesById[1002] = "UIWORD_ID_SHARE_FAIL_TIPS_TWO"] = 1002;
+        values[valuesById[1003] = "UIWORD_ID_SHARE_FAIL_TIPS_THREE"] = 1003;
+        values[valuesById[1004] = "UIWORD_ID_SHARE_VIDEO_FAIL_TIPS_ONE"] = 1004;
         return values;
     })();
 
@@ -532,78 +610,6 @@ $root.qysdk = (function() {
         };
 
         return TBBaseConfig;
-    })();
-
-    /**
-     * UIWordIDs enum.
-     * @name qysdk.UIWordIDs
-     * @enum {number}
-     * @property {number} UIWORD_ID_APP_NAME=1 UIWORD_ID_APP_NAME value
-     * @property {number} UIWORD_ID_SYSTEM_ERROR_TITLE=2 UIWORD_ID_SYSTEM_ERROR_TITLE value
-     * @property {number} UIWORD_ID_SYSTEM_ERROR_CONTENT=3 UIWORD_ID_SYSTEM_ERROR_CONTENT value
-     * @property {number} UIWORD_ID_SYSTEM_ERROR_RELOAD_GAME=4 UIWORD_ID_SYSTEM_ERROR_RELOAD_GAME value
-     * @property {number} UIWORD_ID_SYSTEM_ERROR_EXIT_GAME=5 UIWORD_ID_SYSTEM_ERROR_EXIT_GAME value
-     * @property {number} UIWORD_ID_QQ_PLATFORM_NAME=6 UIWORD_ID_QQ_PLATFORM_NAME value
-     * @property {number} UIWORD_ID_WX_PLATFORM_NAME=7 UIWORD_ID_WX_PLATFORM_NAME value
-     * @property {number} UIWORD_ID_SDK_NOT_SUPPORT_FORMAT=8 UIWORD_ID_SDK_NOT_SUPPORT_FORMAT value
-     * @property {number} UIWORD_ID_NOT_FINISHED_YET=9 UIWORD_ID_NOT_FINISHED_YET value
-     * @property {number} UIWORD_ID_PLAYER_BLOCKED_TITLE=10 UIWORD_ID_PLAYER_BLOCKED_TITLE value
-     * @property {number} UIWORD_ID_PLAYER_BLOCKED_CONTENT=11 UIWORD_ID_PLAYER_BLOCKED_CONTENT value
-     * @property {number} UIWORD_ID_VIDEO_NOT_SUPPORT=12 UIWORD_ID_VIDEO_NOT_SUPPORT value
-     * @property {number} UIWORD_ID_SHARE_SUCCESS=13 UIWORD_ID_SHARE_SUCCESS value
-     * @property {number} UIWORD_ID_ADV_SUCCESS=14 UIWORD_ID_ADV_SUCCESS value
-     * @property {number} UIWORD_ID_ADV_FAIL=15 UIWORD_ID_ADV_FAIL value
-     * @property {number} UIWORD_ID_ADV_NOT_FINISH_CONTENT=16 UIWORD_ID_ADV_NOT_FINISH_CONTENT value
-     * @property {number} UIWORD_ID_ADV_NOT_FINISH_CANCEL_TEXT=17 UIWORD_ID_ADV_NOT_FINISH_CANCEL_TEXT value
-     * @property {number} UIWORD_ID_ADV_NOT_FINISH_CONFIRM_TEXT=18 UIWORD_ID_ADV_NOT_FINISH_CONFIRM_TEXT value
-     * @property {number} UIWORD_ID_NO_MORE_REWARD=19 UIWORD_ID_NO_MORE_REWARD value
-     * @property {number} UIWORD_ID_UNIT_DAY=20 UIWORD_ID_UNIT_DAY value
-     * @property {number} UIWORD_ID_UNIT_WEEK=21 UIWORD_ID_UNIT_WEEK value
-     * @property {number} UIWORD_ID_UNIT_HOUR=22 UIWORD_ID_UNIT_HOUR value
-     * @property {number} UIWORD_ID_UNIT_MINUTE=23 UIWORD_ID_UNIT_MINUTE value
-     * @property {number} UIWORD_ID_VIDEO_NOT_READY_YET=24 UIWORD_ID_VIDEO_NOT_READY_YET value
-     * @property {number} UIWORD_ID_FORMAT_OF_VIDEO_NOT_READY_YET=25 UIWORD_ID_FORMAT_OF_VIDEO_NOT_READY_YET value
-     * @property {number} UIWORD_ID_INSTALL_SHORTCUT_SUCCESS=26 UIWORD_ID_INSTALL_SHORTCUT_SUCCESS value
-     * @property {number} UIWORD_ID_NOT_SUPPORT_ON_IOS_PLATFORM=27 UIWORD_ID_NOT_SUPPORT_ON_IOS_PLATFORM value
-     * @property {number} UIWORD_ID_SHARE_FAIL_TIPS_ONE=1001 UIWORD_ID_SHARE_FAIL_TIPS_ONE value
-     * @property {number} UIWORD_ID_SHARE_FAIL_TIPS_TWO=1002 UIWORD_ID_SHARE_FAIL_TIPS_TWO value
-     * @property {number} UIWORD_ID_SHARE_FAIL_TIPS_THREE=1003 UIWORD_ID_SHARE_FAIL_TIPS_THREE value
-     * @property {number} UIWORD_ID_LACK_OF_COIN=101 UIWORD_ID_LACK_OF_COIN value
-     */
-    qysdk.UIWordIDs = (function() {
-        var valuesById = {}, values = Object.create(valuesById);
-        values[valuesById[1] = "UIWORD_ID_APP_NAME"] = 1;
-        values[valuesById[2] = "UIWORD_ID_SYSTEM_ERROR_TITLE"] = 2;
-        values[valuesById[3] = "UIWORD_ID_SYSTEM_ERROR_CONTENT"] = 3;
-        values[valuesById[4] = "UIWORD_ID_SYSTEM_ERROR_RELOAD_GAME"] = 4;
-        values[valuesById[5] = "UIWORD_ID_SYSTEM_ERROR_EXIT_GAME"] = 5;
-        values[valuesById[6] = "UIWORD_ID_QQ_PLATFORM_NAME"] = 6;
-        values[valuesById[7] = "UIWORD_ID_WX_PLATFORM_NAME"] = 7;
-        values[valuesById[8] = "UIWORD_ID_SDK_NOT_SUPPORT_FORMAT"] = 8;
-        values[valuesById[9] = "UIWORD_ID_NOT_FINISHED_YET"] = 9;
-        values[valuesById[10] = "UIWORD_ID_PLAYER_BLOCKED_TITLE"] = 10;
-        values[valuesById[11] = "UIWORD_ID_PLAYER_BLOCKED_CONTENT"] = 11;
-        values[valuesById[12] = "UIWORD_ID_VIDEO_NOT_SUPPORT"] = 12;
-        values[valuesById[13] = "UIWORD_ID_SHARE_SUCCESS"] = 13;
-        values[valuesById[14] = "UIWORD_ID_ADV_SUCCESS"] = 14;
-        values[valuesById[15] = "UIWORD_ID_ADV_FAIL"] = 15;
-        values[valuesById[16] = "UIWORD_ID_ADV_NOT_FINISH_CONTENT"] = 16;
-        values[valuesById[17] = "UIWORD_ID_ADV_NOT_FINISH_CANCEL_TEXT"] = 17;
-        values[valuesById[18] = "UIWORD_ID_ADV_NOT_FINISH_CONFIRM_TEXT"] = 18;
-        values[valuesById[19] = "UIWORD_ID_NO_MORE_REWARD"] = 19;
-        values[valuesById[20] = "UIWORD_ID_UNIT_DAY"] = 20;
-        values[valuesById[21] = "UIWORD_ID_UNIT_WEEK"] = 21;
-        values[valuesById[22] = "UIWORD_ID_UNIT_HOUR"] = 22;
-        values[valuesById[23] = "UIWORD_ID_UNIT_MINUTE"] = 23;
-        values[valuesById[24] = "UIWORD_ID_VIDEO_NOT_READY_YET"] = 24;
-        values[valuesById[25] = "UIWORD_ID_FORMAT_OF_VIDEO_NOT_READY_YET"] = 25;
-        values[valuesById[26] = "UIWORD_ID_INSTALL_SHORTCUT_SUCCESS"] = 26;
-        values[valuesById[27] = "UIWORD_ID_NOT_SUPPORT_ON_IOS_PLATFORM"] = 27;
-        values[valuesById[1001] = "UIWORD_ID_SHARE_FAIL_TIPS_ONE"] = 1001;
-        values[valuesById[1002] = "UIWORD_ID_SHARE_FAIL_TIPS_TWO"] = 1002;
-        values[valuesById[1003] = "UIWORD_ID_SHARE_FAIL_TIPS_THREE"] = 1003;
-        values[valuesById[101] = "UIWORD_ID_LACK_OF_COIN"] = 101;
-        return values;
     })();
 
     qysdk.UIWord = (function() {
@@ -1652,6 +1658,326 @@ $root.qysdk = (function() {
         return SettingConfig;
     })();
 
+    qysdk.RedGiftConfig = (function() {
+
+        /**
+         * Properties of a RedGiftConfig.
+         * @memberof qysdk
+         * @interface IRedGiftConfig
+         * @property {number} money RedGiftConfig money
+         * @property {number} totalWithdrawMoney RedGiftConfig totalWithdrawMoney
+         * @property {number} totalWithdrawMoneyTimes RedGiftConfig totalWithdrawMoneyTimes
+         * @property {number} totalGotRedPackageCount RedGiftConfig totalGotRedPackageCount
+         * @property {boolean} isWithdrawEverydayMoneyToday RedGiftConfig isWithdrawEverydayMoneyToday
+         * @property {number} recordDayOfEverydayMoney RedGiftConfig recordDayOfEverydayMoney
+         * @property {number} totalWithdrawEverydayMoney RedGiftConfig totalWithdrawEverydayMoney
+         */
+
+        /**
+         * Constructs a new RedGiftConfig.
+         * @memberof qysdk
+         * @classdesc Represents a RedGiftConfig.
+         * @implements IRedGiftConfig
+         * @constructor
+         * @param {qysdk.IRedGiftConfig=} [properties] Properties to set
+         */
+        function RedGiftConfig(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * RedGiftConfig money.
+         * @member {number} money
+         * @memberof qysdk.RedGiftConfig
+         * @instance
+         */
+        RedGiftConfig.prototype.money = 0;
+
+        /**
+         * RedGiftConfig totalWithdrawMoney.
+         * @member {number} totalWithdrawMoney
+         * @memberof qysdk.RedGiftConfig
+         * @instance
+         */
+        RedGiftConfig.prototype.totalWithdrawMoney = 0;
+
+        /**
+         * RedGiftConfig totalWithdrawMoneyTimes.
+         * @member {number} totalWithdrawMoneyTimes
+         * @memberof qysdk.RedGiftConfig
+         * @instance
+         */
+        RedGiftConfig.prototype.totalWithdrawMoneyTimes = 0;
+
+        /**
+         * RedGiftConfig totalGotRedPackageCount.
+         * @member {number} totalGotRedPackageCount
+         * @memberof qysdk.RedGiftConfig
+         * @instance
+         */
+        RedGiftConfig.prototype.totalGotRedPackageCount = 0;
+
+        /**
+         * RedGiftConfig isWithdrawEverydayMoneyToday.
+         * @member {boolean} isWithdrawEverydayMoneyToday
+         * @memberof qysdk.RedGiftConfig
+         * @instance
+         */
+        RedGiftConfig.prototype.isWithdrawEverydayMoneyToday = false;
+
+        /**
+         * RedGiftConfig recordDayOfEverydayMoney.
+         * @member {number} recordDayOfEverydayMoney
+         * @memberof qysdk.RedGiftConfig
+         * @instance
+         */
+        RedGiftConfig.prototype.recordDayOfEverydayMoney = 0;
+
+        /**
+         * RedGiftConfig totalWithdrawEverydayMoney.
+         * @member {number} totalWithdrawEverydayMoney
+         * @memberof qysdk.RedGiftConfig
+         * @instance
+         */
+        RedGiftConfig.prototype.totalWithdrawEverydayMoney = 0;
+
+        /**
+         * Creates a new RedGiftConfig instance using the specified properties.
+         * @function create
+         * @memberof qysdk.RedGiftConfig
+         * @static
+         * @param {qysdk.IRedGiftConfig=} [properties] Properties to set
+         * @returns {qysdk.RedGiftConfig} RedGiftConfig instance
+         */
+        RedGiftConfig.create = function create(properties) {
+            return new RedGiftConfig(properties);
+        };
+
+        /**
+         * Encodes the specified RedGiftConfig message. Does not implicitly {@link qysdk.RedGiftConfig.verify|verify} messages.
+         * @function encode
+         * @memberof qysdk.RedGiftConfig
+         * @static
+         * @param {qysdk.IRedGiftConfig} message RedGiftConfig message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        RedGiftConfig.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.money);
+            writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.totalWithdrawMoney);
+            writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.totalWithdrawMoneyTimes);
+            writer.uint32(/* id 4, wireType 0 =*/32).uint32(message.totalGotRedPackageCount);
+            writer.uint32(/* id 5, wireType 0 =*/40).bool(message.isWithdrawEverydayMoneyToday);
+            writer.uint32(/* id 6, wireType 0 =*/48).uint32(message.recordDayOfEverydayMoney);
+            writer.uint32(/* id 7, wireType 0 =*/56).uint32(message.totalWithdrawEverydayMoney);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified RedGiftConfig message, length delimited. Does not implicitly {@link qysdk.RedGiftConfig.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof qysdk.RedGiftConfig
+         * @static
+         * @param {qysdk.IRedGiftConfig} message RedGiftConfig message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        RedGiftConfig.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a RedGiftConfig message from the specified reader or buffer.
+         * @function decode
+         * @memberof qysdk.RedGiftConfig
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {qysdk.RedGiftConfig} RedGiftConfig
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        RedGiftConfig.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.qysdk.RedGiftConfig();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.money = reader.uint32();
+                    break;
+                case 2:
+                    message.totalWithdrawMoney = reader.uint32();
+                    break;
+                case 3:
+                    message.totalWithdrawMoneyTimes = reader.uint32();
+                    break;
+                case 4:
+                    message.totalGotRedPackageCount = reader.uint32();
+                    break;
+                case 5:
+                    message.isWithdrawEverydayMoneyToday = reader.bool();
+                    break;
+                case 6:
+                    message.recordDayOfEverydayMoney = reader.uint32();
+                    break;
+                case 7:
+                    message.totalWithdrawEverydayMoney = reader.uint32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            if (!message.hasOwnProperty("money"))
+                throw $util.ProtocolError("missing required 'money'", { instance: message });
+            if (!message.hasOwnProperty("totalWithdrawMoney"))
+                throw $util.ProtocolError("missing required 'totalWithdrawMoney'", { instance: message });
+            if (!message.hasOwnProperty("totalWithdrawMoneyTimes"))
+                throw $util.ProtocolError("missing required 'totalWithdrawMoneyTimes'", { instance: message });
+            if (!message.hasOwnProperty("totalGotRedPackageCount"))
+                throw $util.ProtocolError("missing required 'totalGotRedPackageCount'", { instance: message });
+            if (!message.hasOwnProperty("isWithdrawEverydayMoneyToday"))
+                throw $util.ProtocolError("missing required 'isWithdrawEverydayMoneyToday'", { instance: message });
+            if (!message.hasOwnProperty("recordDayOfEverydayMoney"))
+                throw $util.ProtocolError("missing required 'recordDayOfEverydayMoney'", { instance: message });
+            if (!message.hasOwnProperty("totalWithdrawEverydayMoney"))
+                throw $util.ProtocolError("missing required 'totalWithdrawEverydayMoney'", { instance: message });
+            return message;
+        };
+
+        /**
+         * Decodes a RedGiftConfig message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof qysdk.RedGiftConfig
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {qysdk.RedGiftConfig} RedGiftConfig
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        RedGiftConfig.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a RedGiftConfig message.
+         * @function verify
+         * @memberof qysdk.RedGiftConfig
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        RedGiftConfig.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (!$util.isInteger(message.money))
+                return "money: integer expected";
+            if (!$util.isInteger(message.totalWithdrawMoney))
+                return "totalWithdrawMoney: integer expected";
+            if (!$util.isInteger(message.totalWithdrawMoneyTimes))
+                return "totalWithdrawMoneyTimes: integer expected";
+            if (!$util.isInteger(message.totalGotRedPackageCount))
+                return "totalGotRedPackageCount: integer expected";
+            if (typeof message.isWithdrawEverydayMoneyToday !== "boolean")
+                return "isWithdrawEverydayMoneyToday: boolean expected";
+            if (!$util.isInteger(message.recordDayOfEverydayMoney))
+                return "recordDayOfEverydayMoney: integer expected";
+            if (!$util.isInteger(message.totalWithdrawEverydayMoney))
+                return "totalWithdrawEverydayMoney: integer expected";
+            return null;
+        };
+
+        /**
+         * Creates a RedGiftConfig message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof qysdk.RedGiftConfig
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {qysdk.RedGiftConfig} RedGiftConfig
+         */
+        RedGiftConfig.fromObject = function fromObject(object) {
+            if (object instanceof $root.qysdk.RedGiftConfig)
+                return object;
+            var message = new $root.qysdk.RedGiftConfig();
+            if (object.money != null)
+                message.money = object.money >>> 0;
+            if (object.totalWithdrawMoney != null)
+                message.totalWithdrawMoney = object.totalWithdrawMoney >>> 0;
+            if (object.totalWithdrawMoneyTimes != null)
+                message.totalWithdrawMoneyTimes = object.totalWithdrawMoneyTimes >>> 0;
+            if (object.totalGotRedPackageCount != null)
+                message.totalGotRedPackageCount = object.totalGotRedPackageCount >>> 0;
+            if (object.isWithdrawEverydayMoneyToday != null)
+                message.isWithdrawEverydayMoneyToday = Boolean(object.isWithdrawEverydayMoneyToday);
+            if (object.recordDayOfEverydayMoney != null)
+                message.recordDayOfEverydayMoney = object.recordDayOfEverydayMoney >>> 0;
+            if (object.totalWithdrawEverydayMoney != null)
+                message.totalWithdrawEverydayMoney = object.totalWithdrawEverydayMoney >>> 0;
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a RedGiftConfig message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof qysdk.RedGiftConfig
+         * @static
+         * @param {qysdk.RedGiftConfig} message RedGiftConfig
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        RedGiftConfig.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults) {
+                object.money = 0;
+                object.totalWithdrawMoney = 0;
+                object.totalWithdrawMoneyTimes = 0;
+                object.totalGotRedPackageCount = 0;
+                object.isWithdrawEverydayMoneyToday = false;
+                object.recordDayOfEverydayMoney = 0;
+                object.totalWithdrawEverydayMoney = 0;
+            }
+            if (message.money != null && message.hasOwnProperty("money"))
+                object.money = message.money;
+            if (message.totalWithdrawMoney != null && message.hasOwnProperty("totalWithdrawMoney"))
+                object.totalWithdrawMoney = message.totalWithdrawMoney;
+            if (message.totalWithdrawMoneyTimes != null && message.hasOwnProperty("totalWithdrawMoneyTimes"))
+                object.totalWithdrawMoneyTimes = message.totalWithdrawMoneyTimes;
+            if (message.totalGotRedPackageCount != null && message.hasOwnProperty("totalGotRedPackageCount"))
+                object.totalGotRedPackageCount = message.totalGotRedPackageCount;
+            if (message.isWithdrawEverydayMoneyToday != null && message.hasOwnProperty("isWithdrawEverydayMoneyToday"))
+                object.isWithdrawEverydayMoneyToday = message.isWithdrawEverydayMoneyToday;
+            if (message.recordDayOfEverydayMoney != null && message.hasOwnProperty("recordDayOfEverydayMoney"))
+                object.recordDayOfEverydayMoney = message.recordDayOfEverydayMoney;
+            if (message.totalWithdrawEverydayMoney != null && message.hasOwnProperty("totalWithdrawEverydayMoney"))
+                object.totalWithdrawEverydayMoney = message.totalWithdrawEverydayMoney;
+            return object;
+        };
+
+        /**
+         * Converts this RedGiftConfig to JSON.
+         * @function toJSON
+         * @memberof qysdk.RedGiftConfig
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        RedGiftConfig.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return RedGiftConfig;
+    })();
+
     qysdk.PlayerInfo = (function() {
 
         /**
@@ -1670,8 +1996,9 @@ $root.qysdk = (function() {
          * @property {number} advTimesOfToday PlayerInfo advTimesOfToday
          * @property {number} recordDayOfAdvTimes PlayerInfo recordDayOfAdvTimes
          * @property {qysdk.ISettingConfig} setting PlayerInfo setting
-         * @property {string} coin PlayerInfo coin
-         * @property {string} totalCoin PlayerInfo totalCoin
+         * @property {number|null} [totalShareTimes] PlayerInfo totalShareTimes
+         * @property {number|null} [totalAdvTimes] PlayerInfo totalAdvTimes
+         * @property {qysdk.IRedGiftConfig|null} [redGift] PlayerInfo redGift
          */
 
         /**
@@ -1786,20 +2113,28 @@ $root.qysdk = (function() {
         PlayerInfo.prototype.setting = null;
 
         /**
-         * PlayerInfo coin.
-         * @member {string} coin
+         * PlayerInfo totalShareTimes.
+         * @member {number} totalShareTimes
          * @memberof qysdk.PlayerInfo
          * @instance
          */
-        PlayerInfo.prototype.coin = "";
+        PlayerInfo.prototype.totalShareTimes = 0;
 
         /**
-         * PlayerInfo totalCoin.
-         * @member {string} totalCoin
+         * PlayerInfo totalAdvTimes.
+         * @member {number} totalAdvTimes
          * @memberof qysdk.PlayerInfo
          * @instance
          */
-        PlayerInfo.prototype.totalCoin = "";
+        PlayerInfo.prototype.totalAdvTimes = 0;
+
+        /**
+         * PlayerInfo redGift.
+         * @member {qysdk.IRedGiftConfig|null|undefined} redGift
+         * @memberof qysdk.PlayerInfo
+         * @instance
+         */
+        PlayerInfo.prototype.redGift = null;
 
         /**
          * Creates a new PlayerInfo instance using the specified properties.
@@ -1837,8 +2172,12 @@ $root.qysdk = (function() {
             writer.uint32(/* id 10, wireType 0 =*/80).uint32(message.advTimesOfToday);
             writer.uint32(/* id 11, wireType 0 =*/88).uint32(message.recordDayOfAdvTimes);
             $root.qysdk.SettingConfig.encode(message.setting, writer.uint32(/* id 12, wireType 2 =*/98).fork()).ldelim();
-            writer.uint32(/* id 13, wireType 2 =*/106).string(message.coin);
-            writer.uint32(/* id 14, wireType 2 =*/114).string(message.totalCoin);
+            if (message.totalShareTimes != null && Object.hasOwnProperty.call(message, "totalShareTimes"))
+                writer.uint32(/* id 13, wireType 0 =*/104).uint32(message.totalShareTimes);
+            if (message.totalAdvTimes != null && Object.hasOwnProperty.call(message, "totalAdvTimes"))
+                writer.uint32(/* id 14, wireType 0 =*/112).uint32(message.totalAdvTimes);
+            if (message.redGift != null && Object.hasOwnProperty.call(message, "redGift"))
+                $root.qysdk.RedGiftConfig.encode(message.redGift, writer.uint32(/* id 15, wireType 2 =*/122).fork()).ldelim();
             return writer;
         };
 
@@ -1910,10 +2249,13 @@ $root.qysdk = (function() {
                     message.setting = $root.qysdk.SettingConfig.decode(reader, reader.uint32());
                     break;
                 case 13:
-                    message.coin = reader.string();
+                    message.totalShareTimes = reader.uint32();
                     break;
                 case 14:
-                    message.totalCoin = reader.string();
+                    message.totalAdvTimes = reader.uint32();
+                    break;
+                case 15:
+                    message.redGift = $root.qysdk.RedGiftConfig.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1944,10 +2286,6 @@ $root.qysdk = (function() {
                 throw $util.ProtocolError("missing required 'recordDayOfAdvTimes'", { instance: message });
             if (!message.hasOwnProperty("setting"))
                 throw $util.ProtocolError("missing required 'setting'", { instance: message });
-            if (!message.hasOwnProperty("coin"))
-                throw $util.ProtocolError("missing required 'coin'", { instance: message });
-            if (!message.hasOwnProperty("totalCoin"))
-                throw $util.ProtocolError("missing required 'totalCoin'", { instance: message });
             return message;
         };
 
@@ -2005,10 +2343,17 @@ $root.qysdk = (function() {
                 if (error)
                     return "setting." + error;
             }
-            if (!$util.isString(message.coin))
-                return "coin: string expected";
-            if (!$util.isString(message.totalCoin))
-                return "totalCoin: string expected";
+            if (message.totalShareTimes != null && message.hasOwnProperty("totalShareTimes"))
+                if (!$util.isInteger(message.totalShareTimes))
+                    return "totalShareTimes: integer expected";
+            if (message.totalAdvTimes != null && message.hasOwnProperty("totalAdvTimes"))
+                if (!$util.isInteger(message.totalAdvTimes))
+                    return "totalAdvTimes: integer expected";
+            if (message.redGift != null && message.hasOwnProperty("redGift")) {
+                var error = $root.qysdk.RedGiftConfig.verify(message.redGift);
+                if (error)
+                    return "redGift." + error;
+            }
             return null;
         };
 
@@ -2051,10 +2396,15 @@ $root.qysdk = (function() {
                     throw TypeError(".qysdk.PlayerInfo.setting: object expected");
                 message.setting = $root.qysdk.SettingConfig.fromObject(object.setting);
             }
-            if (object.coin != null)
-                message.coin = String(object.coin);
-            if (object.totalCoin != null)
-                message.totalCoin = String(object.totalCoin);
+            if (object.totalShareTimes != null)
+                message.totalShareTimes = object.totalShareTimes >>> 0;
+            if (object.totalAdvTimes != null)
+                message.totalAdvTimes = object.totalAdvTimes >>> 0;
+            if (object.redGift != null) {
+                if (typeof object.redGift !== "object")
+                    throw TypeError(".qysdk.PlayerInfo.redGift: object expected");
+                message.redGift = $root.qysdk.RedGiftConfig.fromObject(object.redGift);
+            }
             return message;
         };
 
@@ -2084,8 +2434,9 @@ $root.qysdk = (function() {
                 object.advTimesOfToday = 0;
                 object.recordDayOfAdvTimes = 0;
                 object.setting = null;
-                object.coin = "";
-                object.totalCoin = "";
+                object.totalShareTimes = 0;
+                object.totalAdvTimes = 0;
+                object.redGift = null;
             }
             if (message.openID != null && message.hasOwnProperty("openID"))
                 object.openID = message.openID;
@@ -2111,10 +2462,12 @@ $root.qysdk = (function() {
                 object.recordDayOfAdvTimes = message.recordDayOfAdvTimes;
             if (message.setting != null && message.hasOwnProperty("setting"))
                 object.setting = $root.qysdk.SettingConfig.toObject(message.setting, options);
-            if (message.coin != null && message.hasOwnProperty("coin"))
-                object.coin = message.coin;
-            if (message.totalCoin != null && message.hasOwnProperty("totalCoin"))
-                object.totalCoin = message.totalCoin;
+            if (message.totalShareTimes != null && message.hasOwnProperty("totalShareTimes"))
+                object.totalShareTimes = message.totalShareTimes;
+            if (message.totalAdvTimes != null && message.hasOwnProperty("totalAdvTimes"))
+                object.totalAdvTimes = message.totalAdvTimes;
+            if (message.redGift != null && message.hasOwnProperty("redGift"))
+                object.redGift = $root.qysdk.RedGiftConfig.toObject(message.redGift, options);
             return object;
         };
 

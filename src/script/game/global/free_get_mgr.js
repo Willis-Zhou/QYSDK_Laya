@@ -34,6 +34,9 @@ var _FreeGetMgr = function() {
 				else if (G_PlatHelper.isQTTPlatform()) {
 					cb(G_FreeGetWay.FGW_ADV)
 				}
+				else if (G_PlatHelper.isMZPlatform()) {
+					cb(G_FreeGetWay.FGW_ADV)
+				}
 				else {
 					G_PlayerInfo.isNoMoreAdvTimesToday(function( isNoMore ) {
 						if (isNoMore) {
@@ -53,7 +56,12 @@ var _FreeGetMgr = function() {
 									G_Switch.getAdvTimesBeforeShare(function ( times ) {
 										// body...
 										if (G_PlayerInfo.getTodayAdvTimes() < times) {
-											cb(G_FreeGetWay.FGW_ADV)
+											if (G_Adv.isSupportVideoAd()) {
+												cb(G_FreeGetWay.FGW_ADV)
+											}
+											else {
+												cb(G_FreeGetWay.FGW_SHARE)
+											}
 										}
 										else {
 											if (G_Adv.isSupportVideoAd()) {

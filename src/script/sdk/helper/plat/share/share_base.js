@@ -28,28 +28,30 @@ export default class ShareBase {
 			this._minDurationBetweenShare = duration
 		}.bind(this))
 
-		G_Event.addEventListerner(G_EventName.EN_APP_AFTER_ONSHOW, function () {
-			// body...
-			// only schedule once
-			G_Scheduler.schedule("Auto_Share_Callback", function () {
+		if (!this.isSupportCallback()) {
+			G_Event.addEventListerner(G_EventName.EN_APP_AFTER_ONSHOW, function () {
 				// body...
-				console.log("Auto_Share_Callback")
-
-				if (this._sharingSceneInfo) {
-					let bSucc = this._checkShareResult(this._sharingSceneInfo)
-
-					if (typeof this._sharingSceneInfo.cb === "function") {
-						this._sharingSceneInfo.cb(bSucc)
+				// only schedule once
+				G_Scheduler.schedule("Auto_Share_Callback", function () {
+					// body...
+					console.log("Auto_Share_Callback")
+	
+					if (this._sharingSceneInfo) {
+						let bSucc = this._checkShareResult(this._sharingSceneInfo)
+	
+						if (typeof this._sharingSceneInfo.cb === "function") {
+							this._sharingSceneInfo.cb(bSucc)
+						}
+	
+						if (!bSucc && this._sharingSceneInfo.showFailTips) {
+							G_PlatHelper.showRandomToast(this._getShareFailTips())
+						}
+	
+						this._sharingSceneInfo = null
 					}
-
-					if (!bSucc && this._sharingSceneInfo.showFailTips) {
-						G_PlatHelper.showRandomToast(this._getShareFailTips())
-					}
-
-					this._sharingSceneInfo = null
-				}
-			}.bind(this), false, 10, 0)
-		}.bind(this))
+				}.bind(this), false, 10, 0)
+			}.bind(this))
+		}
 
 		if (G_PlatHelper.getPlat() && G_PlatHelper.getPlat().showShareMenu) {
 			this._getOnMenuShareFunc(func => {
@@ -60,7 +62,7 @@ export default class ShareBase {
 							withShareTicket: true
 						})
 			
-						onMenuShareFunc(info => {
+						onMenuShareFunc(shareOption => {
 							// body...
 							let cfg = this._getDoShareCfg(this._getShareInfo(G_ShareScene.SS_SYSTEM_MENU))
 			
@@ -102,6 +104,11 @@ export default class ShareBase {
 
 	// 是否支持分享
 	isSupport() {
+		return false
+	}
+
+	// 是否支持分享回调
+	isSupportCallback() {
 		return false
 	}
 
@@ -147,9 +154,21 @@ export default class ShareBase {
 		}
 		else {
 			if (typeof cb === "function") {
-				cb(true)
+				cb(G_PlatHelper.isWINPlatform())
 			}
 		}
+	}
+
+	/**
+	 * 分享视频
+	 * @param {String} scene_name 场景名，必须属于G_ShareScene
+	 * @param {String} videoPath 视频地址
+	 * @param {Object} customQueryObj 自定义参数
+	 * @param {Boolean} showFailTips 是否显示失败提示，默认true
+	 * @param {Function} cb 回调函数
+	 */
+	shareVideo(scene_name, videoPath, customQueryObj, showFailTips = true, cb = null) {
+		// body...
 	}
 
 	// 获取分享信息
@@ -183,6 +202,10 @@ export default class ShareBase {
 		let all_weights = 0
 
 		for (let i = 0; i < cfgs.length; i++) {
+			if (typeof cfgs[i].weight === "undefined") {
+				cfgs[i].weight = "10"
+			}
+
 			all_weights += parseInt(cfgs[i].weight, 10)
 		}
 
@@ -266,13 +289,13 @@ export default class ShareBase {
 						self._sharingSceneInfo = null
 					}
 				},
-				fail: function () {
+				fail: function ( err ) {
 					// body...
 					console.log("share fail!!!")
 
 					if (self._sharingSceneInfo) {
 						if (self._sharingSceneInfo.showFailTips) {
-							G_PlatHelper.showRandomToast(self._getShareFailTips())
+							G_PlatHelper.showRandomToast(self._getShareFailTips(_extendParams))
 						}
 
 						if (typeof self._sharingSceneInfo.cb === "function") {
@@ -295,13 +318,9 @@ export default class ShareBase {
 		// body...
 		if (sharingInfo) {
 			if ((new Date().getTime() - sharingInfo.startTime) >= this._minDurationBetweenShare) {
-				if (sharingInfo.scene !== G_ShareScene.SS_SYSTEM_MENU) {
+				if (sharingInfo.scene !== G_ShareScene.SS_SYSTEM_MENU && sharingInfo.scene !== G_ShareScene.SS_CUSTOMER_SERVER) {
 					// 除来自系统菜单的分享，则增加有效分享次数
 					G_PlayerInfo.plusTodayShareTimes()
-
-					if (sharingInfo.scene !== G_ShareScene.SS_CUSTOMER_SERVER) {
-						G_PlayerInfo.plusTodayAdvimes()
-					}
 				}
 
 				return true

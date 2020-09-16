@@ -22,6 +22,11 @@ export default class NativeFlow extends BaseUI {
         this._refreshNativeAd()
     }
 
+    onDisable() {
+        // uninit event
+        this._unInitEvent()
+    }
+
     _initUI() {
         // body...
         let closeBtn = G_UIHelper.seekNodeByName(this.owner, "closeBtn")
@@ -46,12 +51,19 @@ export default class NativeFlow extends BaseUI {
     }
 
     _initEvent() {
-        G_Event.addEventListerner(G_EventName.EN_REFRESH_FLOW_AD, () => {
-            // show
-            this.showUI()
+        G_Event.addEventListerner(G_EventName.EN_REFRESH_FLOW_AD, this._doShowAndRefreshAd, this)
+    }
 
-            this._refreshNativeAd()
-        })
+    _unInitEvent() {
+        G_Event.removeEventListerner(G_EventName.EN_REFRESH_FLOW_AD, this._doShowAndRefreshAd, this)
+    }
+
+    _doShowAndRefreshAd() {
+        // show
+        this.showUI()
+
+        // refresh
+        this._refreshNativeAd()
     }
 
     onInit() {

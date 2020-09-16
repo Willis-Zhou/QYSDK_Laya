@@ -115,7 +115,6 @@ export default class AdvLoadMgr extends Laya.Script {
         this._originalAdvInfos = null
         this._advInfos = null
         this._onShowAdvImgs = []
-        this._navagatedAppIds = []
     }
 
     onAwake() {
@@ -123,9 +122,6 @@ export default class AdvLoadMgr extends Laya.Script {
             // init
             this._initUI()
         }
-
-        // load
-        this._navagatedAppIds = _loadNavigatedAppIds()
     }
 
     onEnable() {
@@ -170,7 +166,7 @@ export default class AdvLoadMgr extends Laya.Script {
                 }
             }.bind(this)
 
-            if(Laya.Browser.onPC) {
+            if(G_PlatHelper.isWINPlatform()) {
                 _advKey = "ee2a98b3ba79d62950534db9641ee913"
 
                 G_HttpHelper.getJson("https://image.game.hnquyou.com/upload/opId10.txt", function(succ, res) {
@@ -517,22 +513,23 @@ export default class AdvLoadMgr extends Laya.Script {
         if (advInfo) {
             G_Reportor.report(G_ReportEventName.REN_NAVIGATION_TO_MINIPROGRAM)
 
-            let realAppId = this._getWillNavagatedAppId(advInfo.appid)
+            let realAppInfo = this._getWillNavagatedAdvInfo(advInfo)
 
             let toMin = {
-                adv_id: advInfo.adv_id,
-                appId: realAppId,
-                pkgName: realAppId,
-                path: advInfo.path,
+                adv_id: realAppInfo.adv_id,
+                appId: realAppInfo.appid,
+                pkgName: realAppInfo.appid,
+                path: realAppInfo.path,
             }
 
             toMin.success = () => {
                 if (G_PlatHelper.isWXPlatform()) {
                     // push
-                    this._navagatedAppIds.push(toMin.appId)
+                    let navagatedAppIds = _loadNavigatedAppIds()
+                    navagatedAppIds.push(toMin.appId)
 
                     // save to local
-                    _saveNavigatedAppIds(this._navagatedAppIds)
+                    _saveNavigatedAppIds(navagatedAppIds)
                 }
 
                 G_Reportor.report(G_ReportEventName.REN_NAVIGATION_TO_MINIPROGRAM_SUCCESS)
@@ -564,22 +561,23 @@ export default class AdvLoadMgr extends Laya.Script {
         }
     }
 
-    _getWillNavagatedAppId( appId ) {
+    _getWillNavagatedAdvInfo( advInfo ) {
         if (!G_PlatHelper.isWXPlatform()) {
-            return appId
+            return advInfo
         }
 
         let isNavigated = false
+        let navagatedAppIds = _loadNavigatedAppIds()
 
-        for (let index = 0; index < this._navagatedAppIds.length; index++) {
-            if (this._navagatedAppIds[index] === appId) {
+        for (let index = 0; index < navagatedAppIds.length; index++) {
+            if (navagatedAppIds[index] === advInfo.appid) {
                 isNavigated = true
                 break
             }
         }
 
         if (!isNavigated) {
-            return appId
+            return advInfo
         }
         else {
             let allAppIds = []
@@ -592,16 +590,21 @@ export default class AdvLoadMgr extends Laya.Script {
             allAppIds = G_Utils.getLodash().uniq(allAppIds)
 
             // 取差集
-            let neverNavagatedAppIds = G_Utils.getLodash().xor(allAppIds, this._navagatedAppIds)
+            let neverNavagatedAppIds = G_Utils.getLodash().xorBy(allAppIds, navagatedAppIds)
 
             if (neverNavagatedAppIds && neverNavagatedAppIds.length > 0) {
                 // 随机
                 let randomIndex = G_Utils.random(0, neverNavagatedAppIds.length - 1)
-                return neverNavagatedAppIds[randomIndex]
+                let realAppId = neverNavagatedAppIds[randomIndex]
+
+                for (let i = 0; i < this._advInfos.length; i++) {
+                    if (this._advInfos[i].appid === realAppId) {
+                        return this._advInfos[i]
+                    }
+                }
             }
-            else {
-                return appId
-            }
+            
+            return advInfo
         }
     }
 

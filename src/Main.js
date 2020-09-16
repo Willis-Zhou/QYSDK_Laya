@@ -1,6 +1,31 @@
 ﻿import GameConfig from "./GameConfig";
 class Main {
 	constructor() {
+		// 魅族平台适配支持
+		if (typeof window.mz !== "undefined") {
+			if (mz.getAndroidVersion() <= 23) {
+				console.log("sdk is below android 6")
+				mz.setSurfaceScaleShowAll(GameConfig.width, GameConfig.height)
+				GameConfig.scaleMode = Laya.Stage.SCALE_SHOWALL
+			}
+			else {
+				let sysInfo = qg.getSystemInfoSync()
+		
+				if (GameConfig.scaleMode === Laya.Stage.SCALE_FIXED_WIDTH) {
+					let width = GameConfig.width
+					let height = sysInfo.screenHeight / sysInfo.screenWidth * width
+					mz.setSurfaceScaleShowAll(width, height)
+					console.log("mz.setSurfaceScaleShowAll", width, height)
+				}
+				else if (GameConfig.scaleMode === Laya.Stage.SCALE_FIXED_HEIGHT) {
+					let height = GameConfig.height
+					let width = sysInfo.screenWidth / sysInfo.screenHeight * height
+					mz.setSurfaceScaleShowAll(width, height)
+					console.log("mz.setSurfaceScaleShowAll", width, height)
+				}
+			}
+		}
+
 		//根据IDE设置初始化引擎
 		if (window["Laya3D"]) Laya3D.init(GameConfig.width, GameConfig.height);
 		else Laya.init(GameConfig.width, GameConfig.height, Laya["WebGL"]);

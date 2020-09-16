@@ -94,7 +94,12 @@ var _UIManager = function() {
 						info.node = creator.create()
 
                         if (info.node) {
-							info.clsObj = info.node.getComponent(info.cls)
+							if (typeof info.cls === "string") {
+								info.clsObj = G_UIHelper.getComponentByName(info.node, info.cls)
+							}
+							else {
+								info.clsObj = info.node.getComponent(info.cls)
+							}
 							info.node.zOrder = info.zOrder
 
 							// add

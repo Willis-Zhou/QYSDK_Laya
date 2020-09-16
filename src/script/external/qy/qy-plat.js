@@ -9,6 +9,9 @@ if (typeof window.qq !== "undefined") {
 else if (typeof window.tt !== "undefined") {
     plat = window.tt
 }
+else if (typeof window.mz !== "undefined") {
+    plat = window.mz
+}
 else if (typeof window.qg !== "undefined") {
     plat = window.qg
 }
@@ -294,6 +297,10 @@ if (plat) {
                     let event_name = unsendDict[key].event
                     let event_obj = unsendDict[key].data
 
+                    if (g_sendingCount >= 9) {
+                        break
+                    }
+
                     // retain
                     ++g_sendingCount
 
@@ -464,6 +471,7 @@ if (plat) {
         var g_code = ""
         if (plat.getLaunchOptionsSync) {
             g_launchOpts = plat.getLaunchOptionsSync()
+            console.log("g_launchOpts: ", g_launchOpts)
         }
 
         console.log("g_uuid: ", g_uuid)

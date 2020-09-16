@@ -1,4 +1,5 @@
 import Tips from "../popup/Tips"
+import Modal from "../popup/Modal"
 import SettingPopup from "../popup/SettingPopup"
 import MoreGamePopup from "../popup/MoreGamePopup"
 import FullScenePopup from "../popup/FullScenePopup"
@@ -8,6 +9,33 @@ import ScrollPopup from "../popup/ScrollPopup"
 import ExitPopup from "../popup/ExitPopup"
 import ExitBtnPopup from "../popup/ExitBtnPopup"
 import NewGameExitPopup from "../popup/NewGameExitPopup"
+import ClickPopup from "../popup/ClickPopup"
+
+let clickBtnInfo = {
+  // 关键字，全局唯一
+  key: "clickBtnMistake",
+  // z方向排序顺序，view：10-100，弹出窗：101-799, 广告窗800-999
+  zOrder: 99,
+  // 隐藏后是否销毁
+  isAutoDestory: false,
+  // 管理类，需继承自BaseUI
+  cls: ClickPopup,
+  // 预制体位置
+  prefab: "prefab/mistake/clickButton.json"
+}
+
+let clickBoxInfo = {
+  // 关键字，全局唯一
+  key: "clickBoxMistake",
+  // z方向排序顺序，view：10-100，弹出窗：101-799, 广告窗800-999
+  zOrder: 99,
+  // 隐藏后是否销毁
+  isAutoDestory: false,
+  // 管理类，需继承自BaseUI
+  cls: ClickPopup,
+  // 预制体位置
+  prefab: "prefab/mistake/clickBox.json"
+}
 
 let settingInfo = {
   // 关键字，全局唯一
@@ -61,6 +89,19 @@ let scrollAdInfo = {
   prefab: "prefab/ad/wx/scrollAd.json"
 }
 
+let scrollAdWithNameInfo = {
+  // 关键字，全局唯一
+  key: "scrollAdWithName",
+  // z方向排序顺序，view：10-100，弹出窗：101-799, 广告窗800-999
+  zOrder: 885,
+  // 隐藏后是否销毁
+  isAutoDestory: false,
+  // 管理类，需继承自BaseUI
+  cls: ScrollPopup,
+  // 预制体位置
+  prefab: "prefab/ad/wx/scrollAd_WithName.json"
+}
+
 let bannerAdInfo = {
   // 关键字，全局唯一
   key: "bannerAd",
@@ -95,7 +136,7 @@ let fullSceneAdInfo = {
   // 隐藏后是否销毁
   isAutoDestory: false,
   // 管理类，需继承自BaseUI
-  cls: FullScenePopup,
+  cls: "FullScenePopup",
   // 预制体位置
   prefab: "prefab/ad/wx/fullSceneAd.json"
 }
@@ -139,6 +180,19 @@ let exitBtnAdInfo = {
   prefab: "prefab/ad/wx/exitBtnAd.json"
 }
 
+let modalInfo = {
+  // 关键字，全局唯一
+  key: "modal",
+  // z方向排序顺序，view：10-100，弹出窗：101-799, 广告窗800-999
+  zOrder: 998,
+  // 隐藏后是否销毁
+  isAutoDestory: false,
+  // 管理类，需继承自BaseUI
+  cls: Modal,
+  // 预制体位置
+  prefab: "prefab/modalView.json"
+}
+
 let tipsInfo = {
   // 关键字，全局唯一
   key: "tips",
@@ -155,7 +209,7 @@ let tipsInfo = {
 var UIRegisterInfos = null
 
 if (typeof window.qq !== "undefined") {
-  UIRegisterInfos = [tipsInfo, settingInfo]
+  UIRegisterInfos = [clickBtnInfo, clickBoxInfo, settingInfo]
 }
 else if (typeof window.tt !== "undefined") {
   UIRegisterInfos = [tipsInfo, settingInfo]
@@ -166,11 +220,14 @@ else if (typeof window.qg !== "undefined" && (window.qg.getProvider().toLowerCas
 else if (typeof window.qg !== "undefined" && (window.qg.getProvider().toLowerCase().indexOf("vivo") > -1)) {
   UIRegisterInfos = [tipsInfo, settingInfo, insertAdInfo]
 }
+else if (typeof window.qg !== "undefined" && (window.qg.getProvider().toLowerCase().indexOf("meizu") > -1)) {
+  UIRegisterInfos = [modalInfo, tipsInfo, settingInfo]
+}
 else if (typeof window.wx !== "undefined") {
-  UIRegisterInfos = [tipsInfo, settingInfo, wxMoreGameAdInfo, scrollAdInfo, bannerAdInfo, fullSceneAdInfo, exitAdInfo, newGameExitAdInfo, exitBtnAdInfo]
+  UIRegisterInfos = [clickBtnInfo, settingInfo, wxMoreGameAdInfo, scrollAdInfo, scrollAdWithNameInfo, bannerAdInfo, fullSceneAdInfo, exitAdInfo, newGameExitAdInfo, exitBtnAdInfo]
 }
 else {
-  UIRegisterInfos = [tipsInfo, settingInfo, wxMoreGameAdInfo, scrollAdInfo, bannerAdInfo, fullSceneAdInfo, exitAdInfo, newGameExitAdInfo, exitBtnAdInfo]
+  UIRegisterInfos = [clickBtnInfo, clickBoxInfo, modalInfo, tipsInfo, settingInfo, wxMoreGameAdInfo, scrollAdInfo, scrollAdWithNameInfo, bannerAdInfo, fullSceneAdInfo, exitAdInfo, newGameExitAdInfo, exitBtnAdInfo]
 }
 
 // export

@@ -57,6 +57,9 @@ var _OVAdv = (function () {
                 else if (G_PlatHelper.isVIVOPlatform()) {
                     _isSupport = true
                 }
+                else if (G_PlatHelper.isMZPlatform()) {
+                    _isSupport = true
+                }
 			},
 
 			isSupport: function () {
@@ -293,6 +296,19 @@ var _OVAdv = (function () {
                     if (G_PlatHelper.isOPPOPlatform()) {
                         bannerObj = window.qg.createBannerAd({posId: _posId})
                     }
+                    else if (G_PlatHelper.isMZPlatform()) {
+                        let screenHeight = qg.getSystemInfoSync().screenHeight
+                        let screenWidth = qg.getSystemInfoSync().screenWidth
+                        bannerObj = window.qg.createBannerAd({
+                            adUnitId: _posId,
+                            style: {
+                                left: 0,
+                                top: screenHeight - screenWidth / 6.7,
+                                width:screenWidth,
+                                height: screenWidth / 6.7
+                            }
+                        })
+                    }
                     else {
                         bannerObj = window.qg.createBannerAd({
                             posId: _posId,
@@ -304,9 +320,9 @@ var _OVAdv = (function () {
                         bannerObj._loadCb = _loadCb
                     }
 
-                    if (G_PlatHelper.isVIVOPlatform()) {
+                    if (G_PlatHelper.isVIVOPlatform() || G_PlatHelper.isMZPlatform()) {
                         bannerObj.onLoad(function() {
-                            if (bannerObj._loadCb) {
+                            if (bannerObj && bannerObj._loadCb) {
                                 let loadCb = bannerObj._loadCb
                                 bannerObj._loadCb = null
 
@@ -319,12 +335,12 @@ var _OVAdv = (function () {
                     bannerObj.onError(function( err ) {
                         console.error(err)
 
-                        if (G_PlatHelper.isVIVOPlatform()) {
+                        if (G_PlatHelper.isVIVOPlatform() || G_PlatHelper.isMZPlatform()) {
                             _onShowBannerObj = null
                         }
                     })
 
-                    if (G_PlatHelper.isVIVOPlatform()) {
+                    if (G_PlatHelper.isVIVOPlatform() || G_PlatHelper.isMZPlatform()) {
                         bannerObj.onClose(function () {
                             _onShowBannerObj = null
                         })
@@ -367,7 +383,14 @@ var _OVAdv = (function () {
                 }
         
                 if (_onShowVideoObj === null) {
-                    let videoObj = window.qg.createRewardedVideoAd({posId: _posId})
+                    let videoObj = null
+
+                    if (G_PlatHelper.isMZPlatform()) {
+                        videoObj = window.qg.createRewardedVideoAd({adUnitId: _posId})
+                    }
+                    else {
+                        videoObj = window.qg.createRewardedVideoAd({posId: _posId})
+                    }
 
                     videoObj.onLoad(function () {
                         videoObj.show()
@@ -376,16 +399,26 @@ var _OVAdv = (function () {
                     videoObj.onClose(function(res) {
                         videoObj._lastShowedTime = G_ServerInfo.getServerTime()
 
-                        if(res.isEnded) {
+                        if (G_PlatHelper.isMZPlatform()) {
                             console.log('激励视频广告完成，发放奖励')
-                        } else {
-                            console.log('激励视频广告取消关闭，不发放奖励')
+                        }
+                        else {
+                            if(res.isEnded) {
+                                console.log('激励视频广告完成，发放奖励')
+                            } else {
+                                console.log('激励视频广告取消关闭，不发放奖励')
+                            }
                         }
 
                         let __closeCb = videoObj.closeCb
 
                         if(__closeCb) {
-                            __closeCb(res.isEnded)
+                            if (G_PlatHelper.isMZPlatform()) {
+                                __closeCb(true)
+                            }
+                            else {
+                                __closeCb(res.isEnded)
+                            }
                         }
                     })
 
@@ -443,19 +476,26 @@ var _OVAdv = (function () {
         
                 let insertObj = null
 
-                if (window.qg.createInsertAd) {
-                    insertObj = window.qg.createInsertAd({posId: _posId})
+                if (G_PlatHelper.isMZPlatform()) {
+                    insertObj = window.qg.createInsertAd({adUnitId: _posId})
                 }
                 else {
-                    insertObj = window.qg.createInterstitialAd({posId: _posId})
+                    if (window.qg.createInsertAd) {
+                        insertObj = window.qg.createInsertAd({posId: _posId})
+                    }
+                    else {
+                        insertObj = window.qg.createInterstitialAd({posId: _posId})
+                    }
                 }
         
-                if (G_PlatHelper.isOPPOPlatform()) {
+                if (G_PlatHelper.isOPPOPlatform() || G_PlatHelper.isMZPlatform()) {
                     insertObj.onLoad(function() {
                         if (_onShowBannerObj) {
                             _onShowBannerObj.hide()
                         }
+
                         insertObj.show()
+                        console.log("show insert ad succ...")
                     })
                 }
 
@@ -475,7 +515,8 @@ var _OVAdv = (function () {
                 _onShowInsertObj = insertObj
         
                 // load
-                if (G_PlatHelper.isOPPOPlatform()) {
+                if (G_PlatHelper.isOPPOPlatform() || G_PlatHelper.isMZPlatform()) {
+                    console.log("start to load insert ad...")
                     insertObj.load()
                 }
                 else {
@@ -492,7 +533,7 @@ var _OVAdv = (function () {
             },
 
             _doLoadNativeAd: function ( _posId, _cb ) {
-                if (!_isSupport) {
+                if (!_isSupport || G_PlatHelper.isMZPlatform()) {
                     return null
                 }
 
@@ -536,6 +577,16 @@ var _OVAdv = (function () {
                 nativeObj.load()
         
                 return nativeObj
+            },
+
+            isWatchingVideoAdv() {
+                // body...
+                if (_onShowVideoObj && _onShowVideoObj.closeCb) {
+                    return true
+                }
+                else {
+                    return false
+                }
             },
 
             getNextNativeAdInfo() {

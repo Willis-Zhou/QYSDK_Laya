@@ -77,9 +77,33 @@ export default class PlayerBaseInfo {
 		// body...
 		let isNeedSave = false
 
+		if (this._playerInfo) {
+			if (typeof this._playerInfo.totalShareTimes !== "undefined" && this._playerInfo.shareTimesOfToday > this._playerInfo.totalShareTimes) {
+				this._playerInfo.totalShareTimes = this._playerInfo.shareTimesOfToday
+				isNeedSave = true
+			}
+
+			if (typeof this._playerInfo.totalAdvTimes !== "undefined" && this._playerInfo.advTimesOfToday > this._playerInfo.totalAdvTimes) {
+				this._playerInfo.totalAdvTimes = this._playerInfo.advTimesOfToday
+				isNeedSave = true
+			}
+
+			if (this._playerInfo.redGift === null) {
+				this._playerInfo.redGift = new db["RedGiftConfig"]
+				this._playerInfo.redGift.money = 0
+				this._playerInfo.redGift.totalWithdrawMoney = 0
+				this._playerInfo.redGift.totalWithdrawMoneyTimes = 0
+				this._playerInfo.redGift.totalGotRedPackageCount = 0
+				this._playerInfo.redGift.isWithdrawEverydayMoneyToday = false
+				this._playerInfo.redGift.recordDayOfEverydayMoney = G_ServerInfo.getCurServerDayOfYear()
+				this._playerInfo.redGift.totalWithdrawEverydayMoney = 0
+				isNeedSave = true
+			}
+        }
+
 		if (typeof this.onFixOptionalDataInPlayerInfo === "function") {
             isNeedSave = isNeedSave || this.onFixOptionalDataInPlayerInfo()
-        }
+		}
 
 		return isNeedSave
 	}
@@ -180,6 +204,26 @@ export default class PlayerBaseInfo {
 
 			// share
 			G_Share.addCfgs(jsonData.data.config.sense)
+
+			// mistakes
+			G_SupportMistakeTypes = jsonData.data.config.mistakes
+
+			// red package
+			if (jsonData.data.config.red) {
+				G_RedPackageMgr.iniCfgs(jsonData.data.config.red)
+			}
+
+			// subscriber
+			if (jsonData.data.config.pushPack) {
+				jsonData.data.config.pushPack.forEach(each => {
+					if (each.msgType === "一次性订阅") {
+						G_Subscriber.addOnceTmplId(each.msgKey, each.msgId)
+					}
+					else if (each.msgType === "长期订阅") {
+						G_Subscriber.addForeverTmplId(each.msgKey, each.msgId)
+					}
+				})
+			}
 		}
 
 		let _toDoAfterGetPlayerInfo = function () {
@@ -237,6 +281,17 @@ export default class PlayerBaseInfo {
 					self._isBlocked = jsonData.data.isLock == 1
 					if (self._isBlocked) {
 						self._lockedReason = jsonData.data.lockMessage
+					}
+
+					// update red package state
+					if (self._playerInfo.redGift) {
+						self._playerInfo.redGift.money = jsonData.data.money
+						self._playerInfo.redGift.totalWithdrawMoney = jsonData.data.totalWithdrawMoney
+						self._playerInfo.redGift.totalWithdrawMoneyTimes = jsonData.data.totalWithdrawMoneyTimes
+						self._playerInfo.redGift.totalGotRedPackageCount = jsonData.data.totalGotRedPackageCount
+						self._playerInfo.redGift.isWithdrawEverydayMoneyToday = jsonData.data.isWithdrawEverydayMoneyToday
+						self._playerInfo.redGift.recordDayOfEverydayMoney = jsonData.data.recordDayOfEverydayMoney
+						self._playerInfo.redGift.totalWithdrawEverydayMoney = jsonData.data.totalWithdrawEverydayMoney
 					}
 
 					// web configs
@@ -299,12 +354,24 @@ export default class PlayerBaseInfo {
 		playerInfo.sex = G_Sex || 0
 		playerInfo.headUrl = G_HeadUrl || ""
 		playerInfo.shareTimesOfToday = 0
+		playerInfo.totalShareTimes = 0
 		playerInfo.recordDayOfShareTimes = G_ServerInfo.getCurServerDayOfYear()
 		playerInfo.advTimesOfToday = 0
+		playerInfo.totalAdvTimes = 0
 		playerInfo.recordDayOfAdvTimes = G_ServerInfo.getCurServerDayOfYear()
 		playerInfo.setting = new db["SettingConfig"]
 		playerInfo.setting.isSoundOn = true
 		playerInfo.setting.isMuteOn = true
+		if (typeof playerInfo.redGift !== "undefined") {
+			playerInfo.redGift = new db["RedGiftConfig"]
+			playerInfo.redGift.money = 0
+			playerInfo.redGift.totalWithdrawMoney = 0
+			playerInfo.redGift.totalWithdrawMoneyTimes = 0
+			playerInfo.redGift.totalGotRedPackageCount = 0
+			playerInfo.redGift.isWithdrawEverydayMoneyToday = false
+			playerInfo.redGift.recordDayOfEverydayMoney = G_ServerInfo.getCurServerDayOfYear()
+			playerInfo.redGift.totalWithdrawEverydayMoney = 0
+		}
 
 		if (typeof this.onGeneratedNewPlayerInfo === "function") {
             this.onGeneratedNewPlayerInfo(playerInfo)
@@ -502,6 +569,24 @@ export default class PlayerBaseInfo {
 		}
 	}
 
+	getTotalShareTimes() {
+		// body...
+		if (this._playerInfo) {
+			// check first
+			this._checkShareTimesValid()
+
+			if (typeof this._playerInfo.totalShareTimes !== "undefined") {
+				return this._playerInfo.totalShareTimes
+			}
+			else {
+				return 0
+			}
+		}
+		else {
+			return 0
+		}
+	}
+
 	plusTodayShareTimes() {
 		// body...
 		if (this._playerInfo) {
@@ -509,6 +594,9 @@ export default class PlayerBaseInfo {
 			this._checkShareTimesValid()
 			
 			this._playerInfo.shareTimesOfToday += 1
+			if (typeof this._playerInfo.totalShareTimes !== "undefined") {
+				this._playerInfo.totalShareTimes += 1
+			}
 			this._playerInfo.recordDayOfShareTimes = G_ServerInfo.getCurServerDayOfYear()
 			this._serializePlayerInfoIntoLocal()
 		}
@@ -537,6 +625,24 @@ export default class PlayerBaseInfo {
 		}
 	}
 
+	getTotalAdvTimes() {
+		// body...
+		if (this._playerInfo) {
+			// check first
+			this._checkAdvTimesValid()
+
+			if (typeof this._playerInfo.totalAdvTimes !== "undefined") {
+				return this._playerInfo.totalAdvTimes
+			}
+			else {
+				return 0
+			}
+		}
+		else {
+			return 0
+		}
+	}
+
 	plusTodayAdvimes() {
 		// body...
 		if (this._playerInfo) {
@@ -544,6 +650,9 @@ export default class PlayerBaseInfo {
 			this._checkAdvTimesValid()
 
 			this._playerInfo.advTimesOfToday += 1
+			if (typeof this._playerInfo.totalAdvTimes !== "undefined") {
+				this._playerInfo.totalAdvTimes += 1
+			}
 			this._playerInfo.recordDayOfAdvTimes = G_ServerInfo.getCurServerDayOfYear()
 			this._serializePlayerInfoIntoLocal()
 
@@ -566,6 +675,142 @@ export default class PlayerBaseInfo {
 		if (this._playerInfo.recordDayOfAdvTimes !== G_ServerInfo.getCurServerDayOfYear()) {
 			this._playerInfo.advTimesOfToday = 0
 			this._playerInfo.recordDayOfAdvTimes = G_ServerInfo.getCurServerDayOfYear()
+			this._serializePlayerInfoIntoLocal()
+		}
+	}
+
+	// 存钱
+	depositMoney( money ) {
+		if (typeof money !== "number" || money <= 0) {
+			console.error("depositMoney fail, check input...", money)
+			return
+		}
+
+		if (this._playerInfo.redGift) {
+			this._playerInfo.redGift.money += money
+			this._serializePlayerInfoIntoLocal()
+
+			// log
+			console.log("{0} time depositMoney {1} succ, current money: ".format((this._playerInfo.redGift.totalGotRedPackageCount + 1).toString(), money.toString()), this._playerInfo.redGift.money)
+		}
+	} 
+
+	// 取钱
+	withdrawMoney( money ) {
+		if (typeof money !== "number" || money <= 0) {
+			console.error("withdrawMoney fail, check input...", money)
+			return
+		}
+
+		if (this._playerInfo.redGift) {
+			if (this._playerInfo.redGift.money >= money) {
+				this._playerInfo.redGift.money -= money
+				this._playerInfo.redGift.totalWithdrawMoney += money
+				this._playerInfo.redGift.totalWithdrawMoneyTimes += 1
+				this._serializePlayerInfoIntoLocal()
+
+				// log
+				console.log("{0} time withdrawMoney {1} succ, total withdraw {2}, rest money: ".format(
+					this._playerInfo.redGift.totalWithdrawMoneyTimes.toString()
+					, money.toString()
+					, this._playerInfo.redGift.totalWithdrawMoney.toString()
+				), this._playerInfo.redGift.money)
+			}
+			else {
+				console.error("withdrawMoney fail, not enough money...")
+			}
+		}
+	}
+
+	// 查询剩余的钱（红包内）
+	getMoney() {
+		if (this._playerInfo.redGift) {
+			return this._playerInfo.redGift.money
+		}
+		else {
+			return 0
+		}
+	}
+
+	// 查询领过的钱（从红包）
+	getTotalWithdrawMoney() {
+		if (this._playerInfo.redGift) {
+			return this._playerInfo.redGift.totalWithdrawMoney
+		}
+		else {
+			return 0
+		}
+	}
+
+	// 查询取过几次钱（从红包）
+	getTotalWithdrawMoneyTimes() {
+		if (this._playerInfo.redGift) {
+			return this._playerInfo.redGift.totalWithdrawMoneyTimes
+		}
+		else {
+			return 0
+		}
+	}
+
+	// 增加已领红包次数
+	addTotalGotRedPackageCount() {
+		if (this._playerInfo.redGift) {
+			this._playerInfo.redGift.totalGotRedPackageCount += 1
+		}
+	}
+
+	// 获取总共领取红包的次数
+	getTotalGotRedPackageCount() {
+		if (this._playerInfo.redGift) {
+			return this._playerInfo.redGift.totalGotRedPackageCount
+		}
+		else {
+			return 0
+		}
+	}
+
+	// 今天是否已经提取了每日现金
+	isWithdrawEverydayMoneyToday() {
+		if (this._playerInfo.redGift) {
+			// check first
+			this._checkEverydayMoneyValid()
+
+			return this._playerInfo.redGift.isWithdrawEverydayMoneyToday
+		}
+		else {
+			return 0
+		}
+	}
+
+	// 取钱
+	withdrawEverydayMoney( money ) {
+		if (typeof money !== "number" || money <= 0) {
+			console.error("withdrawEverydayMoney fail, check input...", money)
+			return
+		}
+
+		if (this._playerInfo.redGift) {
+			if (!this._playerInfo.redGift.isWithdrawEverydayMoneyToday) {
+				this._playerInfo.redGift.totalWithdrawEverydayMoney += money
+				this._playerInfo.redGift.isWithdrawEverydayMoneyToday = true
+				this._serializePlayerInfoIntoLocal()
+
+				// log
+				console.log("withdrawEverydayMoney {0} succ, total withdraw {1}".format(
+					money.toString()
+					, this._playerInfo.redGift.totalWithdrawEverydayMoney.toString()))
+			}
+			else {
+				console.error("withdrawEverydayMoney fail, withdrawed before...")
+			}
+		}
+	}
+	
+	_checkEverydayMoneyValid() {
+		// body...
+		if (this._playerInfo.redGift && this._playerInfo.redGift.recordDayOfEverydayMoney !== G_ServerInfo.getCurServerDayOfYear()) {
+			this._playerInfo.redGift.isWithdrawEverydayMoneyToday = false
+			this._playerInfo.redGift.recordDayOfEverydayMoney = G_ServerInfo.getCurServerDayOfYear()
 			this._serializePlayerInfoIntoLocal()
 		}
 	}

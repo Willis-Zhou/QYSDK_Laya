@@ -227,6 +227,26 @@ export default class PlatBaseHelper {
 		// body...
 	}
 
+	startRecord() {
+		// body...
+    }
+
+    pauseRecord() {
+		// body...
+    }
+
+    resumeRecord() {
+		// body...
+    }
+
+    stopRecord() {
+		// body...
+	}
+	
+	getSavedVideoPath() {
+		return ""
+	}
+
 	// 显示模态对话框
 	// cb(true) 点击确认
 	// cb(false) 点击取消
@@ -254,8 +274,9 @@ export default class PlatBaseHelper {
 				}.bind(this)
 			}
 
+			if (this._checkString(title)) { obj.title = title; }
+
 			if (custom) {
-				if (this._checkString(title)) { obj.title = title; }
 				if (custom.cancelText) { obj.cancelText = custom.cancelText; }
 				if (custom.cancelColor) { obj.cancelColor = custom.cancelColor; }
 				if (custom.confirmText) { obj.confirmText = custom.confirmText; }
@@ -776,7 +797,7 @@ export default class PlatBaseHelper {
 
 	isOPPOPlatform() {
 		// body...
-		if (typeof window.qg !== "undefined" && !Laya.VVMiniAdapter) {
+		if (typeof window.qg !== "undefined" && window.qg.getProvider().toLowerCase().indexOf("oppo") > -1) {
 			return true
 		}
 		else {
@@ -786,7 +807,7 @@ export default class PlatBaseHelper {
 
 	isVIVOPlatform() {
 		// body...
-		if (typeof window.qg !== "undefined" && Laya.VVMiniAdapter) {
+		if (typeof window.qg !== "undefined" && window.qg.getProvider().toLowerCase().indexOf("vivo") > -1) {
 			return true
 		}
 		else {
@@ -816,6 +837,16 @@ export default class PlatBaseHelper {
 	isQTTPlatform() {
 		// body...
 		if (typeof window.qttGame !== "undefined") {
+			return true
+		}
+		else {
+			return false
+		}
+	}
+
+	isMZPlatform() {
+		// body...
+		if (typeof window.mz !== "undefined" && window.mz.getProvider().toLowerCase().indexOf("meizu") > -1) {
 			return true
 		}
 		else {

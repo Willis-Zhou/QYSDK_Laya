@@ -40,6 +40,10 @@ var _OpenHelper = (function () {
 					return
 				}
 
+				if (Object.keys(info).length === 0) {
+					return
+				}
+
 				if (window.wx && window.wx.setUserCloudStorage) {
 					let dataList = []
 

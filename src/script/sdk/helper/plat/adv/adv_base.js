@@ -32,6 +32,8 @@ export default class AdvBase {
 		this._preloadInterstitialAdObj = null
 		this._preloadingInterstitialAd = false
 		this._failCountOfCreateInterstitial = 0
+		this._lastTimeOfShowInterstitialAd = 0
+		this._gapOfEachInterstitialAd = 0
 	}
 
 	_checkString(str) {
@@ -173,6 +175,8 @@ export default class AdvBase {
 
 		// preload interstitial
 		this._preloadInterstitialAd()
+		// mark
+		this._lastTimeOfShowInterstitialAd = G_ServerInfo.getServerTime()
 	}
 
 	/**
@@ -259,23 +263,16 @@ export default class AdvBase {
 		if (this._bannerAdObj) {
 			let needDestroyObj = this._bannerAdObj
 
-			G_Scheduler.schedule("Destroy_Old_Banner", function () {
+			G_Scheduler.schedule("Destroy_Old_Banner", () => {
 				// body...
 				console.log("destory old banner...")
 				
-				if (G_PlatHelper.isQQPlatform()) {
-					if (!Laya.Browser.onAndroid) {
-						if(needDestroyObj){
-							needDestroyObj.destroy()
-						}
-					}
-				}
-				else {
-					if(needDestroyObj){
+				if (this._isSupportDelayDestroyBanner()) {
+					if(needDestroyObj) {
 						needDestroyObj.destroy()
 					}
 				}
-			}.bind(this), false, 60, 0);
+			}, false, 60, 0);
 
 			this._bannerAdObj = null
 		}
@@ -364,11 +361,9 @@ export default class AdvBase {
 			return
 		}
 
-		if (G_PlatHelper.isQQPlatform()) {
-			if (Laya.Browser.onAndroid) {
-				this._handlerFun(errCb)
-				return
-			}
+		if (!this._isSupportPreloadBanner()) {
+			this._handlerFun(errCb)
+			return
 		}
 
 		if (this._preloadBannerAdObj === null) {
@@ -526,20 +521,20 @@ export default class AdvBase {
 	 */
 	createVideoAdv(closeCb, errCb) {
 		// body...
+		// windows平台
+		if (!G_PlatHelper.getPlat() || !G_PlatHelper.getPlat().createRewardedVideoAd) {
+			if (typeof closeCb === "function") {
+				closeCb(true)
+			}
+			return
+		}
+		
 		if (!this.isSupportVideoAd()) {
 			// notify
 			G_Event.dispatchEvent(G_EventName.EN_VIDEO_NOT_SUPPORT_RIGHT_NOW)
 
 			if (typeof errCb === "function") {
 				errCb()
-			}
-			return
-		}
-
-		// windows平台
-		if (!G_PlatHelper.getPlat() || !G_PlatHelper.getPlat().createRewardedVideoAd) {
-			if (typeof closeCb === "function") {
-				closeCb(true)
 			}
 			return
 		}
@@ -640,13 +635,6 @@ export default class AdvBase {
 
 			this._videoAdIns.onClose(function (result) {
 				// body...
-				if (result && result.isEnded) {
-					G_PlayerInfo.plusTodayAdvimes()
-				}
-				else if (!result) {
-					G_PlayerInfo.plusTodayAdvimes()
-				}
-
 				if (self._videoAdIns) {
 					let _closeCb = self._videoAdIns.closeCb
 					let _errCb = self._videoAdIns.errCb
@@ -661,22 +649,9 @@ export default class AdvBase {
 						}
 					}
 					else {
-						G_Switch.isPublishing(function ( isPublishing ) {
-							// body...
-							if (isPublishing) {
-								// show watch video fail tips
-								G_PlatHelper.showToast(G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_ADV_FAIL"]).word)
-
-								if (_closeCb) {
-									_closeCb(false)
-								}
-							}
-							else {
-								if (_closeCb || _errCb) {
-									self._showConfirm(_closeCb, _errCb)
-								}
-							}
-						})
+						if (_closeCb) {
+							_closeCb(false)
+						}
 					}
 
 					// preload
@@ -707,32 +682,6 @@ export default class AdvBase {
 		return this._videoAdIns
 	}
 
-	_showConfirm( closeCb, errCb ) {
-		// body...
-		var self = this
-
-		G_PlatHelper.showModal(
-			null,
-			G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_ADV_NOT_FINISH_CONTENT"]).word,
-			true,
-			function ( bOK ) {
-				// body...
-				if (bOK) {
-					// rewatch adv
-					self.createVideoAdv(closeCb, errCb)
-				}
-				else {
-					if (typeof closeCb === "function") {
-						closeCb(false)
-					}
-				}
-			}, {
-				confirmText: G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_ADV_NOT_FINISH_CONFIRM_TEXT"]).word, 
-				cancelText: G_GameDB.getUIWordByID(UIWordIDs["UIWORD_ID_ADV_NOT_FINISH_CANCEL_TEXT"]).word
-			}
-		)
-	}
-
 	isWatchingVideoAdv() {
 		// body...
 		if (this._videoAdIns && this._videoAdIns.closeCb) {
@@ -758,6 +707,11 @@ export default class AdvBase {
 			return
 		}
 
+		if (!this._canShowInterstitialNow()) {
+			this._handlerFun(errCb)
+			return
+		}
+
 		// 重置获取失败次数
 		this._failCountOfCreateInterstitial = 0
 
@@ -765,14 +719,16 @@ export default class AdvBase {
 		if (this._interstitialAdObj) {
 			let needDestroyObj = this._interstitialAdObj
 
-			G_Scheduler.schedule("Destroy_old_Interstitial", function () {
-				// body...
-				console.log("destory old interstitial...")
-
-				if(needDestroyObj){
-					needDestroyObj.destroy()
-				}
-			}.bind(this), false, 60, 0);
+			if (this._isSupportDelayDestroyInterstitial()) {
+				G_Scheduler.schedule("Destroy_old_Interstitial", function () {
+					// body...
+					console.log("destory old interstitial...")
+	
+					if(needDestroyObj){
+						needDestroyObj.destroy()
+					}
+				}.bind(this), false, 60, 0);
+			}
 
 			this._interstitialAdObj = null
 		}
@@ -845,6 +801,11 @@ export default class AdvBase {
 			return
 		}
 
+		if (!this._isSupportPreloadInterstitial()) {
+			this._handlerFun(errCb)
+			return
+		}
+
 		if (this._preloadInterstitialAdObj === null) {
 			this._doCreateInterstitialAdObj(null, interstitialAdObj => {
 				console.log("preload interstitial finished...")
@@ -895,29 +856,40 @@ export default class AdvBase {
 
 		var self = this
 
-		interstitialAdObj.onClose(function () {
-			// callback
+		let onCloseCb = () => {
+			// off
+			interstitialAdObj.offClose(onCloseCb)
+
+			// mark
+			this._lastTimeOfShowInterstitialAd = G_ServerInfo.getServerTime()
+
 			let _closeCb = interstitialAdObj.closeCb
 			interstitialAdObj.closeCb = undefined
 			
 			if (_closeCb) {
 				_closeCb()
 			}
-		})
+		}
+		interstitialAdObj.onClose(onCloseCb)
 
-		interstitialAdObj.onLoad(function () {
-			// callback
+		let onLoadCb = () => {
+			// off
+			interstitialAdObj.offLoad(onLoadCb)
+
 			let _loadCb = interstitialAdObj.loadCb
 			interstitialAdObj.loadCb = undefined
 			
 			if (_loadCb) {
 				_loadCb(interstitialAdObj)
 			}
-		})
+		}
+		interstitialAdObj.onLoad(onLoadCb)
 
-		interstitialAdObj.onError(function ( err ) {
-			// body...
-			console.log("show interstitial fail...")
+		let onErrorCb = err => {
+			// off
+			interstitialAdObj.offError(onErrorCb)
+
+			console.log("show interstitial fail...", err)
 
 			let _errCb = null
 
@@ -954,7 +926,8 @@ export default class AdvBase {
 					self._doCreateInterstitialAdObj(closeCb, loadCb, errCb)
 				}, false, 200, 0)
 			}
-		})
+		}
+		interstitialAdObj.onError(onErrorCb)
 
 		return interstitialAdObj
 	}
@@ -969,7 +942,9 @@ export default class AdvBase {
 	}
 
 	createBoxAdv( closeCb ) {
-		return null
+		if (typeof closeCb === "function") {
+			closeCb(true)
+		}
 	}
 
 	addColorSign() {}
@@ -1000,12 +975,12 @@ export default class AdvBase {
 			}
 
 			// top
-			let bannerHeight = this._getBannerOriginalSize().height / this._getBannerOriginalSize().width * realWidth
+			let bannerHeight = this.getBannerOriginalSize().height / this.getBannerOriginalSize().width * realWidth
 			let bottom = style.bottom
 			if (G_PlatHelper.isIPhoneX()) {
 				if (typeof bottom === "number") {
-					if (bottom < this._getMiniGapFromBottom()) {
-						bottom = this._getMiniGapFromBottom()
+					if (bottom < this.getMiniGapFromBottom()) {
+						bottom = this.getMiniGapFromBottom()
 					}
 				}
 			}
@@ -1035,18 +1010,45 @@ export default class AdvBase {
 		// body...
 	}
 
-	_getBannerOriginalSize() {
+	getBannerOriginalSize() {
 		return {
 			width: 960,
 			height: 334
 		}
 	}
 
-	_getMiniGapFromBottom() {
+	getMiniGapFromBottom() {
 		return 0
 	}
 
 	_isSupportResizeTwice() {
+		return true
+	}
+
+	_isSupportPreloadBanner() {
+		return true
+	}
+
+	_isSupportDelayDestroyBanner() {
+		return true
+	}
+
+	_canShowInterstitialNow() {
+		if (G_ServerInfo.getServerTime() - this._lastTimeOfShowInterstitialAd > this._gapOfEachInterstitialAd) {
+			return true
+		}
+		else {
+			let needTime = this._gapOfEachInterstitialAd / 1000 - Math.floor((G_ServerInfo.getServerTime() - this._lastTimeOfShowInterstitialAd) / 1000)
+            console.warn("插屏广告还未准备好，请{0}秒后重新尝试".format(needTime.toString()))
+			return false
+		}
+	}
+
+	_isSupportPreloadInterstitial() {
+		return true
+	}
+
+	_isSupportDelayDestroyInterstitial() {
 		return true
 	}
 

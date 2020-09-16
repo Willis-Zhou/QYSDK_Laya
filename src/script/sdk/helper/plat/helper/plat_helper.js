@@ -35,6 +35,47 @@ class WINPlatHelper extends PlatBaseHelper {
 		G_Event.dispatchEvent(G_EventName.EN_SHOW_LOCAL_TIPS, title)
 	}
 
+	// 显示模态对话框
+	// cb(true) 点击确认
+	// cb(false) 点击取消
+	// custom 定制(支持cancelText, cancelColor, confirmText, confirmColor)
+	showModal(title, content, showCancel, cb, custom) {
+		// body...
+		if (this._isModalOnShow) {
+			return
+		}
+
+		if (this._checkString(content)) {
+			let obj = {
+				content: content,
+				showCancel: showCancel,
+				cb: (isConfirm) => {
+					this._isModalOnShow = false
+
+					if (typeof cb === "function") {
+						cb(isConfirm)
+					}
+				}
+			}
+
+			if (this._checkString(title)) { obj.title = title; }
+
+			if (custom) {
+				if (custom.cancelText) { obj.cancelText = custom.cancelText; }
+				if (custom.cancelColor) { obj.cancelColor = custom.cancelColor; }
+				if (custom.confirmText) { obj.confirmText = custom.confirmText; }
+				if (custom.confirmColor) { obj.confirmColor = custom.confirmColor; }
+			}
+
+			G_Event.dispatchEvent(G_EventName.EN_SHOW_LOCAL_MODAL, obj)
+		}
+		else {
+			if (typeof cb === "function") {
+				cb(false)
+			}
+		}
+	}
+
 	/**
 	 * 隐藏提示框
 	 */
@@ -455,6 +496,194 @@ class VIVOPlatHelper extends PlatBaseHelper {
 	}
 }
 
+class MZPlatHelper extends PlatBaseHelper {
+    constructor() {
+        super()
+
+        this._plat = window.mz
+        this._platType = "MeiZu"
+		this._platDesc = "MeiZu小游戏平台"
+		
+		// 将qg中的方法（mz没有重新实现的）合入到mz中
+		if (typeof qg !== "undefined") {
+			Object.keys(qg).forEach( funcName => {
+				if (!mz.hasOwnProperty(funcName)) {
+					mz[funcName] = qg[funcName]
+				}
+			})
+		}
+    }
+
+    /**
+	 * 退出游戏
+	 */
+	exitApp() {
+		// body...
+		if (this._plat && this._plat.exitGame) {
+			this._plat.exitGame()
+		}
+    }
+    
+    // 获取平台sdk版本
+	getSDKVersion() {
+		// body...
+		let sysInfo = this.getSysInfo()
+
+		if (sysInfo && typeof sysInfo.platformVersion !== "undefined") {
+			return sysInfo.platformVersion.toString()
+		}
+		else {
+			return '0'
+		}
+	}
+
+    /**
+	 * 是否能远程登录（从后台拉取）
+	 */
+	canLoginOnline() {
+		return false
+	}
+
+	/**
+	 * 是否能远程保存（从后台拉取）
+	 */
+	canSaveOnline() {
+		return false
+	}
+
+	/**
+	 * 手机震动
+	 * @param {Boolean} bLong 长/短
+	 */
+	vibratePhone( bLong ) {
+		// body...
+		if (!G_PlayerInfo.isMuteEnable()) {
+			return
+		}
+		
+		if (bLong) {
+			if (this._plat && this._plat.vibrateLong) {
+				this._plat.vibrateLong({
+					success: null,
+					fail: null,
+					complete: null
+				})
+			}
+		}
+		else {
+			if (this._plat && this._plat.vibrateShort) {
+				this._plat.vibrateShort({
+					success: null,
+					fail: null,
+					complete: null
+				})
+			}
+		}
+	}
+
+	/**
+	 * 显示提示框
+	 * @param {String} title 提示框内容
+	 * @param {String} icon 只支持"success", "loading", "none"三种模式，默认为"none"
+	 */
+	showToast(title, icon) {
+		// body...
+		this._clearToastAndLoading()
+
+		console.log("show toast: " + title)
+		G_Event.dispatchEvent(G_EventName.EN_SHOW_LOCAL_TIPS, title)
+	}
+
+	/**
+	 * 隐藏提示框
+	 */
+	hideToast() {
+		// body...
+		G_Event.dispatchEvent(G_EventName.EN_HIDE_LOCAL_TIPS)
+	}
+
+	// 显示模态对话框
+	// cb(true) 点击确认
+	// cb(false) 点击取消
+	// custom 定制(支持cancelText, cancelColor, confirmText, confirmColor)
+	showModal(title, content, showCancel, cb, custom) {
+		// body...
+		if (this._isModalOnShow) {
+			return
+		}
+
+		if (this._checkString(content)) {
+			let obj = {
+				content: content,
+				showCancel: showCancel,
+				cb: (isConfirm) => {
+					this._isModalOnShow = false
+
+					if (typeof cb === "function") {
+						cb(isConfirm)
+					}
+				}
+			}
+
+			if (this._checkString(title)) { obj.title = title; }
+
+			if (custom) {
+				if (custom.cancelText) { obj.cancelText = custom.cancelText; }
+				if (custom.cancelColor) { obj.cancelColor = custom.cancelColor; }
+				if (custom.confirmText) { obj.confirmText = custom.confirmText; }
+				if (custom.confirmColor) { obj.confirmColor = custom.confirmColor; }
+			}
+
+			G_Event.dispatchEvent(G_EventName.EN_SHOW_LOCAL_MODAL, obj)
+		}
+		else {
+			if (typeof cb === "function") {
+				cb(false)
+			}
+		}
+	}
+
+	/**
+	 * 存储本地数据
+	 * @param {String} key 键名(全局唯一)，不能为空
+	 * @param {Any} data 需要存储的内容。只支持原生类型、Date、及能够通过JSON.stringify序列化的对象
+	 */
+	setStorage(key, data) {
+		if (!this._checkString(key)) {
+			console.error("PlatHelper.setStorage Fail, Check Input...")
+			return
+		}
+
+		Laya.LocalStorage.setItem(key, data)
+	}
+
+	/**
+	 * 获取本地数据
+	 * @param {String} key 键名(全局唯一)，不能为空
+	 */
+	getStorage(key, def) {
+		if (!this._checkString(key)) {
+			console.error("PlatHelper.getStorage Fail, Check Input...")
+			return
+		}
+
+		return Laya.LocalStorage.getItem(key)
+	}
+
+	/**
+	 * 清除本地数据
+	 * @param {String} key 键名(全局唯一)，不能为空
+	 */
+	clearStorage( key ) {
+		if (!this._checkString(key)) {
+			console.error("PlatHelper.clearStorage Fail, Check Input...")
+			return
+		}
+
+		Laya.LocalStorage.removeItem(key)
+	}
+}
+
 class TTPlatHelper extends PlatBaseHelper {
     constructor() {
         super()
@@ -465,6 +694,8 @@ class TTPlatHelper extends PlatBaseHelper {
 		this._onNavigateSuccCb = null
 		this._onNavigateFailCb = null
 		this._onMoreGamesModalCloseCb = null
+		this._videoRecorder = null
+		this._shareVideoPath = ""
 	}
 	
 	init() {
@@ -531,6 +762,19 @@ class TTPlatHelper extends PlatBaseHelper {
 	}
 
 	/**
+	 * 显示提示框
+	 * @param {String} title 提示框内容
+	 * @param {String} icon 只支持"success", "loading", "none"三种模式，默认为"none"
+	 */
+	showToast(title, icon) {
+		// body...
+		this._clearToastAndLoading()
+
+		console.log("show toast: " + title)
+		G_Event.dispatchEvent(G_EventName.EN_SHOW_LOCAL_TIPS, title)
+	}
+
+	/**
 	 * 展示更多游戏弹出窗
 	 */
 	showMoreGamesModal( closeCb, succCb, failCb ) {
@@ -550,6 +794,60 @@ class TTPlatHelper extends PlatBaseHelper {
 			this._onNavigateFailCb = failCb
 			this._onMoreGamesModalCloseCb = closeCb
 		}
+	}
+
+	startRecord() {
+		if (!this._videoRecorder) {
+			this._videoRecorder = this._plat.getGameRecorderManager()
+	
+			this._videoRecorder.onStart(res => {
+				console.log("start record and clear succ...")
+				this._shareVideoPath = ""
+			})
+
+			this._videoRecorder.onStop(res => {
+				console.log("stop record and save succ...")
+
+				this._videoRecorder.clipVideo({
+					path: res.videoPath,
+					timeRange: [25, 0],
+					success: res => {
+						this._shareVideoPath = res.videoPath
+					},
+					fail: e => {
+						console.error("clip video fail: ", e)
+					}
+				})
+			})
+		}
+
+		if (this._videoRecorder) {
+			this._videoRecorder.start({
+				duration: 60
+			})
+		}
+    }
+
+    pauseRecord() {
+		if (this._videoRecorder) {
+			this._videoRecorder.pause()
+		}
+    }
+
+    resumeRecord() {
+		if (this._videoRecorder) {
+			this._videoRecorder.resume()
+		}
+    }
+
+    stopRecord() {
+		if (this._videoRecorder) {
+			this._videoRecorder.stop()
+		}
+	}
+	
+	getSavedVideoPath() {
+		return this._shareVideoPath
 	}
 
 	_convertStyle(node, extendStyle) {
@@ -759,6 +1057,9 @@ else if (typeof window.qg !== "undefined" && (window.qg.getProvider().toLowerCas
 }
 else if (typeof window.qg !== "undefined" && (window.qg.getProvider().toLowerCase().indexOf("vivo") > -1)) {
     _PlatHelper = VIVOPlatHelper
+}
+else if (typeof window.qg !== "undefined" && (window.qg.getProvider().toLowerCase().indexOf("meizu") > -1)) {
+    _PlatHelper = MZPlatHelper
 }
 else if (typeof window.qttGame !== "undefined") {
     _PlatHelper = QTTPlatHelper

@@ -13,44 +13,48 @@ var _SoundMgr = function() {
 		return {
 			playSound: function ( url, loops = 1 ) {
 				if (G_PlayerInfo.isSoundEnable()) {
-					if (typeof url === "string" && url !== "") {
-						Laya.SoundManager.playSound(url, loops)
-					}
+					// fix
+					url = this._fixSoundUrl(url)
+
+					G_AudioHelper.playSound(url, loops)
 				}
 			},
 
 			stopSound: function ( url ) {
-				if (typeof url === "string" && url !== "") {
-					Laya.SoundManager.stopSound(url)
-				}
+				// fix
+				url = this._fixSoundUrl(url)
+
+				G_AudioHelper.stopSound(url)
 			},
 
 			playMusic: function ( url ) {
+				// fix
+				url = this._fixSoundUrl(url)
+
 				if (G_PlayerInfo.isSoundEnable()) {
-					if (typeof url === "string" && url !== "") {
-						_bgmUrl = url
-						Laya.SoundManager.playMusic(url, 0)
-					}
+					G_AudioHelper.playMusic(url)
+				}
+				else {
+					G_AudioHelper.setMusicUrl(url)
 				}
 			},
 
 			stopMusic: function () {
-				if (_bgmUrl !== "") {
-					_bgmUrl = ""
-					Laya.SoundManager.stopMusic()
-				}
+				G_AudioHelper.stopMusic()
 			},
 
 			pauseMusic: function () {
-				Laya.SoundManager.stopMusic()
+				G_AudioHelper.pauseMusic()
 			},
 
 			resumeMusic: function () {
 				if (G_PlayerInfo.isSoundEnable()) {
-					if (_bgmUrl !== "") {
-						this.playMusic(_bgmUrl)
-					}
+					G_AudioHelper.resumeMusic()
 				}
+			},
+
+			getCurMusicTime() {
+				return G_AudioHelper.getCurMusicTime()
 			},
 
 			setSoundEnable: function ( isEnabled ) {
@@ -58,17 +62,39 @@ var _SoundMgr = function() {
 				if (G_PlayerInfo.isSoundEnable() !== isEnabled) {
 					G_PlayerInfo.setSoundEnable(isEnabled)
 
-					if (isEnabled && _bgmUrl !== "") {
-						this.playMusic(_bgmUrl)
+					if (isEnabled && G_AudioHelper.isMusicUrlValid()) {
+						G_AudioHelper.resumeMusic()
 					}
-					else if (!isEnabled && _bgmUrl !== "") {
-						Laya.SoundManager.stopMusic()
+					else if (!isEnabled && G_AudioHelper.isMusicUrlValid()) {
+						G_AudioHelper.pauseMusic()
 					}
 				}
 			},
 
 			isSoundEnable: function () {
 				return G_PlayerInfo.isSoundEnable()
+			},
+
+			_fixSoundUrl( url ) {
+				if (G_BaseUrlPath !== "") {
+					let isLocal = false
+
+					if (G_AppNativefiles.length > 0) {
+						for (let i = 0; i < G_AppNativefiles.length; i++) {
+							let each = G_AppNativefiles[i]
+							if (url.indexOf(each) !== -1) {
+								isLocal = true
+								break
+							}
+						}
+					}
+
+					if (!isLocal) {
+						url = G_BaseUrlPath + url
+					}
+				}
+
+				return url
 			}
 		};
 	};

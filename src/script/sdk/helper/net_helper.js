@@ -268,12 +268,89 @@ var _NetHelper = (function () {
 				else if (G_PlatHelper.isQTTPlatform()) {
 					sendObj.app_id = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_QTT_MINI_PROGRAM_APP_ID"]).str
 				}
+				else if (G_PlatHelper.isMZPlatform()) {
+					sendObj.app_id = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_MZ_MINI_PROGRAM_APP_ID"]).str
+				}
 				else {
 					sendObj.app_id = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_MINI_PROGRAM_APP_ID"]).str
 				}
 
 				// send
 				this.sendJsonOrForm("sendForm", this._getTag(), "/pip/earnGameCfg", sendObj, cb)
+			},
+
+			reqDepositMoney: function ( sessID, depositType, money, cb ) {
+				let sendObj = {
+					JavasessionId: sessID,
+					money: money
+				}
+
+				let optionObj = {
+					depositType: depositType
+				}
+
+				sendObj.opts = JSON.stringify(optionObj)
+
+				this.sendJsonOrForm("sendForm", this._getTag(), "/pip/depositMoney", sendObj, cb)
+			},
+
+			reqWithdrawMoney: function ( sessID, money, advTimesOfToday, totalAdvTimes, cb ) {
+				let sendObj = {
+					JavasessionId: sessID,
+					money: money
+				}
+
+				let optionObj = {
+					advTimesOfToday: advTimesOfToday,
+					totalAdvTimes: totalAdvTimes
+				}
+
+				sendObj.opts = JSON.stringify(optionObj)
+
+				this.sendJsonOrForm("sendForm", this._getTag(), "/pip/withdrawMoney", sendObj, cb)
+			},
+
+			reqWithdrawEverydayMoney: function ( sessID, money, advTimesOfToday, totalAdvTimes, recordDayOfEverydayMoney, cb ) {
+				let sendObj = {
+					JavasessionId: sessID,
+					money: money
+				}
+
+				let optionObj = {
+					advTimesOfToday: advTimesOfToday,
+					totalAdvTimes: totalAdvTimes,
+					recordDayOfEverydayMoney: recordDayOfEverydayMoney
+				}
+
+				sendObj.opts = JSON.stringify(optionObj)
+
+				this.sendJsonOrForm("sendForm", this._getTag(), "/pip/withdrawEverydayMoney", sendObj, cb)
+			},
+
+			reqReportMyVideoRankInfos: function (rankInfos, cb) {
+				let sendObj = {
+					opts: JSON.stringify(rankInfos)
+				}
+
+				this.sendJsonOrForm("sendForm", this._getTag(), "/pip/rankingReport", sendObj, cb)
+			},
+
+			reqAllVideoRankInfos: function (cb) {
+				let sendObj = {
+					order_field: "digg",
+					order_type: "desc"
+				}
+
+				this.sendJsonOrForm("sendForm", this._getTag(), "/pip/rankingSort", sendObj, cb)
+			},
+
+			reqNotifyAllOnceSubscribers: function (sessID, tmplIds, cb) {
+				let sendObj = {
+					JavasessionId: sessID,
+					tmplIds: JSON.stringify(tmplIds)
+				}
+
+				this.sendJsonOrForm("sendForm", this._getTag(), "/gmsgcfg/pushBsis", sendObj, cb)
 			},
 
 			_makeObj: function (way, key, path, data, cb) {
@@ -341,11 +418,14 @@ var _NetHelper = (function () {
 					else if (G_PlatHelper.isQTTPlatform()) {
 						header.appId = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_QTT_MINI_PROGRAM_APP_ID"]).str
 					}
+					else if (G_PlatHelper.isMZPlatform()) {
+						header.appId = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_MZ_MINI_PROGRAM_APP_ID"]).str
+					}
 					else {
 						header.appId = G_GameDB.getBaseConfigByID(BaseConfigIDs["BC_MINI_PROGRAM_APP_ID"]).str
 					}
 
-					if (obj.way === "sendJson") {
+					if (obj.way === "sendJson") { 
 						G_HttpHelper.sendJson(this._makeUrl(obj.key, obj.path), header, obj.data, callback)
 					}
 					else if (obj.way === "sendForm") {
