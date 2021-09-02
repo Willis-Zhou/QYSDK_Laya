@@ -1,0 +1,49 @@
+export default class UIName  {
+
+    constructor() { 
+       this.PopupView="PopupPage";//顶层界面
+       this.ReadyView="ReadyPage";//开始界面
+       this.nodeSgin="m_";
+       this.GameOverView="GameOverView";//游戏结束界面
+       this.GameView="GameView";//游戏界面
+       this.GameOverViewEnd="GameOverEndPage";//游戏结束后的界面
+       this.AdView="AdPage";//广告界面
+       this.LodingView="LodingView";//加载界面
+       this.AdFullView="AdFullPage";
+       this.SkinView="SkinView";//皮肤界面
+       this.GetGoldView="GetGoldView";//获取金币界面
+       this.TryUseSkinView="TryUseSkin";//皮肤试用界面
+       this.UnLockItemView="UnLockItemView";//道具解锁界面
+       this.UpdateView="UpdateView";//强制更新界面
+       this.MisGetDaim="MisGetDaim";//宝箱误触
+       this.FightBoxView="FightBoxView";//战斗宝箱
+       this.GetDiamView="GetDiamView";
+       this.SginView="SginView";//签到界面
+       this.TTOpenBoxView="TTOpenBoxView";
+       this.TTGetItemView="TTGetItemView";
+       this.TurntableView="TurntableView";
+       this.TeachView="TeachView";
+       this.ShareView="ShareView";
+       this.ExtraWeapon="ExtraWeapon";
+       this.GetPowerView="GetPowerView";
+       this.SensibilitySettingView="SensibilitySettingView";
+       this.GetRewardView="GetRewardView";
+       this.EggsView="EggsView";
+       this.EggsClue="EggsClue";
+       this.GetEggsCube="GetEggsCube";
+       this.DelineReward="DelineReward";
+       this.GoldFingerView="GoldFingerView";
+       this.ManicureVipView="ManicureVipView";
+       this.SelectLevelModel="SelectLevelModel";
+       this.GameOverFirst="GameOverFirst";
+       this.ToolsView="ToolsView";
+       this.DaliyTaskView="DaliyTaskView";
+       this.TrainView="TrainView";
+       this.TrainWantedView="TrainWantedView";
+       this.SettingView="SettingView";
+       this.PlayerInfoView="PlayerInfoView";
+       this.RebornView="RebornView";
+       this.OpenBoxView="openBoxView";
+    }
+
+}
